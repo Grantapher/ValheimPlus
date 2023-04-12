@@ -40,10 +40,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp_publicized">
-      <HintPath>E:\Games\Steam\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\Assembly-CSharp_publicized.dll</HintPath>
+      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_googleanalytics_publicized">
-      <HintPath>E:\Games\Steam\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_googleanalytics_publicized.dll</HintPath>
+      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_googleanalytics_publicized.dll</HintPath>
     </Reference>
     <Reference Include="netstandard" />
     <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
