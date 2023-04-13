@@ -33,7 +33,7 @@ namespace ValheimPlus.GameClasses
         {
             RpcQueue.SendNextRpc();
         }
-    }
+    }   
 
     /// <summary>
     /// Sync server client configuration

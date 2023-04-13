@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Net;
 using ValheimPlus.Configurations;
+using ValheimPlus.Handlers;
 using ValheimPlus.RPC;
 using ValheimPlus.UI;
 
@@ -16,7 +17,7 @@ namespace ValheimPlus
     [BepInPlugin("org.bepinex.plugins.valheim_plus", "Valheim Plus", version)]
     public class ValheimPlusPlugin : BaseUnityPlugin
     {
-        public const string version = "0.9.9.11";
+        public const string version = "0.9.9.16";
         public static string newestVersion = "";
         public static bool isUpToDate = false;
 
@@ -50,6 +51,7 @@ namespace ValheimPlus
                 Logger.LogInfo("Configuration file loaded succesfully.");
 
 
+                harmony.PatchAll(typeof(CompatibilityHandler));
                 harmony.PatchAll();
 
                 isUpToDate = !IsNewVersionAvailable();
