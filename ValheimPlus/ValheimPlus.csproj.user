@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectView>ShowAllFiles</ProjectView>
+    <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup>
     <!-- Needs to be your path to the base Valheim folder -->
@@ -10,7 +10,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <!-- Runs Steam opening Valheim after building debug -->
     <StartAction>Program</StartAction>
-    <StartProgram>$(VALHEIM_INSTALL)\valheim.exe</StartProgram>
-    <StartArguments>-console</StartArguments>
+    <StartProgram>E:\Games\Steam\steamapps\common\Valheim dedicated server\valheim_server.exe</StartProgram>
+    <StartArguments>-nographics -batchmode -name "My server" -port 2456 -world "Dedicated" -password "s" -crossplay</StartArguments>
+    <StartWorkingDirectory>E:\Games\Steam\steamapps\common\Valheim dedicated server\</StartWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Server|AnyCPU'">
+    <StartProgram>E:\Games\Steam\steamapps\common\Valheim dedicated server\valheim_server.exe</StartProgram>
+    <StartArguments>-nographics -batchmode -name "My server" -port 2456 -world "Dedicated" -password "s" -crossplay
+
+</StartArguments>
+    <StartAction>Program</StartAction>
   </PropertyGroup>
 </Project>

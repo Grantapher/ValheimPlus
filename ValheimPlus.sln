@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29613.14
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValheimPlus", "ValheimPlus\ValheimPlus.csproj", "{2A837100-A030-4D0C-BFFB-B38356118D9A}"
 EndProject
@@ -24,12 +24,15 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Server|Any CPU = Server|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Server|Any CPU.ActiveCfg = Server|Any CPU
+		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Server|Any CPU.Build.0 = Server|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
