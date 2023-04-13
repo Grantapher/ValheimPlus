@@ -11,13 +11,9 @@ namespace ValheimPlus.Handlers
     public static class CompatibilityHandler
     {
         private static System.Version version = new System.Version(ValheimPlusPlugin.version);
+        private static ZPackage serverVersion;
 
-        /// <summary>
-        ///     Stores the last server message.
-        /// </summary>
-        private static ZPackage ServerVersion;
-
-        private static readonly Dictionary<string, ZPackage> ClientVersions = new Dictionary<string, ZPackage>();
+        private static readonly Dictionary<string, ZPackage> clientVersions = new Dictionary<string, ZPackage>();
 
 
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
@@ -26,7 +22,7 @@ namespace ValheimPlus.Handlers
         private static void ZNet_OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
             ZLog.Log("HERE ZNet_OnNewConnection");
-            ServerVersion = null;
+            serverVersion = null;
             peer.m_rpc.Register<ZPackage>("RPC_VP_ReceiveVersionData", RPC_VP_ReceiveVersionData);
         }
 
@@ -56,7 +52,7 @@ namespace ValheimPlus.Handlers
         private static bool ZNet_SendPeerInfo(ZNet __instance, ZRpc rpc, string password)
         {
             ZLog.Log("HERE ZNet_SendPeerInfo");
-            if (ZNet.instance.IsClientInstance() && ServerVersion == null)
+            if (ZNet.instance.IsClientInstance() && serverVersion == null)
             {
                 //If Client need to verify, then disconnt clint here           
             }
@@ -72,10 +68,10 @@ namespace ValheimPlus.Handlers
             ZLog.Log("HERE ZNet_RPC_PeerInfo");
             if (ZNet.instance.IsServerInstance())
             {
-                ZLog.Log("Verify version - Clients: " + ClientVersions.Count);
+                ZLog.Log("Verify version - Clients: " + clientVersions.Count);
                 if (Configuration.Current.Server.IsEnabled && Configuration.Current.Server.enforceMod)
                 {
-                    if (!ClientVersions.ContainsKey(rpc.GetSocket().GetEndPointString()))
+                    if (!clientVersions.ContainsKey(rpc.GetSocket().GetEndPointString()))
                     {
                         ZLog.LogWarning("V+ is not installed on the client.");
                         rpc.Invoke("Error", 3);
@@ -96,7 +92,7 @@ namespace ValheimPlus.Handlers
         {
             if (ZNet.instance.IsServerInstance())
             {
-                ClientVersions[sender.m_socket.GetEndPointString()] = data;
+                clientVersions[sender.m_socket.GetEndPointString()] = data;
                 var clientVersion = ReadVersion(data);
                 var serverVersion = System.Version.Parse(ValheimPlusPlugin.version);
                 ZLog.Log($"Server Version package - From: {sender.m_socket.GetEndPointString()} Version: {clientVersion} Server: {serverVersion}");
@@ -111,7 +107,7 @@ namespace ValheimPlus.Handlers
             }
             else
             {
-                ServerVersion = data;
+                CompatibilityHandler.serverVersion = data;
                 var serverVersion = ReadVersion(data);
                 var clientVersion = System.Version.Parse(ValheimPlusPlugin.version);
                 ZLog.Log($"Client Version package - From: {sender.m_socket.GetEndPointString()} Version: {clientVersion} Server: {serverVersion}");
