@@ -29,7 +29,7 @@ namespace ValheimPlus
                 ZDOID zdoInfo = Helper.getPlayerCharacter(player).GetZDOID();
                 if (zdoInfo != new ZDOID(0L, 0U))
                 {
-                    if (zdoInfo.m_userID == id)
+                    if (zdoInfo.UserID == id)
                         return player;
                 }
             }

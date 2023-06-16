@@ -5,7 +5,6 @@ namespace ValheimPlus.Configurations
     public class Configuration
     {
         public static Configuration Current { get; set; }
-        public static Configuration Settings { get; set; }
         public AdvancedBuildingModeConfiguration AdvancedBuildingMode { get; set; }
         public AdvancedEditingModeConfiguration AdvancedEditingMode { get; set; }
         public BedConfiguration Bed { get; set; }
@@ -23,6 +22,7 @@ namespace ValheimPlus.Configurations
         public KilnConfiguration Kiln { get; set; }
         public WindmillConfiguration Windmill { get; set; }
         public SpinningWheelConfiguration SpinningWheel { get; set; }
+        public EitrRefineryConfiguration EitrRefinery { get; set; }
         public MapConfiguration Map { get; set; }
         public PlayerConfiguration Player { get; set; }
         public ServerConfiguration Server { get; set; }
@@ -53,5 +53,7 @@ namespace ValheimPlus.Configurations
         public GameClockConfiguration GameClock { get; set; }
         public BrightnessConfiguration Brightness { get; set; }
         public ChatConfiguration Chat { get; set; }
+        public LootDropConfiguration LootDrop { get; set; }
+        public WispSpawnerConfiguration WispSpawner { get; set; }
     }
 }

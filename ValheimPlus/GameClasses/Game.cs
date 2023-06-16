@@ -95,7 +95,7 @@ namespace ValheimPlus.GameClasses
                 }
             }
 
-            ZLog.LogError("Failed to apply Game_GetPlayerDifficulty_Patch.Transpiler");
+            ValheimPlusPlugin.Logger.LogError("Failed to apply Game_GetPlayerDifficulty_Patch.Transpiler");
 
             return instructions;
         }

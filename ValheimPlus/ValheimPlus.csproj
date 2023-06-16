@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ValheimPlus</RootNamespace>
     <AssemblyName>ValheimPlus</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
@@ -39,7 +39,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="netstandard" />
+    <Reference Include="netstandard" />
     <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.10.0\lib\net45\0Harmony.dll</HintPath>
     </Reference>
@@ -113,10 +113,16 @@
     <Reference Include="MonoMod.Utils, Version=22.5.1.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoMod.Utils.22.5.1.1\lib\net35\MonoMod.Utils.dll</HintPath>
     </Reference>
+    <Reference Include="ServerSync">
+      <HintPath>..\libraries\ServerSync.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Net" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(VALHEIM_INSTALL)\unstripped_corlib\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -343,7 +349,9 @@
     <Compile Include="Configurations\Sections\BedConfiguration.cs" />
     <Compile Include="Configurations\Sections\BrightnessConfiguration.cs" />
     <Compile Include="Configurations\Sections\ChatConfiguration.cs" />
+    <Compile Include="Configurations\Sections\EitrRefineryConfiguration.cs" />
     <Compile Include="Configurations\Sections\GameClockConfiguration.cs" />
+    <Compile Include="Configurations\Sections\LootDropConfiguration.cs" />
     <Compile Include="Configurations\Sections\MonsterProjectileConfiguration.cs" />
     <Compile Include="Configurations\Sections\PlayerProjectileConfiguration.cs" />
     <Compile Include="Configurations\Sections\CraftFromChestConfiguration.cs" />
@@ -360,6 +368,7 @@
     <Compile Include="Configurations\Sections\TameableConfiguration.cs" />
     <Compile Include="Configurations\Sections\ValheimPlusConfiguration.cs" />
     <Compile Include="Configurations\Sections\WindmillConfiguration.cs" />
+    <Compile Include="Configurations\Sections\WispSpawnerConfiguration.cs" />
     <Compile Include="Deconstruct.cs" />
     <Compile Include="FirstPerson\VPlusFirstPerson.cs" />
     <Compile Include="FreePlacementRotation.cs" />
@@ -396,6 +405,8 @@
     <Compile Include="Configurations\Sections\StaminaUsageConfiguration.cs" />
     <Compile Include="Configurations\Sections\StaminaConfiguration.cs" />
     <Compile Include="GameClasses\Character.cs" />
+    <Compile Include="GameClasses\CharacterDrop.cs" />
+    <Compile Include="GameClasses\LuredWisp.cs" />
     <Compile Include="GameClasses\SEMan.cs" />
     <Compile Include="GameClasses\Talker.cs" />
     <Compile Include="GameClasses\Container.cs" />
@@ -405,6 +416,8 @@
     <Compile Include="GameClasses\Fireplace.cs" />
     <Compile Include="GameClasses\GameCamera.cs" />
     <Compile Include="GameClasses\Chat.cs" />
+    <Compile Include="GameClasses\ZPlayFabMatchmaking.cs" />
+    <Compile Include="GameClasses\WispSpawner.cs" />
     <Compile Include="RPC\VPlusMapPinSync.cs" />
     <Compile Include="UI\HotkeyBar.cs" />
     <Compile Include="GameClasses\Hud.cs" />

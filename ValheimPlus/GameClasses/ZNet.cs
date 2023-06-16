@@ -47,7 +47,7 @@ namespace ValheimPlus.GameClasses
         {
             if (!ZNet.m_isServer)
             {
-                ZLog.Log("-------------------- SENDING VPLUGCONFIGSYNC REQUEST");
+                ValheimPlusPlugin.Logger.LogInfo("-------------------- SENDING VPLUGCONFIGSYNC REQUEST");
                 ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "VPlusConfigSync", new object[] { new ZPackage() });
             }
         }
@@ -69,7 +69,7 @@ namespace ValheimPlus.GameClasses
                 }
             }
 
-            ZLog.LogError("Failed to alter server player limit (ZNet.RPC_PeerInfo.Transpiler)");
+            ValheimPlusPlugin.Logger.LogError("Failed to alter server player limit (ZNet.RPC_PeerInfo.Transpiler)");
 
             return instructions;
         }
@@ -85,15 +85,15 @@ namespace ValheimPlus.GameClasses
         {
             if (!__instance.IsServer())
             {
-                ValheimPlusPlugin.harmony.UnpatchSelf();
+                ValheimPlusPlugin.UnpatchSelf();
 
                 // Load the client config file on server ZNet instance exit (server disconnect)
                 if (ConfigurationExtra.LoadSettings() != true)
                 {
-                    ZLog.LogError("Error while loading configuration file.");
+                    ValheimPlusPlugin.Logger.LogError("Error while loading configuration file.");
                 }
 
-                ValheimPlusPlugin.harmony.PatchAll();
+                ValheimPlusPlugin.PatchAll();
 
                 //We left the server, so reset our map sync check.
                 if (Configuration.Current.Map.IsEnabled && Configuration.Current.Map.shareMapProgression)

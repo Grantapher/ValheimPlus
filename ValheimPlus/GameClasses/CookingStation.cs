@@ -45,7 +45,7 @@ namespace ValheimPlus.GameClasses
             }
             if (endIdx == -1)
             {
-                ZLog.LogError("Failed to apply CookingStation_FindCookableItem_Transpiler");
+                ValheimPlusPlugin.Logger.LogError("Failed to apply CookingStation_FindCookableItem_Transpiler");
                 return instructions;
             }
 

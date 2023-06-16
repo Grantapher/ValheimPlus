@@ -37,7 +37,7 @@ namespace ValheimPlus.RPC
                         }
                     }
 
-                    ZLog.Log($"Received {exploredAreaCount} map ranges from peer #{sender}.");
+                    ValheimPlusPlugin.Logger.LogInfo($"Received {exploredAreaCount} map ranges from peer #{sender}.");
 
                     //Send Ack
                     VPlusAck.SendAck(sender);
@@ -65,9 +65,9 @@ namespace ValheimPlus.RPC
                     });
                 }
 
-                ZLog.Log($"-------------------------- Packages: {packages.Count}");
+                ValheimPlusPlugin.Logger.LogInfo($"-------------------------- Packages: {packages.Count}");
 
-                ZLog.Log($"Sent map updates to all clients ({serverExploredAreas.Count} map ranges, {packages.Count} chunks)");
+                ValheimPlusPlugin.Logger.LogInfo($"Sent map updates to all clients ({serverExploredAreas.Count} map ranges, {packages.Count} chunks)");
             }
             else //Client
             {
@@ -75,7 +75,7 @@ namespace ValheimPlus.RPC
 
                 if (mapPkg == null)
                 {
-                    ZLog.LogWarning("Warning: Got empty map sync package from server.");
+                    ValheimPlusPlugin.Logger.LogWarning("Warning: Got empty map sync package from server.");
                     return;
                 }
 
@@ -98,21 +98,21 @@ namespace ValheimPlus.RPC
                     //Update fog texture
                     Minimap.instance.m_fogTexture.Apply();
 
-                    ZLog.Log($"I got {exploredAreaCount} map ranges from the server!");
+                    ValheimPlusPlugin.Logger.LogInfo($"I got {exploredAreaCount} map ranges from the server!");
 
                     //Send Ack
                     VPlusAck.SendAck(sender);
                 }
                 else
                 {
-                    ZLog.Log("Server has no explored areas to sync, continuing.");
+                    ValheimPlusPlugin.Logger.LogInfo("Server has no explored areas to sync, continuing.");
                 }
             }
         }
 
         public static void SendMapToServer()
         {
-            ZLog.Log("-------------------- SENDING VPLUSMAPSYNC DATA");
+            ValheimPlusPlugin.Logger.LogInfo("-------------------- SENDING VPLUSMAPSYNC DATA");
 
             //Convert exploration data to ranges
             List<MapRange> exploredAreas = ExplorationDataToMapRanges(Minimap.instance.m_explored);
@@ -144,7 +144,7 @@ namespace ValheimPlus.RPC
                     });
                 }
 
-                ZLog.Log($"Sent my map data to the server ({exploredAreas.Count} map ranges, {packages.Count} chunks)");
+                ValheimPlusPlugin.Logger.LogInfo($"Sent my map data to the server ({exploredAreas.Count} map ranges, {packages.Count} chunks)");
             }
         }
 
@@ -175,12 +175,12 @@ namespace ValheimPlus.RPC
                         }
                     }
 
-                    ZLog.Log($"Loaded {dataPoints.Length} map points from disk.");
+                    ValheimPlusPlugin.Logger.LogInfo($"Loaded {dataPoints.Length} map points from disk.");
                 }
                 catch (Exception ex)
                 {
-                    ZLog.LogError("Failed to load synchronized map data.");
-                    ZLog.LogError(ex);
+                    ValheimPlusPlugin.Logger.LogError("Failed to load synchronized map data.");
+                    ValheimPlusPlugin.Logger.LogError(ex);
                 }
             }
         }
@@ -213,7 +213,7 @@ namespace ValheimPlus.RPC
                                   Path.DirectorySeparatorChar +
                                   ZNet.instance.GetWorldName() + "_mapSync.dat", string.Join(",", mapDataToDisk));
 
-                ZLog.Log($"Saved {mapDataToDisk.Count} map points to disk.");
+                ValheimPlusPlugin.Logger.LogInfo($"Saved {mapDataToDisk.Count} map points to disk.");
             }
         }
 

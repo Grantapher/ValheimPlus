@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,10 +8,12 @@ using System.Text;
 using HarmonyLib;
 using IniParser;
 using IniParser.Model;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using ValheimPlus.Configurations;
+using ValheimPlus.RPC;
 using ValheimPlus.Utility;
 
 namespace ValheimPlus.UI
@@ -18,7 +21,6 @@ namespace ValheimPlus.UI
     public static class VPlusSettings
     {
         public static bool haveAddedModMenu = false;
-        public static bool haveLowered = false;
         public static GameObject modSettingsPanel = null;
         public static GameObject modSettingsPanelCloner = null;
         public static AssetBundle modSettingsBundle = null;
@@ -41,7 +43,7 @@ namespace ValheimPlus.UI
         }
 
         public static GameObject CreateEnableToggle(string settingName, string value, Transform parent, string comments)
-        {            
+        {
             bool currentVal = bool.Parse(value);
             GameObject enableToggleThis = GameObject.Instantiate(enableToggle);
             enableToggleThis.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
@@ -53,7 +55,7 @@ namespace ValheimPlus.UI
         }
 
         public static GameObject CreateTextSettingEntry(string name, string value, Transform parent, string comments)
-        {            
+        {
             GameObject settingName = GameObject.Instantiate(modSettingsBundle.LoadAsset<GameObject>("SettingEntry_Text"));
             settingName.name = name;
             settingName.transform.GetChild(0).GetComponent<Text>().text = $"Setting: {name}\nCurrent value: {value}";
@@ -61,7 +63,7 @@ namespace ValheimPlus.UI
             settingName.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
             settingName.GetComponent<UITooltip>().Set($"{name}", comments);
             settingName.SetActive(false);
-            return settingName;    
+            return settingName;
         }
 
         public static GameObject CreateKeyCodeSettingEntry(string name, string value, Transform parent, string comments)
@@ -106,13 +108,14 @@ namespace ValheimPlus.UI
             enableToggle = modSettingsBundle.LoadAsset<GameObject>("Toggle_Enable");
             uiTooltipPrefab = modSettingsBundle.LoadAsset<GameObject>("SettingsTooltip");
             keycodeNames = Enum.GetNames(typeof(KeyCode));
-            modSettingsPanelCloner.SetActive(false);            
+            modSettingsPanelCloner.SetActive(false);
         }
 
         public static void Apply()
         {
             if (File.Exists(ConfigurationExtra.ConfigIniPath))
             {
+                ValheimPlusPlugin.Logger.LogInfo("Applying values to config file...");
                 FileIniDataParser parser = new FileIniDataParser();
                 IniData configdata = parser.ReadFile(ConfigurationExtra.ConfigIniPath);
                 foreach (KeyValuePair<string, List<GameObject>> settingSection in settingFamillySettings)
@@ -125,7 +128,7 @@ namespace ValheimPlus.UI
                         if (settingEntry.name.Contains("Toggle_Enable"))
                         {
                             Toggle enableSectionTog = settingEntry.GetComponentInChildren<Toggle>();
-                            FieldInfo prop = propType.GetField("IsEnabled");
+                            PropertyInfo prop = propType.GetProperty("IsEnabled");
                             prop.SetValue(settingFamilyProp, enableSectionTog.isOn);
                             configdata[settingSection.Key]["enabled"] = enableSectionTog.isOn.ToString();
                         }
@@ -144,28 +147,24 @@ namespace ValheimPlus.UI
                                     PropertyInfo prop = propType.GetProperty(settingEntry.name.Replace("(Clone)", ""));
                                     if (prop.PropertyType == typeof(float))
                                     {
-                                        prop.SetValue(settingFamilyProp, float.Parse(newVal), null);
                                         configdata[settingSection.Key][settingEntry.name.Replace("(Clone)", "")] = newVal;
                                         continue;
                                     }
 
                                     if (prop.PropertyType == typeof(int))
                                     {
-                                        prop.SetValue(settingFamilyProp, int.Parse(newVal), null);
                                         configdata[settingSection.Key][settingEntry.name.Replace("(Clone)", "")] = newVal;
                                         continue;
                                     }
 
                                     if (prop.PropertyType == typeof(bool))
                                     {
-                                        prop.SetValue(settingFamilyProp, bool.Parse(newVal), null);
                                         configdata[settingSection.Key][settingEntry.name.Replace("(Clone)", "")] = newVal;
                                         continue;
                                     }
 
-                                    if (prop.PropertyType == typeof(KeyCode) && !RPC.VPlusConfigSync.isConnecting)
+                                    if (prop.PropertyType == typeof(KeyCode) && (!VPlusConfigSync.SyncRemote || Configuration.Current.Server.serverSyncHotkeys))
                                     {
-                                        prop.SetValue(settingFamilyProp, Enum.Parse(typeof(KeyCode), newVal), null);
                                         configdata[settingSection.Key][settingEntry.name.Replace("(Clone)", "")] = newVal;
                                         continue;
                                     }
@@ -181,9 +180,8 @@ namespace ValheimPlus.UI
                                 string newVal = keycodeNames[inputDropdown.value];
                                 if (newVal == ((KeyCode)prop.GetValue(settingFamilyProp, null)).ToString())
                                     continue;
-                                if (prop.PropertyType == typeof(KeyCode) && !RPC.VPlusConfigSync.isConnecting)
+                                if (prop.PropertyType == typeof(KeyCode) && (!VPlusConfigSync.SyncRemote || Configuration.Current.Server.serverSyncHotkeys))
                                 {
-                                    prop.SetValue(settingFamilyProp, Enum.Parse(typeof(KeyCode), newVal), null);
                                     configdata[settingSection.Key][settingEntry.name.Replace("(Clone)", "")] = newVal;
                                     continue;
                                 }
@@ -191,15 +189,18 @@ namespace ValheimPlus.UI
                             else
                             {
                                 PropertyInfo prop = propType.GetProperty(settingEntry.name.Replace("(Clone)", ""));
-                                prop.SetValue(settingFamilyProp, enableSectionTog.isOn, null);
                                 configdata[settingSection.Key][settingEntry.name.Replace("(Clone)", "")] = enableSectionTog.isOn.ToString();
                             }
                         }
                     }
                 }
                 parser.WriteFile(ConfigurationExtra.ConfigIniPath, configdata);
-                ValheimPlusPlugin.harmony.UnpatchSelf();
-                ValheimPlusPlugin.harmony.PatchAll();
+                ValheimPlusPlugin.Logger.LogInfo("Values written to config file. Reloading it...");
+                Configuration.Current = ConfigurationExtra.LoadFromIni(ConfigurationExtra.ConfigIniPath, verbose: false);
+                ValheimPlusPlugin.Logger.LogInfo("Config reloaded. Re-patching...");
+                ValheimPlusPlugin.UnpatchSelf();
+                ValheimPlusPlugin.PatchAll();
+                ValheimPlusPlugin.Logger.LogInfo("Re-patched. Done applying config.");
             }
         }
 
@@ -224,13 +225,13 @@ namespace ValheimPlus.UI
                     Show();
                     dropper.value = dropdownval;
                 });
-                okButton.onClick.AddListener(delegate { 
+                okButton.onClick.AddListener(delegate {
                     Apply();
                     modSettingsPanel.SetActive(false);
                     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 });
                 applyButton.gameObject.SetActive(false);
-            }            
+            }
             settingsContentPanel = GameObjectAssistant.GetChildComponentByName<Transform>("SettingsContent", modSettingsPanel).gameObject;
             settingsContentPanel.transform.parent.parent.gameObject.GetComponentInChildren<Scrollbar>().direction = Scrollbar.Direction.BottomToTop;
             dropper.options.Clear();
@@ -245,8 +246,8 @@ namespace ValheimPlus.UI
                 {
                     settingFamillySettings.Add(keyName, new List<GameObject>());
                     var settingFamillyProp = Configuration.Current.GetType().GetProperty(prop.Name).GetValue(Configuration.Current, null);
-                    GameObject enableToggleThis = CreateEnableToggle(keyName, 
-                        settingFamillyProp.GetType().GetField("IsEnabled").GetValue(settingFamillyProp).ToString(),
+                    GameObject enableToggleThis = CreateEnableToggle(keyName,
+                        settingFamillyProp.GetType().GetProperty("IsEnabled").GetValue(settingFamillyProp).ToString(),
                         settingsContentPanel.transform,
                         string.Join("\n", configdata[keyName].GetKeyData("enabled").Comments));
                     settingFamillySettings[keyName].Add(enableToggleThis);
@@ -300,42 +301,41 @@ namespace ValheimPlus.UI
             {
                 if (newStart == null && !VPlusSettings.haveAddedModMenu)
                 {
-                    foreach (Transform child in ___m_mainMenu.transform)
+                    bool FindAndAddSettings(Transform parent, Transform current)
                     {
-                        foreach (Transform grandchild in child)
+                        if (current.name == "Start game" && !VPlusSettings.haveAddedModMenu)
                         {
-                            if (grandchild.name == "Start game" && !VPlusSettings.haveAddedModMenu)
-                            {
-                                newStart = GameObject.Instantiate(grandchild);
-                                newStart.name = "V+ Settings";
-                                newStart.SetParent(child);
-                                newStart.GetComponentInChildren<Text>().text = "V+ Settings";
-                                newStart.position = grandchild.position + new Vector3(0, -35, 0);
-                                Button FOff = newStart.gameObject.GetComponent<Button>();
-                                GameObject.DestroyImmediate(FOff);
-                                Button newButton = newStart.gameObject.AddComponent<Button>();
-                                newButton.transition = Selectable.Transition.Animation;
-                                newButton.onClick.AddListener(() =>
-                                {
-                                    VPlusSettings.Show();
-                                });
-                                VPlusSettings.haveAddedModMenu = true;
-                            }
-                            else if (grandchild.name == "Join game" || grandchild.name == "Settings" || grandchild.name == "Credits" ||
-                                     grandchild.name == "Exit")
-                            {
-                                if (!VPlusSettings.haveLowered)
-                                    grandchild.position = grandchild.position + new Vector3(0, -30, 0);
-                            }
+                            newStart = GameObject.Instantiate(current);
+                            newStart.name = "V+ Settings";
+                            newStart.SetParent(parent);
+                            newStart.SetSiblingIndex(3);
+                            newStart.localScale = current.localScale;
+
+                            var prevText = current.GetComponentInChildren<TextMeshProUGUI>();
+                            var newText = newStart.GetComponentInChildren<TextMeshProUGUI>();
+                            newText.SetText("V+ Settings");
+
+                            GameObject.DestroyImmediate(newStart.gameObject.GetComponent<Button>());
+                            Button newButton = newStart.gameObject.AddComponent<Button>();
+                            newButton.transition = Selectable.Transition.Animation;
+                            newButton.onClick.AddListener(() => VPlusSettings.Show());
+
+                            VPlusSettings.haveAddedModMenu = true;
+                            return true;
                         }
-                        if (VPlusSettings.haveAddedModMenu)
-                            VPlusSettings.haveLowered = true;
+
+                        foreach (Transform child in current)
+                        {
+                            if (FindAndAddSettings(current, child)) return true;
+                        }
+                        return false;
                     }
+
+                    FindAndAddSettings(null, ___m_mainMenu.transform);
                 }
                 else
                 {
                     VPlusSettings.haveAddedModMenu = false;
-                    VPlusSettings.haveLowered = false;
                 }
             }
         }

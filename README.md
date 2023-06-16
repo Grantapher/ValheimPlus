@@ -34,6 +34,7 @@ We work together closely to make sure all our features are integrated and workin
 * Tweak/disable death penalty.
 * Tweak Rested bonus duration per comfort level.
 * Disable the use of portals.
+* Shorten the portal teleport animation time to the minimum possible.
 * Modify the Guardian buff duration, cooldown and animation.
 * Disable tutorials from Valkyrie.
 * Modify velocity and accuracy of projectiles from bows and javelins including a option to scale it with skill level.
@@ -72,7 +73,7 @@ We work together closely to make sure all our features are integrated and workin
 * Hotkeys for changing FOV in first person.
 
 ### Gathering
-* Modify the amount of resources dropped on destruction of objects (this includes chitin, stone, all types of wood, and minerals).
+* Modify the amount of resources dropped on destruction of objects (this includes chitin, stone, all types of wood, feathers, and minerals).
 * Modify the amount of resources gathered from interactable objects.
   * Edibles: Carrots, Blueberries, Cloudberrys, Raspberrys, Mushrooms, Blue Mushrooms, Yellow Mushrooms
   * Flowers and Ingredients : Barley, CarrotSeeds, Dandelions, Flax, Thistle, TurnipSeeds, Turnips[/color]
@@ -185,6 +186,9 @@ We work together closely to make sure all our features are integrated and workin
 ### Monsters
 * Modify velocity and accuracy of projectiles from monsters.
 * Modify damage and health scaling of monsters in multiplayer based on player count.
+
+### Loot
+* Modify the chance and amount of loot dropped.
 
 # Server
 * Remove password requirement for the server.
@@ -447,3 +451,4 @@ Please see [CONTRIBUTING.md](/CONTRIBUTING.md) for details on compiling V+ for d
 * Abra - https://github.com/Abrackadabra
 * Increddibelly - https://github.com/increddibelly
 * Radvo - https://github.com/Radvo
+* Shawn - https://github.com/shawnwallace

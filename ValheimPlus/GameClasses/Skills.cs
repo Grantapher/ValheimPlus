@@ -1,9 +1,9 @@
 ﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ValheimPlus.Configurations;
-using ValheimPlus.Utility;
 
 namespace ValheimPlus.GameClasses
 {
@@ -58,6 +58,9 @@ namespace ValheimPlus.GameClasses
 					case SkillType.WoodCutting:
 						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.woodCutting);
 						break;
+					case SkillType.Crossbows:
+						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.crossbows);
+						break;
 					case SkillType.Jump:
 						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.jump);
 						break;
@@ -69,6 +72,9 @@ namespace ValheimPlus.GameClasses
 						break;
 					case SkillType.Swim:
 						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.swim);
+						break;
+					case SkillType.Fishing:
+						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.fishing);
 						break;
 					case SkillType.Ride:
 						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.ride);
@@ -84,7 +90,7 @@ namespace ValheimPlus.GameClasses
 		/// </summary>
 		private static void Postfix(Skills __instance, Skills.SkillType skillType, float factor = 1f)
 		{
-			if (Configuration.Current.Hud.IsEnabled && Configuration.Current.Hud.experienceGainedNotifications)
+			if (Configuration.Current.Hud.IsEnabled && Configuration.Current.Hud.experienceGainedNotifications && skillType != Skills.SkillType.None)
 			{
 				try
                 {
@@ -95,8 +101,11 @@ namespace ValheimPlus.GameClasses
 						+ " [" + Helper.tFloat(skill.m_accumulator, 2) + "/" + Helper.tFloat(skill.GetNextLevelRequirement(), 2) + "]"
 						+ " (" + Helper.tFloat(percent, 0) + "%)", 0, skill.m_info.m_icon);
 				}
-				catch
-                { return; }
+				catch (Exception ex)
+				{
+					ValheimPlusPlugin.Logger.LogError(ex);
+					return;
+				}
 			}
 		}
 	}
@@ -117,10 +126,12 @@ namespace ValheimPlus.GameClasses
 		Unarmed,
 		Pickaxes,
 		WoodCutting,
+		Crossbows,
 		Jump = 100,
 		Sneak,
 		Run,
 		Swim,
+		Fishing,
 		Ride = 110,
 		All = 999
 	}

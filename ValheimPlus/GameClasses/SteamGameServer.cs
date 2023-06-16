@@ -1,16 +1,16 @@
-﻿using HarmonyLib;
-using Steamworks;
-using ValheimPlus.Configurations;
+﻿using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
     /// <summary>
     /// Alters max player count
     /// </summary>
-    [HarmonyPatch(typeof(SteamGameServer), "SetMaxPlayerCount")]
+    // Now manually patched since steamworks isn't on the xbox game pass version of the game
+    // [HarmonyPatch(typeof(SteamGameServer), "SetMaxPlayerCount")]
+    // TODO is this used at all anymore?
     public static class ChangeSteamServerVariables
     {
-        private static void Prefix(ref int cPlayersMax)
+        public static void Prefix(ref int cPlayersMax)
         {
             if (Configuration.Current.Server.IsEnabled)
             {

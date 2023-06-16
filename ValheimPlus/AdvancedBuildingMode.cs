@@ -19,7 +19,6 @@ namespace ValheimPlus
 
         // Exit flags
         public static bool exitOnNextIteration;
-        static bool blockDefaultFunction;
 
         private static Piece component;
 
@@ -61,7 +60,6 @@ namespace ValheimPlus
             if (exitOnNextIteration)
             {
                 isActive = false;
-                blockDefaultFunction = false;
                 exitOnNextIteration = false;
                 component = null;
             }
@@ -290,7 +288,6 @@ namespace ValheimPlus
         {
             notifyUser("Starting ABM");
             isActive = true;
-            blockDefaultFunction = true;
             component = PlayerInstance.m_placementGhost.GetComponent<Piece>();
         }
 

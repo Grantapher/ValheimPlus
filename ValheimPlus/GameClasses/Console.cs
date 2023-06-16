@@ -11,15 +11,15 @@ namespace ValheimPlus.GameClasses
     {
         private static void Postfix(ref Console __instance)
         {
-            __instance.AddString("ValheimPlus [" + ValheimPlusPlugin.version + "] is loaded.");
+            __instance.AddString("ValheimPlus [" + ValheimPlusPlugin.fullVersion + "] is loaded.");
             if (!ValheimPlusPlugin.isUpToDate && ValheimPlusPlugin.newestVersion != "Unknown")
             {
-                __instance.AddString("ValheimPlus [" + ValheimPlusPlugin.version + "] is outdated, version [" + ValheimPlusPlugin.newestVersion + "] is available.");
+                __instance.AddString("ValheimPlus [" + ValheimPlusPlugin.fullVersion + "] is outdated, version [" + ValheimPlusPlugin.newestVersion + "] is available.");
                 __instance.AddString("Please visit " + ValheimPlusPlugin.Repository + ".");
             }
             else
             {
-                __instance.AddString("ValheimPlus [" + ValheimPlusPlugin.version + "] is up to date.");
+                __instance.AddString("ValheimPlus [" + ValheimPlusPlugin.fullVersion + "] is up to date.");
             }
 
             __instance.AddString("");

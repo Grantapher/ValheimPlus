@@ -2,6 +2,7 @@
 	<Costura>
 		<IncludeAssemblies>
 			INIFileParser
+			ServerSync
 			YamlDotNet
 		</IncludeAssemblies>
 	</Costura>

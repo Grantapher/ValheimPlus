@@ -21,7 +21,7 @@ namespace ValheimPlus.GameClasses
                 }
                 else
                 {
-                    Debug.LogWarning("EnvMan instance not loaded");
+                    ValheimPlusPlugin.logger.LogWarning("EnvMan instance not loaded");
                 }
             }
         }

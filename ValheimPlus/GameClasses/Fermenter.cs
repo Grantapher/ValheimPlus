@@ -139,7 +139,7 @@ namespace ValheimPlus.GameClasses
             }
             if (!found)
             {
-                ZLog.LogError("Failed to apply Fermenter_SlowUpdate_Transpiler 1");
+                ValheimPlusPlugin.Logger.LogError("Failed to apply Fermenter_SlowUpdate_Transpiler 1");
                 return instructions;
             }
             found = false;
@@ -154,7 +154,7 @@ namespace ValheimPlus.GameClasses
                 }
             }
 
-            ZLog.LogError("Failed to apply Fermenter_SlowUpdate_Transpiler 2");
+            ValheimPlusPlugin.Logger.LogError("Failed to apply Fermenter_SlowUpdate_Transpiler 2");
 
             return instructions;
         }
@@ -182,7 +182,7 @@ namespace ValheimPlus.GameClasses
                         if (InventoryAssistant.RemoveItemFromChest(c, item) == 0) continue;
 
                         __instance.m_nview.InvokeRPC("AddItem", new object[] { item.m_dropPrefab.name });
-                        ZLog.Log("Added " + item.m_shared.m_name + " to " + __instance.m_name);
+                        ValheimPlusPlugin.Logger.LogInfo("Added " + item.m_shared.m_name + " to " + __instance.m_name);
                         break;
                     }
                 }
@@ -223,7 +223,7 @@ namespace ValheimPlus.GameClasses
                 }
             }
 
-            ZLog.LogError("Failed to apply Fermenter_DelayedTap_Transpiler");
+            ValheimPlusPlugin.Logger.LogError("Failed to apply Fermenter_DelayedTap_Transpiler");
 
             return instructions;
         }

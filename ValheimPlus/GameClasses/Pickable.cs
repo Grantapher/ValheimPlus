@@ -1,13 +1,10 @@
 ﻿using HarmonyLib;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
-using ValheimPlus;
 using ValheimPlus.Configurations;
-using ValheimPlus.Utility;
 
 namespace ValheimPlus.GameClasses
 {
@@ -64,8 +61,6 @@ namespace ValheimPlus.GameClasses
                     il[i] = new CodeInstruction(OpCodes.Ldloc_S, newYieldLocal.LocalIndex);
                     il.RemoveRange(i - 1, 1);
 
-                    ZLog.Log("Successfully transpiled Pickable.RPC_Pick to patch item yields");
-
                     // NOTE: This transpiler may be called multiple times, e.g. when starting the game, when connecting to a server and when disconnecting.
                     // We need to re-do the initial setup every time, since the modifier values may have changed (as the server config will be used instead of the client config).
                     initialSetup();
@@ -74,7 +69,7 @@ namespace ValheimPlus.GameClasses
                 }
             }
 
-            ZLog.Log("Unable to transpile Pickable.RPC_Pick to patch item yields");
+            ValheimPlusPlugin.Logger.LogInfo("Unable to transpile Pickable.RPC_Pick to patch item yields");
             return instructions;
         }
 

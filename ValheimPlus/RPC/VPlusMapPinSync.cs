@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ValheimPlus.RPC
 {
@@ -17,15 +13,15 @@ namespace ValheimPlus.RPC
             {
                 if (sender == ZRoutedRpc.instance.GetServerPeerID()) return;
 
-                if (mapPinPkg == null) return;              
+                if (mapPinPkg == null) return;
 
                 foreach(ZNetPeer peer in ZRoutedRpc.instance.m_peers)
                 {
                     if(peer.m_uid != sender)
                         ZRoutedRpc.instance.InvokeRoutedRPC(peer.m_uid, "VPlusMapAddPin", new object[] { mapPinPkg });
-                }                
+                }
 
-                ZLog.Log($"Sent map pin to all clients");
+                ValheimPlusPlugin.Logger.LogInfo($"Sent map pin to all clients");
                 //VPlusAck.SendAck(sender);
             }
             else //Client
@@ -34,14 +30,14 @@ namespace ValheimPlus.RPC
 
                 if (mapPinPkg == null)
                 {
-                    ZLog.LogWarning("Warning: Got empty map pin package from server.");
+                    ValheimPlusPlugin.Logger.LogWarning("Warning: Got empty map pin package from server.");
                     return;
                 }
                 long pinSender = mapPinPkg.ReadLong();
                 string senderName = mapPinPkg.ReadString();
                 if (senderName != Player.m_localPlayer.GetPlayerName() && pinSender != ZRoutedRpc.instance.m_id)
                 {
-                    ZLog.Log("Checking sent pin");                    
+                    ValheimPlusPlugin.Logger.LogInfo("Checking sent pin");
                     Vector3 pinPos = mapPinPkg.ReadVector3();
                     int pinType = mapPinPkg.ReadInt();
                     string pinName = mapPinPkg.ReadString();
@@ -52,7 +48,7 @@ namespace ValheimPlus.RPC
                         if(!keepQuiet)
                             MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Received map pin {pinName} from {senderName}!",
                             0, Minimap.instance.GetSprite((Minimap.PinType)pinType));
-                        ZLog.Log($"I got pin named {pinName} from {senderName}!");
+                        ValheimPlusPlugin.Logger.LogInfo($"I got pin named {pinName} from {senderName}!");
                     }
                 }
                 //Send Ack
@@ -65,7 +61,7 @@ namespace ValheimPlus.RPC
         /// </summary>
         public static void SendMapPinToServer(Minimap.PinData pinData, bool keepQuiet = false)
         {
-            ZLog.Log("-------------------- SENDING VPLUS MapPin DATA");
+            ValheimPlusPlugin.Logger.LogInfo("-------------------- SENDING VPLUS MapPin DATA");
             ZPackage pkg = new ZPackage();
 
             pkg.Write(ZRoutedRpc.instance.m_id); // Sender ID
@@ -80,7 +76,7 @@ namespace ValheimPlus.RPC
 
             ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "VPlusMapAddPin", new object[] { pkg });
 
-            ZLog.Log($"Sent map pin {pinData.m_name} to the server");
+            ValheimPlusPlugin.Logger.LogInfo($"Sent map pin {pinData.m_name} to the server");
 
         }
     }

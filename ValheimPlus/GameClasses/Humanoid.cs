@@ -98,7 +98,7 @@ namespace ValheimPlus.GameClasses
                 {
                     if (inventoryItem.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Shield)
                     {
-                        if(inventoryItem.m_equiped)
+                        if(inventoryItem.m_equipped)
                             __instance.UnequipItem(inventoryItem, false);
                     }
                 }
@@ -121,7 +121,7 @@ namespace ValheimPlus.GameClasses
             if (!Configuration.Current.Player.IsEnabled || !Configuration.Current.Player.reequipItemsAfterSwimming || Configuration.Current.Player.dontUnequipItemsWhenSwimming)
                 return true;
 
-            if (__instance.IsPlayer() && __instance.IsSwiming() && !__instance.IsOnGround())
+            if (__instance.IsPlayer() && __instance.IsSwimming() && !__instance.IsOnGround())
             {
                 // The above is only enough to know we will eventually exit swimming, but we still don't know if the items were visible prior or not.
                 // We only want to re-show them if they were shown to begin with, so we need to check.
@@ -131,7 +131,7 @@ namespace ValheimPlus.GameClasses
                 if (__instance.m_leftItem != null || __instance.m_rightItem != null)
                     UpdateEquipmentState.shouldReequipItemsAfterSwimming = true;
             }
-            else if (__instance.IsPlayer() && !__instance.IsSwiming() && __instance.IsOnGround() && UpdateEquipmentState.shouldReequipItemsAfterSwimming)
+            else if (__instance.IsPlayer() && !__instance.IsSwimming() && __instance.IsOnGround() && UpdateEquipmentState.shouldReequipItemsAfterSwimming)
             {
                 __instance.ShowHandItems();
                 UpdateEquipmentState.shouldReequipItemsAfterSwimming = false;

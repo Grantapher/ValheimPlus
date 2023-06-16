@@ -30,7 +30,7 @@ namespace ValheimPlus
     /// <summary>
     /// Changes the radius in which pieces contribute to the rested bonus.
     /// </summary>
-    [HarmonyPatch(typeof(SE_Rested), nameof(SE_Rested.GetNearbyPieces))]
+    [HarmonyPatch(typeof(SE_Rested), nameof(SE_Rested.GetNearbyComfortPieces))]
     public static class SE_Rested_GetNearbyPieces_Transpiler
     {
         [HarmonyTranspiler]

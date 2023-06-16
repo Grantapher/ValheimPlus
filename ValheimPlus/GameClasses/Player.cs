@@ -323,12 +323,14 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Player), nameof(Player.GetTotalFoodValue))]
     public static class Player_GetTotalFoodValue_Transpiler
     {
-        private static FieldInfo field_Food_m_health = AccessTools.Field(typeof(Player.Food), nameof(Player.Food.m_health));
-        private static FieldInfo field_Food_m_stamina = AccessTools.Field(typeof(Player.Food), nameof(Player.Food.m_stamina));
-        private static FieldInfo field_Food_m_item = AccessTools.Field(typeof(Player.Food), nameof(Player.Food.m_item));
-        private static FieldInfo field_ItemData_m_shared = AccessTools.Field(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.m_shared));
-        private static FieldInfo field_SharedData_m_food = AccessTools.Field(typeof(ItemDrop.ItemData.SharedData), nameof(ItemDrop.ItemData.SharedData.m_food));
-        private static FieldInfo field_SharedData_m_foodStamina = AccessTools.Field(typeof(ItemDrop.ItemData.SharedData), nameof(ItemDrop.ItemData.SharedData.m_foodStamina));
+        private static readonly FieldInfo field_Food_m_health = AccessTools.Field(typeof(Player.Food), nameof(Player.Food.m_health));
+        private static readonly FieldInfo field_Food_m_stamina = AccessTools.Field(typeof(Player.Food), nameof(Player.Food.m_stamina));
+        private static readonly FieldInfo field_Food_m_eitr = AccessTools.Field(typeof(Player.Food), nameof(Player.Food.m_eitr));
+        private static readonly FieldInfo field_Food_m_item = AccessTools.Field(typeof(Player.Food), nameof(Player.Food.m_item));
+        private static readonly FieldInfo field_ItemData_m_shared = AccessTools.Field(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.m_shared));
+        private static readonly FieldInfo field_SharedData_m_food = AccessTools.Field(typeof(ItemDrop.ItemData.SharedData), nameof(ItemDrop.ItemData.SharedData.m_food));
+        private static readonly FieldInfo field_SharedData_m_foodStamina = AccessTools.Field(typeof(ItemDrop.ItemData.SharedData), nameof(ItemDrop.ItemData.SharedData.m_foodStamina));
+        private static readonly FieldInfo field_SharedData_m_foodEitr = AccessTools.Field(typeof(ItemDrop.ItemData.SharedData), nameof(ItemDrop.ItemData.SharedData.m_foodEitr));
 
         /// <summary>
         /// Replaces loads to the current health/stamina for food with loads to the original health/stamina for food
@@ -347,12 +349,23 @@ namespace ValheimPlus.GameClasses
                 {
                     bool loads_health = il[i].LoadsField(field_Food_m_health);
                     bool loads_stamina = il[i].LoadsField(field_Food_m_stamina);
+                    bool loads_eitr = il[i].LoadsField(field_Food_m_eitr);
 
-                    if (loads_health || loads_stamina)
+                    if (loads_health || loads_stamina || loads_eitr)
                     {
                         il[i].operand = field_Food_m_item;
                         il.Insert(++i, new CodeInstruction(OpCodes.Ldfld, field_ItemData_m_shared));
-                        il.Insert(++i, new CodeInstruction(OpCodes.Ldfld, loads_health ? field_SharedData_m_food : field_SharedData_m_foodStamina));
+                        if (loads_health)
+                        {
+                            il.Insert(++i, new CodeInstruction(OpCodes.Ldfld, field_SharedData_m_food));
+                        } else if (loads_stamina)
+                        {
+                            il.Insert(++i, new CodeInstruction(OpCodes.Ldfld, field_SharedData_m_foodStamina));
+                        }
+                        else
+                        {
+                            il.Insert(++i, new CodeInstruction(OpCodes.Ldfld, field_SharedData_m_foodEitr));
+                        }
                     }
                 }
             }
@@ -513,6 +526,9 @@ namespace ValheimPlus.GameClasses
         [HarmonyPatch(typeof(Player), nameof(Player.UpdatePlacement))]
         public static class Player_UpdatePlacement_Transpiler
         {
+            private static FieldInfo s_ghostLayer_FieldInfo = GetStaticFieldInfo<Piece>("s_ghostLayer");
+            private static FieldInfo s_allPieces_FieldInfo = GetStaticFieldInfo<Piece>("s_allPieces");
+
             private static MethodInfo method_Player_Repair = AccessTools.Method(typeof(Player), nameof(Player.Repair));
             private static AccessTools.FieldRef<Player, Piece> field_Player_m_hoveringPiece = AccessTools.FieldRefAccess<Player, Piece>(nameof(Player.m_hoveringPiece));
             private static MethodInfo method_RepairNearby = AccessTools.Method(typeof(Player_UpdatePlacement_Transpiler), nameof(Player_UpdatePlacement_Transpiler.RepairNearby));
@@ -549,7 +565,7 @@ namespace ValheimPlus.GameClasses
                 Vector3 position = selected_piece != null ? selected_piece.transform.position : instance.transform.position;
 
                 List<Piece> pieces = new List<Piece>();
-                Piece.GetAllPiecesInRadius(position, Configuration.Current.Building.areaRepairRadius, pieces);
+                GetAllPiecesInRadius(position, Configuration.Current.Building.areaRepairRadius, pieces);
 
                 m_repair_count = 0;
 
@@ -571,6 +587,27 @@ namespace ValheimPlus.GameClasses
                 }
 
                 instance.Message(MessageHud.MessageType.TopLeft, string.Format("{0} pieces repaired", m_repair_count));
+            }
+
+            // This used to be in the Piece class, but it seemed to be unused by Valheim itself, so they deleted it. 
+            // This is a recreation of the old method using reflection.
+            // s_allPieces is also unused, so Valheim may remove it in the near future as well.
+            private static void GetAllPiecesInRadius(Vector3 p, float radius, List<Piece> pieces)
+            {
+                int ghostLayer = (int) s_ghostLayer_FieldInfo.GetValue(null);
+                var allPieces = (List<Piece>) s_allPieces_FieldInfo.GetValue(null);
+                foreach (Piece piece in allPieces)
+                {
+                    if (piece.gameObject.layer != ghostLayer && Vector3.Distance(p, piece.transform.position) < radius)
+                    {
+                        pieces.Add(piece);
+                    }
+                }
+            }
+
+            private static FieldInfo GetStaticFieldInfo<T>(string name)
+            {
+                return typeof(T).GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
             }
         }
 
@@ -969,7 +1006,7 @@ namespace ValheimPlus.GameClasses
 
             if (thisIdx == -1 || callIdx == -1)
             {
-                ZLog.LogError("Failed to apply Player_ConsumeResources_Transpiler");
+                ValheimPlusPlugin.Logger.LogError("Failed to apply Player_ConsumeResources_Transpiler");
                 return instructions;
             }
             il.RemoveRange(thisIdx + 1, callIdx - thisIdx);
@@ -1008,7 +1045,7 @@ namespace ValheimPlus.GameClasses
     /// <summary>
     /// Queue weapon/item changes until attack is finished, instead of simply ignoring the change entirely
     /// </summary>
-    [HarmonyPatch(typeof(Player), nameof(Player.ToggleEquiped))]
+    [HarmonyPatch(typeof(Player), nameof(Player.ToggleEquipped))]
     public static class Player_ToggleEquiped_Patch
     {
         private static void Postfix(Player __instance, bool __result, ItemDrop.ItemData item)
@@ -1055,7 +1092,7 @@ namespace ValheimPlus.GameClasses
                 {
                     float oldDuration = item.m_shared.m_equipDuration;
                     item.m_shared.m_equipDuration = 0f;
-                    __instance.ToggleEquiped(item);
+                    __instance.ToggleEquipped(item);
                     item.m_shared.m_equipDuration = oldDuration;
                 }
 
@@ -1166,6 +1203,19 @@ namespace ValheimPlus.GameClasses
                 }
             }
             return instructions;
+        }
+    }
+
+    [HarmonyPatch(typeof(Player), nameof(Player.UpdateTeleport))]
+    public static class Player_UpdateTeleport_Patch
+    {
+        [HarmonyPrefix]
+        private static void Prefix(ref float ___m_teleportTimer, ref bool ___m_teleporting, ref Vector3 ___m_teleportTargetPos)
+        {
+            if (Configuration.Current.Player.disableEightSecondTeleport && ZNetScene.instance.IsAreaReady(___m_teleportTargetPos) && ___m_teleporting)
+            {
+                ___m_teleportTimer += Helper.Clamp(8.1f - ___m_teleportTimer, 0, float.MaxValue);
+            }
         }
     }
 }

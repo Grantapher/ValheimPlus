@@ -69,7 +69,7 @@ namespace ValheimPlus.GameClasses
                 }
             }
 
-            ZLog.LogError("Failed to apply ItemDrop_TimedDestruction_Patch");
+            ValheimPlusPlugin.Logger.LogError("Failed to apply ItemDrop_TimedDestruction_Patch");
 
             return instructions;
         }

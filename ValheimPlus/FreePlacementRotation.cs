@@ -90,7 +90,7 @@ namespace ValheimPlus
 
                     playerData.PlaceRotation = ClampAngles(playerData.PlaceRotation);
 
-                    Debug.Log("Angle " + playerData.PlaceRotation);
+                    ValheimPlusPlugin.Logger.LogInfo("Angle " + playerData.PlaceRotation);
                 }
             }
             
@@ -127,7 +127,7 @@ namespace ValheimPlus
                         playerData.Opposite = !playerData.Opposite;
                         
                         playerData.PlaceRotation = rotation.eulerAngles;
-                        Debug.Log("Sync Angle " + playerData.PlaceRotation);
+                        ValheimPlusPlugin.Logger.LogInfo("Sync Angle " + playerData.PlaceRotation);
                     }
                 }
             }
@@ -333,7 +333,7 @@ namespace ValheimPlus
                             {
                                 Vector3 position = b.parent.position;
                                 Vector3 p = b.position - (a.position - __instance.m_placementGhost.transform.position);
-                                if (!__instance.IsOverlapingOtherPiece(p, __instance.m_placementGhost.transform.rotation , __instance.m_placementGhost.name, __instance.m_tempPieces, component1.m_allowRotatedOverlap))
+                                if (!__instance.IsOverlappingOtherPiece(p, __instance.m_placementGhost.transform.rotation , __instance.m_placementGhost.name, __instance.m_tempPieces, component1.m_allowRotatedOverlap))
                                     __instance.m_placementGhost.transform.position = p;
                             }
                         }

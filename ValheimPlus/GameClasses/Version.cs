@@ -6,6 +6,7 @@ namespace ValheimPlus.GameClasses
 {
     class VersionInfo
     {
+        /* No longer works, disable for now while looking for other solutions.
         /// <summary>
         /// Get version string and enforce mod if enabled
         /// </summary>
@@ -23,5 +24,6 @@ namespace ValheimPlus.GameClasses
                 }
             }
         }
+        */
     }
 }

@@ -150,7 +150,7 @@ namespace ValheimPlus.GameClasses
 
                     pinName = pinEditorPanel.GetComponentInChildren<InputField>();
                     if (pinName != null)
-                        Debug.Log("Pin Name loaded properly");
+                        ValheimPlusPlugin.logger.LogInfo("Pin Name loaded properly");
                     Minimap theInstance = __instance;
                     GameObjectAssistant.GetChildComponentByName<Transform>("OK", pinEditorPanel).gameObject.GetComponent<Button>().onClick.AddListener(delegate { AddPin(ref theInstance); });
                     GameObjectAssistant.GetChildComponentByName<Transform>("Cancel", pinEditorPanel).gameObject.GetComponent<Button>().onClick.AddListener(delegate { Minimap.instance.m_wasFocused = false; pinEditorPanel.SetActive(false); });
@@ -164,10 +164,10 @@ namespace ValheimPlus.GameClasses
                         ind++;
                     }
                     if (iconSelected != null)
-                        Debug.Log("Dropdown loaded properly");
+                        ValheimPlusPlugin.logger.LogInfo("Dropdown loaded properly");
                     sharePin = pinEditorPanel.GetComponentInChildren<Toggle>();
                     if (sharePin != null)
-                        Debug.Log("Share pin loaded properly");
+                        ValheimPlusPlugin.logger.LogInfo("Share pin loaded properly");
                     if (!Configuration.Current.Map.shareablePins || Configuration.Current.Map.shareAllPins)
                         sharePin.gameObject.SetActive(false);
                 }
@@ -207,7 +207,7 @@ namespace ValheimPlus.GameClasses
 
                         pinName = pinEditorPanel.GetComponentInChildren<InputField>();
                         if (pinName != null)
-                            Debug.Log("Pin Name loaded properly");
+                            ValheimPlusPlugin.logger.LogInfo("Pin Name loaded properly");
                         Minimap theInstance = __instance;
                         GameObjectAssistant.GetChildComponentByName<Transform>("OK", pinEditorPanel).gameObject.GetComponent<Button>().onClick.AddListener(delegate { MapPinEditor_Patches_Awake.AddPin(ref theInstance); });
                         GameObjectAssistant.GetChildComponentByName<Transform>("Cancel", pinEditorPanel).gameObject.GetComponent<Button>().onClick.AddListener(delegate { Minimap.instance.m_wasFocused = false; pinEditorPanel.SetActive(false); });
@@ -221,10 +221,10 @@ namespace ValheimPlus.GameClasses
                             ind++;
                         }
                         if (iconSelected != null)
-                            Debug.Log("Dropdown loaded properly");
+                            ValheimPlusPlugin.logger.LogInfo("Dropdown loaded properly");
                         sharePin = pinEditorPanel.GetComponentInChildren<Toggle>();
                         if (sharePin != null)
-                            Debug.Log("Share pin loaded properly");
+                            ValheimPlusPlugin.logger.LogInfo("Share pin loaded properly");
                         if (!Configuration.Current.Map.shareablePins || Configuration.Current.Map.shareAllPins)
                             sharePin.gameObject.SetActive(false);
                     }

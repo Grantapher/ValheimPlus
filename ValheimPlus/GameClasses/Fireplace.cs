@@ -86,7 +86,7 @@ namespace ValheimPlus.GameClasses
                     }
                 }
 
-                ZLog.LogError("Failed to apply Fireplace_UpdateFireplace_Transpiler");
+                ValheimPlusPlugin.Logger.LogError("Failed to apply Fireplace_UpdateFireplace_Transpiler");
 
                 return instructions;
             }
@@ -110,7 +110,7 @@ namespace ValheimPlus.GameClasses
                         __instance.m_nview.InvokeRPC("AddFuel", new object[] { });
                     }
                     if (addedFuel > 0)
-                        ZLog.Log("Added " + addedFuel + " fuel(" + fuelItemData.m_shared.m_name + ") in " + __instance.m_name);
+                        ValheimPlusPlugin.Logger.LogInfo("Added " + addedFuel + " fuel(" + fuelItemData.m_shared.m_name + ") in " + __instance.m_name);
                 }
             }
         }
@@ -149,7 +149,7 @@ namespace ValheimPlus.GameClasses
                 }
             }
 
-            ZLog.LogError("Failed to apply Fireplace_Interact_Transpiler");
+            ValheimPlusPlugin.Logger.LogError("Failed to apply Fireplace_Interact_Transpiler");
 
             return instructions;
         }

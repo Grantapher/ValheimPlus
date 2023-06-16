@@ -856,6 +856,12 @@
 				"defaultValue": "0",
 				"defaultType": "float",
 				"modifier": "true"
+			},
+			"feather": {
+				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5. This also affects the drop amount from shooting gulls/crows.",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
 			}
 		}
 	},
@@ -1236,6 +1242,11 @@
 			},
 			"autoPickUpWhenEncumbered": {
 				"description": "If set to true, allows the auto pickup of items when encumbered (overweight) from carrying to much weight.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"disableEightSecondTeleport": {
+				"description": "If set to true, shortens the teleport time as much as much as possible.",
 				"defaultValue": "false",
 				"defaultType": "bool"
 			}
@@ -2068,6 +2079,30 @@
 				"description": "This value determines the range in meters that you can see shout text messages by default.",
 				"defaultValue": "70",
 				"defaultType": "float"
+			}
+		}
+	},
+	"LootDrop": {
+		"description": "",
+		"icon": "fa fa-treasure-chest",
+		"description_website": "Change the chance and amount of loot dropped when creatures are slain.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"lootDropAmountMultiplier": {
+				"description": "The value 100 will double the amount of dropped loot, 200 will triple. Smaller values such as 50 only has an effect if more than 1 item would drop normally.",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			},
+			"lootDropChanceMultiplier": {
+				"description": "The value 100 will double the percentage chance of drop, 200 will triple.",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
 			}
 		}
 	}

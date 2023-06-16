@@ -23,9 +23,10 @@ namespace ValheimPlus.GameClasses
             {
                 foreach (StatusEffect buff in __instance.m_statusEffects)
                 {
-                    if (buff.m_name == __instance.GetStatusEffect(statusEffect.name).m_name)
+                    var statusEffectPlayerInstance = __instance.GetStatusEffect(statusEffect.NameHash());
+                    if (buff.m_name == statusEffectPlayerInstance.m_name)
                     {
-                        __instance.GetStatusEffect(statusEffect.name).m_ttl = Configuration.Current.Player.guardianBuffDuration;
+                        statusEffectPlayerInstance.m_ttl = Configuration.Current.Player.guardianBuffDuration;
                     }
                 }
             }

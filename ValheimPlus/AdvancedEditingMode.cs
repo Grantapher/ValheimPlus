@@ -157,14 +157,14 @@ namespace ValheimPlus
                         ZNetView component1 = HitPiece.GetComponent<ZNetView>();
                         if ((UnityEngine.Object)component1 == (UnityEngine.Object)null)
                         {
-                            Debug.Log("AEM: Error, network object empty. Code: 2.");
+                            ValheimPlusPlugin.Logger.LogInfo("AEM: Error, network object empty. Code: 2.");
                             exitMode();
                             return;
                         }
                     }
                     catch
                     {
-                        Debug.Log("AEM: Error, network object empty. Code: 3.");
+                        ValheimPlusPlugin.Logger.LogInfo("AEM: Error, network object empty. Code: 3.");
                         exitMode();
                     }
 
@@ -204,7 +204,7 @@ namespace ValheimPlus
                 ZNetView component1 = HitPiece.GetComponent<ZNetView>();
                 if ((UnityEngine.Object)component1 == (UnityEngine.Object)null) 
                 {
-                    Debug.Log("AEM: Error, network object empty.");
+                    ValheimPlusPlugin.Logger.LogInfo("AEM: Error, network object empty.");
 
                     resetObjectTransform();
                     exitMode();
@@ -213,7 +213,7 @@ namespace ValheimPlus
 
                 component1.ClaimOwnership();
                 ZNetScene.instance.Destroy(HitPiece.gameObject);
-                Debug.Log("AEM: Executed.");
+                ValheimPlusPlugin.Logger.LogInfo("AEM: Executed.");
 
                 exitMode();
                 return;
