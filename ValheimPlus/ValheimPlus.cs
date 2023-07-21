@@ -117,6 +117,7 @@ namespace ValheimPlus
             string reply = null;
             try
             {
+                Logger.LogInfo($"Downloading latest config from: '{iniFile}'");
                 reply = client.DownloadString(iniFile);
             }
             catch (Exception e)

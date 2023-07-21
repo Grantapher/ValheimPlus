@@ -41,17 +41,25 @@ namespace ValheimPlus.Configurations
             {
                 if (File.Exists(ConfigIniPath))
                 {
+                    Configuration.Current = LoadFromIni(ConfigIniPath, verbose: true);
+
                     ValheimPlusPlugin.Logger.LogInfo($"Found config file at: '{ConfigIniPath}'");
                     FileIniDataParser parser = new FileIniDataParser();
                     IniData configdata = parser.ReadFile(ConfigIniPath);
 
                     string compareIni = null;
-                    try
+                    if (!Configuration.Current.ValheimPlus.disableConfigAutoUpdates)
                     {
-                        // get the current versions ini data
-                        compareIni = ValheimPlusPlugin.getCurrentWebIniFile();
+                        try
+                        {
+                            // get the current versions ini data
+                            compareIni = ValheimPlusPlugin.getCurrentWebIniFile();
+                        }
+                        catch (Exception) { }
+                    } else
+                    {
+                        ValheimPlusPlugin.Logger.LogWarning("Auto config file updates have been disabled!");
                     }
-                    catch (Exception) { }
 
                     if (compareIni != null)
                     {
@@ -64,8 +72,6 @@ namespace ValheimPlus.Configurations
                         webConfig.Merge(configdata);
                         parser.WriteFile(ConfigIniPath, webConfig);
                     }
-
-                    Configuration.Current = LoadFromIni(ConfigIniPath, verbose: true);
                 }
                 else
                 {

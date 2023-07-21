@@ -4,5 +4,6 @@
     {
         public bool mainMenuLogo { get; internal set; } = true;
         public bool serverBrowserAdvertisement { get; internal set; } = true;
+        public bool disableConfigAutoUpdates { get; internal set; } = false;
     }
 }
