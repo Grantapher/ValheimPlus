@@ -38,34 +38,43 @@ namespace ValheimPlus.GameClasses
 					case "Wood": // Wood
 						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.wood);
 						break;
-					case "RoundLog": // Corewood
+                    case "FineWood": // Finewood
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.fineWood);
+                        break;
+                    case "RoundLog": // Corewood
 						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.coreWood);
 						break;
-					case "Stone": // Stone
+                    case "ElderBark": // ElderBark
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.elderBark);
+                        break;
+					case "YggdrasilWood": // YggdrasilWood
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.yggdrasilWood);
+                        break;
+                    case "Stone": // Stone
 						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.stone);
-						break;
-					case "IronScrap": // Iron
-						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.ironScrap);
+						break; 
+					case "BlackMarble": // BlackMarble
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.blackMarble);
 						break;
 					case "TinOre": // Tin
 						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.tinOre);
 						break;
-					case "CopperOre": // Copper
+					case "CopperOre": // CopperOre
 						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.copperOre);
 						break;
-					case "SilverOre": // Silver
+					case "CopperScrap": // CopperScrap
+						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.copperScrap);
+						break;
+                    case "IronScrap": // Iron
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.ironScrap);
+                        break;
+                    case "SilverOre": // Silver
 						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.silverOre);
-						break;
-					case "ElderBark": // ElderBark
-						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.elderBark);
-						break;
-					case "FineWood": // Finewood
-						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.fineWood);
 						break;
 					case "Chitin": // Chitin
 						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.chitin);
 						break;
-					case "Feathers": // feather
+					case "Feathers": // Feather
 						AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.wood);
 						break;
 
