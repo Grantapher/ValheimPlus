@@ -120,6 +120,11 @@ namespace ValheimPlus.GameClasses
                 "SurtlingCore"
             };
 
+            var blackCores = new List<string>
+            {
+                "BlackCore"
+            };
+
             PickableYieldState.yieldModifier = new Dictionary<string, float>();
 
             foreach (var item in edibles)
@@ -132,6 +137,8 @@ namespace ValheimPlus.GameClasses
                 PickableYieldState.yieldModifier.Add(item, Configuration.Current.Pickable.valuables);
             foreach (var item in surtlingCores)
                 PickableYieldState.yieldModifier.Add(item, Configuration.Current.Pickable.surtlingCores);
+            foreach (var item in blackCores)
+                PickableYieldState.yieldModifier.Add(item, Configuration.Current.Pickable.blackCores);
         }
     }
 }
