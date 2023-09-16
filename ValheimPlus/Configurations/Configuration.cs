@@ -55,5 +55,6 @@ namespace ValheimPlus.Configurations
         public ChatConfiguration Chat { get; set; }
         public LootDropConfiguration LootDrop { get; set; }
         public WispSpawnerConfiguration WispSpawner { get; set; }
+        public DemisterConfiguration Demister { get; set; }
     }
 }
