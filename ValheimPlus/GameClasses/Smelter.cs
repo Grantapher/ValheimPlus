@@ -19,7 +19,7 @@ namespace ValheimPlus.GameClasses
         {
             if (__instance.m_name.Equals(SmelterDefinitions.KilnName) && Configuration.Current.Kiln.IsEnabled)
             {
-                __instance.m_maxOre = Configuration.Current.Smelter.maximumWood;
+                __instance.m_maxOre = Configuration.Current.Smelter.maximumOre;
                 __instance.m_secPerProduct = Configuration.Current.Smelter.productionSpeed;
             }
             else if (__instance.m_name.Equals(SmelterDefinitions.SmelterName) && Configuration.Current.Smelter.IsEnabled)
