@@ -43,11 +43,11 @@ namespace ValheimPlus.GameClasses
 					case SkillType.Bows:
 						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.bows);
 						break;
-					case SkillType.FireMagic:
-						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.fireMagic);
+					case SkillType.ElementalMagic:
+						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.elementalMagic);
 						break;
-					case SkillType.FrostMagic:
-						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.frostMagic);
+					case SkillType.BloodMagic:
+						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.bloodMagic);
 						break;
 					case SkillType.Unarmed:
 						factor = Helper.applyModifierValue(factor, Configuration.Current.Experience.unarmed);
@@ -121,8 +121,8 @@ namespace ValheimPlus.GameClasses
 		Blocking,
 		Axes,
 		Bows,
-		FireMagic,
-		FrostMagic,
+		ElementalMagic,
+		BloodMagic,
 		Unarmed,
 		Pickaxes,
 		WoodCutting,

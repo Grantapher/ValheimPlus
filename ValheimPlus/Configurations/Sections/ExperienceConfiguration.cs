@@ -10,8 +10,8 @@
 		public float blocking { get; internal set; } = 0;
 		public float axes { get; internal set; } = 0;
 		public float bows { get; internal set; } = 0;
-		public float fireMagic { get; internal set; } = 0;
-		public float frostMagic { get; internal set; } = 0;
+		public float elementalMagic { get; internal set; } = 0;
+		public float bloodMagic { get; internal set; } = 0;
 		public float unarmed { get; internal set; } = 0;
 		public float pickaxes { get; internal set; } = 0;
 		public float woodCutting { get; internal set; } = 0;
