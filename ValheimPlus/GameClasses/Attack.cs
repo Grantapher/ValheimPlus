@@ -7,132 +7,102 @@ namespace ValheimPlus.GameClasses
     /// <summary>
     /// Alters stamina of weapons
     /// </summary>
-    [HarmonyPatch(typeof(Attack), "GetAttackStamina")]
+    [HarmonyPatch(typeof(Attack), nameof(Attack.GetAttackStamina))]
     public static class Attack_GetAttackStamina_Patch
     {
         private static void Postfix(ref Attack __instance, ref float __result)
         {
-            if (Configuration.Current.StaminaUsage.IsEnabled)
-            {
-                if (__instance.m_character.IsPlayer())
-                {
-                    ItemDrop.ItemData item = __instance.m_character.GetCurrentWeapon();
-                    Skills.SkillType skillType;
-                    if (item == null)
-                    {
-                        skillType = Skills.SkillType.Unarmed;
-                    }
-                    else
-                    {
-                        skillType = item.m_shared.m_skillType;
-                    }
+            if (!Configuration.Current.StaminaUsage.IsEnabled || __instance.m_character != Player.m_localPlayer) return;
 
-                    switch (skillType)
-                    {
-                        case Skills.SkillType.Swords:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.swords);
-                            break;
-                        case Skills.SkillType.Knives:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.knives);
-                            break;
-                        case Skills.SkillType.Clubs:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.clubs);
-                            break;
-                        case Skills.SkillType.Polearms:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.polearms);
-                            break;
-                        case Skills.SkillType.Spears:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.spears);
-                            break;
-                        case Skills.SkillType.Axes:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.axes);
-                            break;
-                        case Skills.SkillType.Unarmed:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.unarmed);
-                            break;
-                        case Skills.SkillType.Pickaxes:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.pickaxes);
-                            break;
-                        case Skills.SkillType.Bows:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.bows);
-                            break;
-                        default:
-                            break;
-                    }
-                }
+            ItemDrop.ItemData item = __instance.m_character.GetCurrentWeapon();
+            Skills.SkillType skillType;
+            if (item == null)
+            {
+                skillType = Skills.SkillType.Unarmed;
             }
+            else
+            {
+                skillType = item.m_shared.m_skillType;
+            }
+
+            switch (skillType)
+            {
+                case Skills.SkillType.Swords:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.swords);
+                    break;
+                case Skills.SkillType.Knives:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.knives);
+                    break;
+                case Skills.SkillType.Clubs:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.clubs);
+                    break;
+                case Skills.SkillType.Polearms:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.polearms);
+                    break;
+                case Skills.SkillType.Spears:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.spears);
+                    break;
+                case Skills.SkillType.Axes:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.axes);
+                    break;
+                case Skills.SkillType.Unarmed:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.unarmed);
+                    break;
+                case Skills.SkillType.Pickaxes:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.pickaxes);
+                    break;
+                case Skills.SkillType.Bows:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.StaminaUsage.bows);
+                    break;
+                default:
+                    break;
+            }
+            
         }
     }
 
-    [HarmonyPatch(typeof(Attack), "GetAttackEitr")]
+    [HarmonyPatch(typeof(Attack), nameof(Attack.GetAttackEitr))]
     public static class Attack_GetAttackEitr_Patch
     {
         private static void Postfix(ref Attack __instance, ref float __result)
         {
+            if (!Configuration.Current.EitrUsage.IsEnabled || __instance.m_character != Player.m_localPlayer) return;
 
-            if (Configuration.Current.EitrUsage.IsEnabled)
+            ItemDrop.ItemData item = __instance.m_character.GetCurrentWeapon();
+            if (item == null) return;
+
+            switch (item.m_shared.m_skillType)
             {
-                if (__instance.m_character.IsPlayer())
-                {
-                    ItemDrop.ItemData item = __instance.m_character.GetCurrentWeapon();
-
-                    Skills.SkillType skillType;
-                    if (item == null)
-                    {
-                        skillType = Skills.SkillType.Unarmed;
-                    }
-                    else
-                    {
-                        skillType = item.m_shared.m_skillType;
-                    }
-
-                    switch (skillType)
-                    {
-                        case Skills.SkillType.BloodMagic:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.EitrUsage.bloodMagic);
-                            break;
-                        case Skills.SkillType.ElementalMagic:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.EitrUsage.elementalMagic);
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                case Skills.SkillType.BloodMagic:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.EitrUsage.bloodMagic);
+                    break;
+                case Skills.SkillType.ElementalMagic:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.EitrUsage.elementalMagic);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
 
-    [HarmonyPatch(typeof(Attack), "GetAttackHealth")]
+    [HarmonyPatch(typeof(Attack), nameof(Attack.GetAttackHealth))]
     public static class Attack_GetAttackHealth_Patch
     {
         private static void Postfix(ref Attack __instance, ref float __result)
         {
-            if (Configuration.Current.HealthUsage.IsEnabled)
+            if (!Configuration.Current.HealthUsage.IsEnabled || __instance.m_character != Player.m_localPlayer) return;
+
+            ItemDrop.ItemData item = __instance.m_character.GetCurrentWeapon();
+            if (item == null) return;
+
+            switch (item.m_shared.m_skillType)
             {
-                if (__instance.m_character.IsPlayer())
-                {
-                    ItemDrop.ItemData item = __instance.m_character.GetCurrentWeapon();
-
-                    Skills.SkillType skillType;
-                    if (item == null)
-                    {
-                        skillType = Skills.SkillType.Unarmed;
-                    }
-                    else
-                    {
-                        skillType = item.m_shared.m_skillType;
-                    }
-
-                    switch (skillType)
-                    {
-                        case Skills.SkillType.BloodMagic:
-                            __result = Helper.applyModifierValue(__result, Configuration.Current.HealthUsage.bloodMagic);
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                case Skills.SkillType.BloodMagic:
+                    __result = Helper.applyModifierValue(__result, Configuration.Current.HealthUsage.bloodMagic);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -140,7 +110,7 @@ namespace ValheimPlus.GameClasses
     /// <summary>
     /// Alter projectile velocity and accuracy without affecting damage
     /// </summary>
-    [HarmonyPatch(typeof(Attack), "ProjectileAttackTriggered")]
+    [HarmonyPatch(typeof(Attack), nameof(Attack.ProjectileAttackTriggered))]
     public static class Attack_ProjectileAttackTriggered_Patch
     {
         private static float maxClampValue = 1E+6f;
