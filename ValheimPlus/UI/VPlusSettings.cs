@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using HarmonyLib;
 using IniParser;
 using IniParser.Model;
@@ -46,8 +44,8 @@ namespace ValheimPlus.UI
         {
             bool currentVal = bool.Parse(value);
             GameObject enableToggleThis = GameObject.Instantiate(enableToggle);
-            enableToggleThis.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
-            enableToggleThis.GetComponent<UITooltip>().Set($"{settingName}", comments);
+            // enableToggleThis.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
+            // enableToggleThis.GetComponent<UITooltip>().Set($"{settingName}", comments);
             enableToggleThis.GetComponentInChildren<Toggle>().isOn = currentVal;
             enableToggleThis.transform.SetParent(parent, false);
             enableToggleThis.SetActive(false);
@@ -60,8 +58,8 @@ namespace ValheimPlus.UI
             settingName.name = name;
             settingName.transform.GetChild(0).GetComponent<Text>().text = $"Setting: {name}\nCurrent value: {value}";
             settingName.transform.SetParent(parent, false);
-            settingName.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
-            settingName.GetComponent<UITooltip>().Set($"{name}", comments);
+            // settingName.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
+            // settingName.GetComponent<UITooltip>().Set($"{name}", comments);
             settingName.SetActive(false);
             return settingName;
         }
@@ -79,8 +77,8 @@ namespace ValheimPlus.UI
                 dropper.options.Add(new Dropdown.OptionData(key));
             }
             dropper.value = keycodeNames.ToList().IndexOf(value);
-            settingName.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
-            settingName.GetComponent<UITooltip>().Set($"{name}", comments);
+            // settingName.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
+            // settingName.GetComponent<UITooltip>().Set($"{name}", comments);
             settingName.SetActive(false);
             return settingName;
         }
@@ -89,8 +87,8 @@ namespace ValheimPlus.UI
         {
             GameObject settingName = GameObject.Instantiate(modSettingsBundle.LoadAsset<GameObject>("SettingEntry_Toggle"));
             settingName.name = name;
-            settingName.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
-            settingName.GetComponent<UITooltip>().Set($"{name}", comments);
+            // settingName.AddComponent<UITooltip>().m_tooltipPrefab = uiTooltipPrefab;
+            // settingName.GetComponent<UITooltip>().Set($"{name}", comments);
             settingName.transform.GetChild(0).GetComponent<Text>().text = $"Setting: {name}";
             settingName.GetComponentInChildren<Toggle>().isOn = bool.Parse(value);
             settingName.transform.SetParent(parent, false);
@@ -254,7 +252,7 @@ namespace ValheimPlus.UI
                     var praeteriCommentarium = "";
                     foreach (var setting in prop.PropertyType.GetProperties())
                     {
-                        if (setting.Name == "NeedsServerSync")
+                        if (setting.Name is "NeedsServerSync" or "IsEnabled")
                             continue;
                         var keyDatumCommentate = configdata[keyName].GetKeyData(setting.Name);
                         var commentarium = "";

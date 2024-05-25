@@ -1,4 +1,4 @@
-﻿using ValheimPlus.Configurations.Sections;
+using ValheimPlus.Configurations.Sections;
 
 namespace ValheimPlus.Configurations
 {
@@ -28,6 +28,8 @@ namespace ValheimPlus.Configurations
         public ServerConfiguration Server { get; set; }
         public StaminaConfiguration Stamina { get; set; }
         public StaminaUsageConfiguration StaminaUsage { get; set; }
+        public EitrUsageConfiguration EitrUsage { get; set; }
+        public HealthUsageConfiguration HealthUsage { get; set; }
         public WorkbenchConfiguration Workbench { get; set; }
         public TimeConfiguration Time { get; set; }
         public WardConfiguration Ward { get; set; }
@@ -42,7 +44,7 @@ namespace ValheimPlus.Configurations
         public PickableConfiguration Pickable { get; set; }
         public DurabilityConfiguration Durability { get; set; }
         public ArmorConfiguration Armor { get; set; }
-	    public FreePlacementRotationConfiguration FreePlacementRotation { get; set; }
+        public FreePlacementRotationConfiguration FreePlacementRotation { get; set; }
         public ShieldConfiguration Shields { get; set; }
         public FirstPersonConfiguration FirstPerson { get; internal set; }
         public GridAlignmentConfiguration GridAlignment { get; set; }
@@ -56,5 +58,7 @@ namespace ValheimPlus.Configurations
         public LootDropConfiguration LootDrop { get; set; }
         public WispSpawnerConfiguration WispSpawner { get; set; }
         public DemisterConfiguration Demister { get; set; }
+        public HotTubConfiguration HotTub { get; set; }
+        public ShieldGeneratorConfiguration ShieldGenerator { get; set; }
     }
 }

@@ -700,7 +700,7 @@ namespace ValheimPlus.GameClasses
 
         private static void Postfix(ref Player __instance)
         {
-            if (!__instance.IsPlayer())
+            if (__instance != Player.m_localPlayer)
                 return;
 
             if (!Configuration.Current.GridAlignment.IsEnabled)

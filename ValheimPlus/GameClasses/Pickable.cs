@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -15,6 +15,9 @@ namespace ValheimPlus.GameClasses
 
         public static int CalculateYield(GameObject item, int originalAmount)
         {
+            if (!Configuration.Current.Pickable.IsEnabled)
+                return originalAmount;
+
             if (_yieldModifierDict.TryGetValue(item.name, out float yieldModifier))
             {
                 return (int)Helper.applyModifierValue(originalAmount, yieldModifier);
@@ -36,6 +39,11 @@ namespace ValheimPlus.GameClasses
                 "Mushroom",
                 "MushroomBlue",
                 "MushroomYellow",
+                "MushroomMagecap",
+                "MushroomJotunPuffs",
+                "MushroomSmokePuff",
+                "Fiddleheadfern",
+                "Vineberry",
                 "Onion"
             };
 
@@ -48,7 +56,9 @@ namespace ValheimPlus.GameClasses
                 "Thistle",
                 "TurnipSeeds",
                 "Turnip",
-                "OnionSeeds"
+                "OnionSeeds",
+                "RoyalJelly",
+                "VoltureEgg"
             };
 
             var materials = new List<string>
@@ -56,7 +66,11 @@ namespace ValheimPlus.GameClasses
                 "BoneFragments",
                 "Flint",
                 "Stone",
-                "Wood"
+                "Wood",
+                "Crystal",
+                "Tar",
+                "WolfHairBundle",
+                "WolfClaw"
             };
 
             var valuables = new List<string>
@@ -77,6 +91,13 @@ namespace ValheimPlus.GameClasses
                 "BlackCore"
             };
 
+            var questItems = new List<string>
+            {
+                "DragonEgg",
+                "WitheredBone",
+                "GoblinTotem"
+            };
+
             _yieldModifierDict = new Dictionary<string, float>();
 
             foreach (var item in edibles)
@@ -91,6 +112,8 @@ namespace ValheimPlus.GameClasses
                 _yieldModifierDict.Add(item, Configuration.Current.Pickable.surtlingCores);
             foreach (var item in blackCores)
                 _yieldModifierDict.Add(item, Configuration.Current.Pickable.blackCores);
+            foreach (var item in questItems)
+                _yieldModifierDict.Add(item, Configuration.Current.Pickable.questItems);
         }
     }
 

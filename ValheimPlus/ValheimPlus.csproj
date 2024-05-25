@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -351,7 +351,10 @@
     <Compile Include="Configurations\Sections\BrightnessConfiguration.cs" />
     <Compile Include="Configurations\Sections\ChatConfiguration.cs" />
     <Compile Include="Configurations\Sections\EitrRefineryConfiguration.cs" />
+    <Compile Include="Configurations\Sections\HealthUsageConfiguration.cs" />
+    <Compile Include="Configurations\Sections\EitrUsageConfiguration.cs" />
     <Compile Include="Configurations\Sections\GameClockConfiguration.cs" />
+    <Compile Include="Configurations\Sections\HotTubConfiguration.cs" />
     <Compile Include="Configurations\Sections\LootDropConfiguration.cs" />
     <Compile Include="Configurations\Sections\MonsterProjectileConfiguration.cs" />
     <Compile Include="Configurations\Sections\DemisterConfiguration.cs" />
@@ -362,6 +365,7 @@
     <Compile Include="Configurations\Sections\ArmorConfiguration.cs" />
     <Compile Include="Configurations\Sections\DurabilityConfiguration.cs" />
     <Compile Include="Configurations\Sections\PickableConfiguration.cs" />
+    <Compile Include="Configurations\Sections\ShieldGeneratorConfiguration.cs" />
     <Compile Include="Configurations\Sections\SmelterConfiguration.cs" />
     <Compile Include="Configurations\Sections\FreePlacementRotationConfiguration.cs" />
     <Compile Include="Configurations\Sections\GatherConfiguration.cs" />
@@ -412,6 +416,7 @@
     <Compile Include="GameClasses\LuredWisp.cs" />
     <Compile Include="GameClasses\PickableItem.cs" />
     <Compile Include="GameClasses\SEMan.cs" />
+    <Compile Include="GameClasses\ShieldGenerator.cs" />
     <Compile Include="GameClasses\Talker.cs" />
     <Compile Include="GameClasses\Container.cs" />
     <Compile Include="GameClasses\CookingStation.cs" />

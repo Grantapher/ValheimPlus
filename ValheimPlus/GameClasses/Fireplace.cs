@@ -105,9 +105,12 @@ namespace ValheimPlus.GameClasses
                     ItemDrop.ItemData fuelItemData = __instance.m_fuelItem.m_itemData;
 
                     int addedFuel = InventoryAssistant.RemoveItemInAmountFromAllNearbyChests(__instance.gameObject, Helper.Clamp(Configuration.Current.FireSource.autoRange, 1, 50), fuelItemData, toMaxFuel, !Configuration.Current.FireSource.ignorePrivateAreaCheck);
-                    __instance.m_nview.InvokeRPC("RPC_AddFuelAmount", new object[] { (float) addedFuel });
                     if (addedFuel > 0)
+                    {
+                        // Only make the call if we're actually adding fuel, otherwise the fuel adding animation plays every second.
+                        __instance.m_nview.InvokeRPC("RPC_AddFuelAmount", new object[] { (float) addedFuel });
                         ValheimPlusPlugin.Logger.LogInfo("Added " + addedFuel + " fuel(" + fuelItemData.m_shared.m_name + ") in " + __instance.m_name);
+                    }
                 }
             }
         }
@@ -189,6 +192,7 @@ namespace ValheimPlus.GameClasses
             "piece_walltorch", // sconce torch
             "piece_brazierceiling01", // ceiling brazier
             "piece_brazierfloor01", // standing brazier
+            "piece_brazierfloor02", // Blue standing brazier
             "piece_jackoturnip" // Jack-o-turnip
         };
 

@@ -212,7 +212,21 @@ namespace ValheimPlus.GameClasses
                     return;
                 autoFuelRange = Configuration.Current.EitrRefinery.autoRange;
                 ignorePrivateAreaCheck = Configuration.Current.EitrRefinery.ignorePrivateAreaCheck;
-            } 
+            }
+            else if (__instance.m_name.Equals(SmelterDefinitions.HotTubName))
+            {
+                if (!Configuration.Current.HotTub.IsEnabled) return;
+                if (Configuration.Current.HotTub.infiniteFuel)
+                {
+                    __instance.SetFuel(__instance.m_maxFuel);
+                    return;
+                }
+                if (Configuration.Current.HotTub.autoFuel)
+                {
+                    autoFuelRange = Configuration.Current.HotTub.autoRange;
+                    ignorePrivateAreaCheck = Configuration.Current.HotTub.ignorePrivateAreaCheck;
+                }
+            }
             else
             {
                 // unknown smelter instance
@@ -368,6 +382,7 @@ namespace ValheimPlus.GameClasses
         public static readonly string WindmillName = "$piece_windmill";
         public static readonly string SpinningWheelName = "$piece_spinningwheel";
         public static readonly string EitrRefineryName = "$piece_eitrrefinery";
+        public static readonly string HotTubName = "$piece_bathtub";
     }
 
     public static class FurnaceDefinitions

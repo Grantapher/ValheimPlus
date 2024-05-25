@@ -17,5 +17,9 @@
         public float chitin { get; internal set; } = 0;
         public float feather { get; internal set; } = 0;
         public float dropChance { get; internal set; } = 0;
+        public float grausten { get; internal set; } = 0;
+        public float blackwood { get; internal set; } = 0;
+        public float flametalOre { get; internal set; } = 0;
+        public float proustitePowder { get; internal set; } = 0;
     }
 }

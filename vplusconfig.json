@@ -803,12 +803,6 @@
 				"defaultType": "float",
 				"modifier": "true"
 			},
-			"stone": {
-				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5.",
-				"defaultValue": "0",
-				"defaultType": "float",
-				"modifier": "true"
-			},
 			"fineWood": {
 				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5..",
 				"defaultValue": "0",
@@ -822,6 +816,24 @@
 				"modifier": "true"
 			},
 			"elderBark": {
+				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5.",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			},
+			"blackwood": {
+				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5.",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			},
+			"stone": {
+				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5.",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			},
+			"grausten": {
 				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5.",
 				"defaultValue": "0",
 				"defaultType": "float",
@@ -851,7 +863,13 @@
 				"defaultType": "float",
 				"modifier": "true"
 			},
-			"Chitin": {
+			"flametalOre": {
+				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5.",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			},
+			"chitin": {
 				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5.",
 				"defaultValue": "0",
 				"defaultType": "float",
@@ -859,6 +877,12 @@
 			},
 			"feather": {
 				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5. This also affects the drop amount from shooting gulls/crows.",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			},
+			"proustitePowder": {
+				"description": "The value 50 will increase the dropped resources from 10 to 15. The value -50 will reduce the amount of dropped resources from 10 to 5.",
 				"defaultValue": "0",
 				"defaultType": "float",
 				"modifier": "true"
@@ -1439,6 +1463,48 @@
 			},
 			"fishing": {
 				"description": "Changes the amount of stamina drain by %",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			}
+		}
+	},
+	"EitrUsage": {
+		"description": "",
+		"icon": "fa fa-tools",
+		"description_website": "Change the eitr usage of in-game weapons related actions.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"bloodMagic": {
+				"description": "Changes the amount of eitr drain by %",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			},
+			"elementalMagic": {
+				"description": "Changes the amount of eitr drain by %",
+				"defaultValue": "0",
+				"defaultType": "float",
+				"modifier": "true"
+			}
+		}
+	},
+	"HealthUsage": {
+		"description": "",
+		"icon": "fa fa-tools",
+		"description_website": "Change the health usage of in-game weapons related actions.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"bloodMagic": {
+				"description": "Changes the amount of health drain by %",
 				"defaultValue": "0",
 				"defaultType": "float",
 				"modifier": "true"
@@ -2132,6 +2198,70 @@
 				"defaultValue": "0",
 				"defaultType": "float",
 				"modifier": "true"
+			}
+		}
+	},
+	"HotTub": {
+		"description": "",
+		"icon": "fa fa-bath",
+		"description_website": "Change the in-game behavior of the hot tub and modify its values.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"infiniteFuel": {
+				"description": "If set to true, the hot tub will stay at max fuel level, without consuming any fuel.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"autoFuel": {
+				"description": "Look for fuel inside nearby chests.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"ignorePrivateAreaCheck": {
+				"description": "Change true to false to enable private area check when looking for chests.",
+				"defaultValue": "true",
+				"defaultType": "bool"
+			},
+			"autoRange": {
+				"description": "The range of chest detection for the auto fuel feature. (Maximum is 50)",
+				"defaultValue": "10",
+				"defaultType": "float"
+			}
+		}
+	},
+	"ShieldGenerator": {
+		"description": "",
+		"icon": "fa fa-circle-thin",
+		"description_website": "Change the in-game behavior of the shield generator and modify its values.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"infiniteFuel": {
+				"description": "If set to true, the shield generator will stay at max fuel level, without consuming any fuel.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"autoFuel": {
+				"description": "Look for fuel inside nearby chests.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"ignorePrivateAreaCheck": {
+				"description": "Change true to false to enable private area check when looking for chests.",
+				"defaultValue": "true",
+				"defaultType": "bool"
+			},
+			"autoRange": {
+				"description": "The range of chest detection for the auto fuel feature. (Maximum is 50)",
+				"defaultValue": "10",
+				"defaultType": "float"
 			}
 		}
 	}

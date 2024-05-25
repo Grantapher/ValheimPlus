@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using ValheimPlus.Configurations;
@@ -76,6 +76,18 @@ namespace ValheimPlus.GameClasses
                         break;
                     case "Feathers": // Feather
                         AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.feather);
+                        break;
+                    case "Grausten": // Grausten
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.grausten);
+                        break;
+                    case "Blackwood": // Ashwood
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.blackwood);
+                        break;
+                    case "FlametalOreNew": // Flametal
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.flametalOre);
+                        break;
+                    case "ProustitePowder": // ProustitePowder
+                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.proustitePowder);
                         break;
 
                     default:

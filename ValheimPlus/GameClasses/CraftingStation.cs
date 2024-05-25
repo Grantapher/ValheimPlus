@@ -20,8 +20,8 @@ namespace ValheimPlus.GameClasses
                     {
                         ___m_rangeBuild = Configuration.Current.Workbench.workbenchRange;
                         ___m_areaMarker.GetComponent<CircleProjector>().m_radius = ___m_rangeBuild;
-                        float scaleIncrease = (Configuration.Current.Workbench.workbenchRange - 20f) / 20f * 100f;
-                        ___m_areaMarker.gameObject.transform.localScale = new Vector3(scaleIncrease / 100, 1f, scaleIncrease / 100);
+                        float scaleIncrease = (Configuration.Current.Workbench.workbenchRange) / 20f;
+                        ___m_areaMarker.gameObject.transform.localScale = new Vector3(scaleIncrease, 1f, scaleIncrease);
 
                         // Apply this change to the child GameObject's EffectArea collision.
                         // Various other systems query this collision instead of the PrivateArea radius for permissions (notably, enemy spawning).

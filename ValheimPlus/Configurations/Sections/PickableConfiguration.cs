@@ -8,5 +8,6 @@
         public float valuables { get; internal set; } = 0;
         public float surtlingCores { get; internal set; } = 0;
         public float blackCores { get; internal set; } = 0;
+        public float questItems { get; internal set; } = 0;
     }
 }
