@@ -1692,6 +1692,26 @@
 				"description": "By default items go to their original position when picking up your tombstone. Set to true to make all stacks try to merge with an existing stack first.",
 				"defaultValue": "false",
 				"defaultType": "bool"
+			},
+			"autoStackAll": {
+				"description": "Set to true to automatically perform the \"Stack All\" action on all chests in range.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"autoStackAllRange": {
+				"description": "Defines the range to search chests for the \"Stack All\" action.",
+				"defaultValue": "10",
+				"defaultType": "float"
+			},
+			"autoStackAllIgnorePrivateAreaCheck": {
+				"description": "This option prevents to \"Stack All\" into chests from warded areas if the player doesnt have access to it.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"autoStackAllIgnoreEquipment": {
+				"description": "Set to true to prevent equipable items to be stored automaticly.",
+				"defaultValue": "false",
+				"defaultType": "bool"
 			}
 		}
 	},
@@ -1807,7 +1827,6 @@
 				"defaultValue": "F6",
 				"defaultType": "KeyCode"
 			}
-
 		}
 	},
 	"Windmill": {

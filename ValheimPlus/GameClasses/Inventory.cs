@@ -108,6 +108,96 @@ namespace ValheimPlus.GameClasses
         }
     }
 
+    public static class AutoStackAllStore
+    {
+        public static bool isStacking = false;
+        public static Inventory currentInventory = null;
+        public static int lastPlayerItemCount = 0;
+    }
+
+    [HarmonyPatch(typeof(Inventory), nameof(Inventory.StackAll))]
+    public static class Container_StackAll_Patch
+    {
+        /// <summary>
+        /// Call StackAll on all chests in range.
+        /// </summary>
+        static void Postfix(Inventory __instance, ref int __result)
+        {
+            if (!Configuration.Current.Inventory.autoStackAll || (AutoStackAllStore.isStacking && __instance != AutoStackAllStore.currentInventory)) return;
+
+            // get chests in range
+            GameObject pos = Player.m_localPlayer.gameObject;
+            List<Container> chests = InventoryAssistant.GetNearbyChests(pos, Helper.Clamp(Configuration.Current.Inventory.autoStackAllRange, 1, 50), !Configuration.Current.Inventory.autoStackAllIgnorePrivateAreaCheck);
+
+            // try to stack all items on found containers
+            try
+            {
+                foreach (Container container in chests)
+                {
+                    if (container.m_inventory == __instance) continue;
+                    container.StackAll();
+                }
+            }
+            catch (Exception) { }
+
+            // disable stack recursion bypass
+            AutoStackAllStore.isStacking = false;
+
+            // Show stack message
+            int itemCount = AutoStackAllStore.lastPlayerItemCount - Player.m_localPlayer.m_inventory.CountItems(null);
+            if (itemCount > 0)
+            {
+                Player.m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_stackall " + itemCount + " in " + chests.Count + " Chests");
+            }
+            else
+            {
+                Player.m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_stackall_none" + " in " + chests.Count + " Chests");
+            }
+        }
+
+        /// <summary>
+        /// Start the auto stack all loop and surpress stack feedback message
+        /// </summary>
+        static void Prefix(Inventory __instance, ref bool message)
+        {
+            if (!Configuration.Current.Inventory.autoStackAll) return;
+
+            // disable message
+            message = false;
+            if (!AutoStackAllStore.isStacking)
+            {
+                // enable stack recursion bypass and reset count
+                AutoStackAllStore.lastPlayerItemCount = Player.m_localPlayer.m_inventory.CountItems(null);
+                AutoStackAllStore.isStacking = true;
+                AutoStackAllStore.currentInventory = __instance;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Inventory), nameof(Inventory.ContainsItemByName), new System.Type[] { typeof(string) })]
+    public static class Container_GetAllItems_Patch
+    {
+        /// <summary>
+        /// If autoStackAllIgnoreEquipment is active, this will only return true if the searched item is not equipable
+        /// </summary>
+        static void Postfix(Inventory __instance, string name, ref bool __result)
+        {
+            // ony perform during auto stacking!
+            if (!AutoStackAllStore.isStacking || !Configuration.Current.Inventory.autoStackAll || !Configuration.Current.Inventory.autoStackAllIgnoreEquipment) return;
+
+            foreach (ItemDrop.ItemData item in __instance.m_inventory)
+            {
+                if (!item.IsEquipable() && item.m_shared.m_name == name)
+                {
+                    __result = true;
+                    return;
+                }
+            }
+
+            __result = false;
+        }
+    }
+
 
 
 }
