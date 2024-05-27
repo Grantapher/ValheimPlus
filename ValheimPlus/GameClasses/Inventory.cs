@@ -118,12 +118,30 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Inventory), nameof(Inventory.StackAll))]
     public static class Container_StackAll_Patch
     {
+
+        /// <summary>
+        /// Start the auto stack all loop and surpress stack feedback message
+        /// </summary>
+        static void Prefix(Inventory __instance, ref bool message)
+        {
+            if (!Configuration.Current.Inventory.autoStackAll) return;
+
+            // disable message
+            message = false;
+            if (AutoStackAllStore.currentInventory == null)
+            {
+                // enable stack recursion bypass and reset count
+                AutoStackAllStore.lastPlayerItemCount = Player.m_localPlayer.m_inventory.CountItems(null);
+                AutoStackAllStore.currentInventory = __instance;
+            }
+        }
+
         /// <summary>
         /// Call StackAll on all chests in range.
         /// </summary>
         static void Postfix(Inventory __instance, ref int __result)
         {
-            if (!Configuration.Current.Inventory.autoStackAll || (AutoStackAllStore.isStacking && __instance != AutoStackAllStore.currentInventory)) return;
+            if (!Configuration.Current.Inventory.autoStackAll || (AutoStackAllStore.currentInventory != null && __instance != AutoStackAllStore.currentInventory)) return;
 
             // get chests in range
             GameObject pos = Player.m_localPlayer.gameObject;
@@ -137,7 +155,7 @@ namespace ValheimPlus.GameClasses
             }
 
             // disable stack recursion bypass
-            AutoStackAllStore.isStacking = false;
+            AutoStackAllStore.currentInventory = null;
 
             // Show stack message
             int itemCount = AutoStackAllStore.lastPlayerItemCount - Player.m_localPlayer.m_inventory.CountItems(null);
