@@ -48,14 +48,10 @@ namespace ValheimPlus.GameClasses
         private static ItemDrop.ItemData GetFirstRequiredItem(Player player, Inventory inventory, Recipe recipe, int qualityLevel, out int amount, out int extraAmount)
         {
             // call the old method first
-            object[] parameters = new object[]{ inventory, recipe, qualityLevel, null, null };
-            MethodInfo getFirstRequiredItem = Type.GetType("Player")?.GetMethod("GetFirstRequiredItem");
-            ItemDrop.ItemData result = (ItemDrop.ItemData)getFirstRequiredItem?.Invoke(player, parameters);
+            ItemDrop.ItemData result = player.GetFirstRequiredItem(inventory, recipe, qualityLevel, out amount, out extraAmount);
 
             if(result != null) {
                 // we found items on the player
-                amount = (int)parameters[3];
-                extraAmount = (int)parameters[4];
                 return result;
             } else {
                 // need a game object here. Do not know if the player is a good choice for this. But i have no refference to the crafting station.
