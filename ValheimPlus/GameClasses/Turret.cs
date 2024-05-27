@@ -13,7 +13,7 @@ namespace ValheimPlus.GameClasses
     public static class Turret_Awake_Patch
     {
         /// <summary>
-        /// Configure inventory size for chests, boats, cart
+        /// Configure the turret on wakeup
         /// </summary>
         static void Prefix(Turret __instance)
         {
@@ -31,6 +31,9 @@ namespace ValheimPlus.GameClasses
         }
     }
 
+    /// <summary>
+    /// Remove ammo update on Turret.ShootProjectile resulting in unlimited ammo
+    /// </summary>
     [HarmonyPatch(typeof(Turret), nameof(Turret.ShootProjectile))]
     public static class Turret_ShootProjectile_Patch
     {
