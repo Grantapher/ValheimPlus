@@ -2244,5 +2244,42 @@
 				"defaultType": "float"
 			}
 		}
-	}
+	},
+	"Turret": {
+		"description": "",
+		"icon": "fa fa-arrow-right",
+		"description_website": "Change the values and behavior of the ingame balista / turret.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"ignorePlayers": {
+				"description": "The balista will ignore players.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"unlimitedAmmo": {
+				"description": "The balista will not consume ammo.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"turnRate": {
+				"description": "This value changes the turn speed of balista. The value 50 would increase the turn speed by 50%.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"attackCooldown": {
+				"description": "This value changes the attack speed of balista. The value 50 would increase the cool down by 50% resulting in 50% SLOWER attack speed.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"viewDistance": {
+				"description": "This value changes the view distance of balista. The value 50 would increase the view distance by 50%.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			}
+		}
+	},
 }

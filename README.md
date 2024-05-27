@@ -89,6 +89,13 @@ A HarmonyX Mod aimed at improving the gameplay quality of Valheim. The mod inclu
 * Add a number of players to the player count for the purpose of difficulty calculation.
 * Set the difficulty calculation to a specific player count.
 
+### Turret
+* Change the values and behavior of the ingame balista / turret.
+  * The balista can ignore players
+  * The balista can have infinite ammo
+  * the balista can shoot faster
+  * the balista can turn faster
+  * the balista can see targets further away
 
 ## Inventory
 * Modify the inventory behavior so that items will be placed in the first slot rather than the last available slot.
