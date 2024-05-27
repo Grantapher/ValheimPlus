@@ -130,15 +130,11 @@ namespace ValheimPlus.GameClasses
             List<Container> chests = InventoryAssistant.GetNearbyChests(pos, Helper.Clamp(Configuration.Current.Inventory.autoStackAllRange, 1, 50), !Configuration.Current.Inventory.autoStackAllIgnorePrivateAreaCheck);
 
             // try to stack all items on found containers
-            try
+            foreach (Container container in chests)
             {
-                foreach (Container container in chests)
-                {
-                    if (container.m_inventory == __instance) continue;
-                    container.StackAll();
-                }
+                if (container.m_inventory == __instance) continue;
+                container.StackAll();
             }
-            catch (Exception) { }
 
             // disable stack recursion bypass
             AutoStackAllStore.isStacking = false;
