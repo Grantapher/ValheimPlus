@@ -112,7 +112,6 @@ namespace ValheimPlus.GameClasses
 
     public static class AutoStackAllStore
     {
-        public static bool isStacking = false;
         public static Inventory currentInventory = null;
         public static int lastPlayerItemCount = 0;
     }
@@ -122,11 +121,11 @@ namespace ValheimPlus.GameClasses
     {
 
         /// <summary>
-        /// Start the auto stack all loop and surpress stack feedback message
+        /// Start the auto stack all loop and suppress stack feedback message
         /// </summary>
         static void Prefix(Inventory __instance, ref bool message)
         {
-            if (!Configuration.Current.Inventory.autoStackAll) return;
+            if (!Configuration.Current.AutoStack.IsEnabled) return;
 
             // disable message
             message = false;
@@ -143,11 +142,11 @@ namespace ValheimPlus.GameClasses
         /// </summary>
         static void Postfix(Inventory __instance, ref int __result)
         {
-            if (!Configuration.Current.Inventory.autoStackAll || (AutoStackAllStore.currentInventory != null && __instance != AutoStackAllStore.currentInventory)) return;
+            if (!Configuration.Current.AutoStack.IsEnabled || (AutoStackAllStore.currentInventory != null && __instance != AutoStackAllStore.currentInventory)) return;
 
             // get chests in range
             GameObject pos = Player.m_localPlayer.gameObject;
-            List<Container> chests = InventoryAssistant.GetNearbyChests(pos, Helper.Clamp(Configuration.Current.Inventory.autoStackAllRange, 1, 50), !Configuration.Current.Inventory.autoStackAllIgnorePrivateAreaCheck);
+            List<Container> chests = InventoryAssistant.GetNearbyChests(pos, Helper.Clamp(Configuration.Current.AutoStack.autoStackAllRange, 1, 50), !Configuration.Current.AutoStack.autoStackAllIgnorePrivateAreaCheck);
 
             // try to stack all items on found containers
             foreach (Container container in chests)
@@ -180,7 +179,7 @@ namespace ValheimPlus.GameClasses
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            if (!Configuration.Current.Inventory.autoStackAll || !Configuration.Current.Inventory.autoStackAllIgnoreEquipment) return instructions;
+            if (!Configuration.Current.AutoStack.IsEnabled || !Configuration.Current.AutoStack.autoStackAllIgnoreEquipment) return instructions;
 
             List<CodeInstruction> il = instructions.ToList();
 

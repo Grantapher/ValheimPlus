@@ -60,5 +60,6 @@ namespace ValheimPlus.Configurations
         public DemisterConfiguration Demister { get; set; }
         public HotTubConfiguration HotTub { get; set; }
         public ShieldGeneratorConfiguration ShieldGenerator { get; set; }
+        public AutoStackConfiguration AutoStack { get; set; }
     }
 }

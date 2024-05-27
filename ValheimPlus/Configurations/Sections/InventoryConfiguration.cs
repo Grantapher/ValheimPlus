@@ -19,9 +19,5 @@ namespace ValheimPlus.Configurations.Sections
         public int karveInventoryRows { get; internal set; } = 2;
         public int longboatInventoryColumns { get; internal set; } = 8;
         public int longboatInventoryRows { get; internal set; } = 3;
-        public bool autoStackAll { get; internal set; } = false;
-        public float autoStackAllRange { get; internal set; } = 10;
-        public bool autoStackAllIgnorePrivateAreaCheck { get; internal set; } = false;
-        public bool autoStackAllIgnoreEquipment { get; internal set; } = false;
     }
 }
