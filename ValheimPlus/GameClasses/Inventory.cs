@@ -2,8 +2,10 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using UnityEngine;
 using ValheimPlus.Configurations;
+using System.Linq;
 
 namespace ValheimPlus.GameClasses
 {
@@ -169,49 +171,42 @@ namespace ValheimPlus.GameClasses
             }
         }
 
-        /// <summary>
-        /// Start the auto stack all loop and surpress stack feedback message
-        /// </summary>
-        static void Prefix(Inventory __instance, ref bool message)
+
+
+
+        private static MethodInfo method_Inventory_ContainsItemByName = AccessTools.Method(typeof(Inventory), nameof(Inventory.ContainsItemByName));
+        private static MethodInfo method_ContainsItemByName = AccessTools.Method(typeof(Container_StackAll_Patch), nameof(Container_StackAll_Patch.ContainsItemByName));
+
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            if (!Configuration.Current.Inventory.autoStackAll) return;
+            if (!Configuration.Current.Inventory.autoStackAll || !Configuration.Current.Inventory.autoStackAllIgnoreEquipment) return instructions;
 
-            // disable message
-            message = false;
-            if (!AutoStackAllStore.isStacking)
+            List<CodeInstruction> il = instructions.ToList();
+
+            for (int i = 0; i < il.Count; ++i)
             {
-                // enable stack recursion bypass and reset count
-                AutoStackAllStore.lastPlayerItemCount = Player.m_localPlayer.m_inventory.CountItems(null);
-                AutoStackAllStore.isStacking = true;
-                AutoStackAllStore.currentInventory = __instance;
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(Inventory), nameof(Inventory.ContainsItemByName), new System.Type[] { typeof(string) })]
-    public static class Container_GetAllItems_Patch
-    {
-        /// <summary>
-        /// If autoStackAllIgnoreEquipment is active, this will only return true if the searched item is not equipable
-        /// </summary>
-        static void Postfix(Inventory __instance, string name, ref bool __result)
-        {
-            // ony perform during auto stacking!
-            if (!AutoStackAllStore.isStacking || !Configuration.Current.Inventory.autoStackAll || !Configuration.Current.Inventory.autoStackAllIgnoreEquipment) return;
-
-            foreach (ItemDrop.ItemData item in __instance.m_inventory)
-            {
-                if (!item.IsEquipable() && item.m_shared.m_name == name)
+                if (il[i].Calls(method_Inventory_ContainsItemByName))
                 {
-                    __result = true;
-                    return;
+                    il[i].operand = method_ContainsItemByName;
+                    break;
                 }
             }
 
-            __result = false;
+            return il.AsEnumerable();
+        }
+
+        public static bool ContainsItemByName(Inventory inventory, string name)
+        {
+            foreach (ItemDrop.ItemData item in inventory.m_inventory)
+            {
+                if (!item.IsEquipable() && item.m_shared.m_name == name)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
-
-
-
 }
