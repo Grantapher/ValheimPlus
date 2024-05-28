@@ -245,8 +245,17 @@ namespace ValheimPlus.GameClasses
             }
 
             if (Configuration.Current.Player.IsEnabled && Configuration.Current.Player.skipIntro)
-                __instance.m_firstSpawn = false;
+            {
+                // this will break newer version. will set it via reflection if present!
+                // __instance.m_firstSpawn = false;
 
+                ValheimPlusPlugin.Logger.LogMessage("======================= searching m_firstSpawn");
+                var prop = __instance.GetType().GetField("m_firstSpawn", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+                if (prop != null)
+                {
+                    prop.SetValue(__instance, false);
+                }
+            }
         }
     }
 
