@@ -7,7 +7,7 @@
         public bool preventPlayerFromTurningOffPublicPosition { get; internal set; } = false;
         
         //relics from the old vplus map pin UI
-        //public bool useImprovedPinEditorUI { get; internal set; } = false;
+        public bool useImprovedPinEditorUI { get; internal set; } = false;
         public bool shareablePins { get; internal set; } = false;  // i think this needs to be on for shareAllPins to work
         public bool shareAllPins { get; internal set; } = false;
         public bool displayCartsAndBoats { get; internal set; } = false;
