@@ -249,11 +249,10 @@ namespace ValheimPlus.GameClasses
                 // this will break newer version. will set it via reflection if present!
                 // __instance.m_firstSpawn = false;
 
-                ValheimPlusPlugin.Logger.LogMessage("======================= searching m_firstSpawn");
-                var prop = __instance.GetType().GetField("m_firstSpawn", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-                if (prop != null)
+                var prop_m_firstSpawn = __instance.GetType().GetField("m_firstSpawn", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+                if (prop_m_firstSpawn != null)
                 {
-                    prop.SetValue(__instance, false);
+                    prop_m_firstSpawn.SetValue(__instance, false);
                 }
             }
         }
