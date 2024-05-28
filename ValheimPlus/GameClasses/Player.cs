@@ -213,7 +213,7 @@ namespace ValheimPlus.GameClasses
 
 
     /// <summary>
-    /// This skips the Intro from vrsion 0.218.16 
+    /// This skips the Intro from version 0.218.16 
     /// </summary>
     [HarmonyPatch(typeof(PlayerProfile), "LoadPlayerFromDisk")]
     public static class PlayerProfile_LoadPlayerFromDisk_Patch
