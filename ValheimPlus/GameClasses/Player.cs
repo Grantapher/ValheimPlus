@@ -213,6 +213,23 @@ namespace ValheimPlus.GameClasses
 
 
     /// <summary>
+    /// This skips the Intro from vrsion 0.218.16 
+    /// </summary>
+    [HarmonyPatch(typeof(PlayerProfile), "LoadPlayerFromDisk")]
+    public static class PlayerProfile_LoadPlayerFromDisk_Patch
+    {
+        private static void Postfix(ref PlayerProfile __instance)
+        {
+            var prop_m_firstSpawn = __instance.GetType().GetField("m_firstSpawn", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            if (prop_m_firstSpawn != null)
+            {
+                prop_m_firstSpawn.SetValue(__instance, false);
+            }
+        }
+    }
+
+
+    /// <summary>
     /// Add ValheimPlus intro to compendium.
     /// </summary>
     [HarmonyPatch(typeof(Player), "OnSpawned")]
