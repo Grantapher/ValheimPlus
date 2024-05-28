@@ -154,5 +154,16 @@ namespace ValheimPlus
         {
             return Math.Min(max, Math.Max(min, value));
         }
+
+
+        public static bool SetFieldIfFound(object obj, string field, object value) {
+            var prop = obj.GetType().GetField(field, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            if (prop != null)
+            {
+                prop.SetValue(obj, value);
+                return true;
+            }
+            return false;
+        }
     }
 }
