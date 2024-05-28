@@ -8,7 +8,7 @@
         
         //relics from the old vplus map pin UI
         public bool useImprovedPinEditorUI { get; internal set; } = false;
-        public bool shareablePins { get; internal set; } = false;  // i think this needs to be on for shareAllPins to work
+        public bool shareablePins { get; internal set; } = false;  // this is used but not in the CFG
         public bool shareAllPins { get; internal set; } = false;
         public bool displayCartsAndBoats { get; internal set; } = false;
     }
