@@ -57,7 +57,7 @@ namespace ValheimPlus
                             ? FreePlacementRotation.PlayersData[__instance].PlaceRotation
                             : __instance.m_placeRotation * 22.5f * Vector3.up;
 
-            ValheimPlusPlugin.Logger.LogMessage($"{rotation}");
+            // ValheimPlusPlugin.Logger.LogMessage($"{rotation}");
 
             return Quaternion.Euler(rotation);
         }
