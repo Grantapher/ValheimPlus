@@ -101,11 +101,11 @@ namespace ValheimPlus.GameClasses
 
         private static void AddModifiedDrops(List<GameObject> dropList, GameObject dropObject, float modifier)
         {
-            for (int i = 0; i < Helper.applyModifierValue(1f, modifier); i++)
+            int amount = Helper.applyModifierValueWithChance(1f, modifier);
+            for (int i = 0; i < amount; i++)
             {
                 dropList.Add(dropObject);
             }
-
         }
     }
 
