@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/nxPublic/ValheimPlus/master/logo.png" alt="ValheimPlus Logo"/>
+  <img src="https://raw.githubusercontent.com/grantapher/ValheimPlus/master/logo.png" alt="ValheimPlus Logo"/>
 </p>
 
 # ValheimPlus
@@ -422,7 +422,7 @@ When hosting for other players over steam, every player will need v+ and they wi
 
 We have several different channels including a showcase channel and alpha testing system, allowing players to always get the newest versions available to test out. Click the logo below to join.
 
-[![ValheimPlus Icon](https://raw.githubusercontent.com/nxPublic/ValheimPlus/master/ico.png)](https://discord.gg/WU69A2JTcn)
+[![ValheimPlus Icon](https://raw.githubusercontent.com/grantapher/ValheimPlus/master/ico.png)](https://discord.gg/WU69A2JTcn)
 
 # Contributing to ValheimPlus
 
