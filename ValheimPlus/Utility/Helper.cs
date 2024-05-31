@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 
@@ -61,25 +62,29 @@ namespace ValheimPlus
             double result = Math.Truncate(mult * value) / mult;
             return (float)result;
         }
-         
-        public static float applyModifierValue(float targetValue, float value)
-        {
-            
+
+        public static float applyModifierValue(float targetValue, float value) {
             if (value <= -100)
-                value = -100;
+                return 0f;
 
-            float newValue = targetValue;
+            return targetValue + (targetValue / 100.0f * value);
+        }
 
-            if (value >= 0)
-            {
-                newValue = targetValue + ((targetValue / 100) * value);
-            }
-            else
-            {
-                newValue = targetValue - ((targetValue / 100) * (value * -1));
-            }
+        /// <summary>
+        /// Calculate new value with chance mechanics.<br/><br/>
+        /// On <c>targetValue = 1</c> and <c>value = 10</c> function will return "1 + (1 with 10% chance)"
+        /// </summary>
+        /// <param name="targetValue">Value to be modified</param>
+        /// <param name="value">Modification coefficient in percentage</param>
+        /// <returns>New value with chance mechanics</returns>
+        public static int applyModifierValueWithChance(float targetValue, float value) {
+            float realValue = applyModifierValue(targetValue, value);
+            if (realValue == 0f)
+                return 0;
+            int guaranteedValue = (int)Math.Floor(realValue);
 
-            return newValue;
+            // 1 - [0; 1) => (0; 1] -- to prevent additional drop on (realValue - guaranteedValue) being zero
+            return guaranteedValue + ((realValue - guaranteedValue) > (1 - new System.Random().NextDouble()) ? 1 : 0);
         }
 
         public static Texture2D LoadPng(Stream fileStream)
@@ -153,6 +158,17 @@ namespace ValheimPlus
         public static float Clamp(float value, float min, float max)
         {
             return Math.Min(max, Math.Max(min, value));
+        }
+
+        private const BindingFlags FieldBindingFlags =
+            BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public;
+
+        public static bool SetFieldIfFound(object obj, string field, object value)
+        {
+            var prop = obj.GetType().GetField(field, FieldBindingFlags);
+            if (prop == null) return false;
+            prop.SetValue(obj, value);
+            return true;
         }
     }
 }

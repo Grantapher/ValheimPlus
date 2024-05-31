@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="ILRepacker" AfterTargets="Build" BeforeTargets="PostBuildEvent">
+        <ItemGroup>
+            <InputAssemblies Include="$(TargetPath)" />
+            <InputAssemblies Include="$(OutputPath)ServerSync.dll" />
+            <InputAssemblies Include="$(OutputPath)YamlDotNet.dll"/>
+            <InputAssemblies Include="$(OutputPath)INIFileParser.dll"/>
+            <LibraryPath Include="%(ReferencePathWithRefAssemblies.RelativeDir)" />
+        </ItemGroup>
+        <ILRepack Parallel="true" DebugInfo="true" Internalize="true" InputAssemblies="@(InputAssemblies)" OutputFile="$(TargetPath)" TargetKind="SameAsPrimaryAssembly" LibraryPath="@(LibraryPath)" />
+    </Target>
+</Project>

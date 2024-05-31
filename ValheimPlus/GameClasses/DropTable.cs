@@ -1,113 +1,73 @@
-using System;
 using System.Collections.Generic;
 using HarmonyLib;
-using ValheimPlus.Configurations;
+using JetBrains.Annotations;
 using UnityEngine;
+using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
-
-
-    [HarmonyPatch(typeof(DropTable), "GetDropList", new Type[] { typeof(int) })]
+    [HarmonyPatch(typeof(DropTable), "GetDropList", typeof(int))]
     public static class DropTable_GetDropList_Patch
     {
-
-        static float originalDropChance = 0;
-        private static void Prefix(ref DropTable __instance, ref List<GameObject> __result, int amount)
+        [UsedImplicitly]
+        private static void Prefix(ref DropTable __instance, ref List<GameObject> __result, int amount,
+            ref float __state)
         {
-            originalDropChance = __instance.m_dropChance; // we have to save the original to change it back after the function
-            if (Configuration.Current.Gathering.IsEnabled && Configuration.Current.Gathering.dropChance != 0 && __instance.m_dropChance != 1)
-            {
-                float modified = Helper.applyModifierValue(__instance.m_dropChance, Configuration.Current.Gathering.dropChance);
-                __instance.m_dropChance = Helper.Clamp(modified, 0, 1);
-            }
+            __state = __instance.m_dropChance; // we have to save the original to change it back after the function
+
+            var config = Configuration.Current.Gathering;
+            if (!config.IsEnabled || config.dropChance == 0 || !Mathf.Approximately(__instance.m_dropChance, 1f))
+                return;
+            float modified = Helper.applyModifierValue(__instance.m_dropChance, config.dropChance);
+            __instance.m_dropChance = Helper.Clamp(modified, 0, 1);
         }
 
-        private static void Postfix(ref DropTable __instance, ref List<GameObject> __result, int amount)
+        [UsedImplicitly]
+        private static void Postfix(ref DropTable __instance, ref List<GameObject> __result, ref float __state)
         {
-            __instance.m_dropChance = originalDropChance; // Apply the original drop chance in case modified
+            __instance.m_dropChance = __state; // Apply the original drop chance in case it was modified
 
-            if (!Configuration.Current.Gathering.IsEnabled)
-                return;
+            var config = Configuration.Current.Gathering;
+            if (!config.IsEnabled) return;
 
-            List<GameObject> newResultDrops = new List<GameObject>();
-            foreach (GameObject toDrop in __result)
+            var newResultDrops = new List<GameObject>();
+            foreach (var drop in __result)
             {
-                switch (toDrop.name)
+                float dropMultiplier = drop.name switch
                 {
-                    case "Wood": // Wood
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.wood);
-                        break;
-                    case "FineWood": // Finewood
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.fineWood);
-                        break;
-                    case "RoundLog": // Corewood
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.coreWood);
-                        break;
-                    case "ElderBark": // ElderBark
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.elderBark);
-                        break;
-                    case "YggdrasilWood": // YggdrasilWood
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.yggdrasilWood);
-                        break;
-                    case "Stone": // Stone
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.stone);
-                        break;
-                    case "BlackMarble": // BlackMarble
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.blackMarble);
-                        break;
-                    case "TinOre": // Tin
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.tinOre);
-                        break;
-                    case "CopperOre": // CopperOre
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.copperOre);
-                        break;
-                    case "CopperScrap": // CopperScrap
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.copperScrap);
-                        break;
-                    case "IronScrap": // Iron
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.ironScrap);
-                        break;
-                    case "SilverOre": // Silver
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.silverOre);
-                        break;
-                    case "Chitin": // Chitin
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.chitin);
-                        break;
-                    case "Feathers": // Feather
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.feather);
-                        break;
-                    case "Grausten": // Grausten
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.grausten);
-                        break;
-                    case "Blackwood": // Ashwood
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.blackwood);
-                        break;
-                    case "FlametalOreNew": // Flametal
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.flametalOre);
-                        break;
-                    case "ProustitePowder": // ProustitePowder
-                        AddModifiedDrops(newResultDrops, toDrop, Configuration.Current.Gathering.proustitePowder);
-                        break;
+                    "Wood" => config.wood,
+                    "FineWood" => config.fineWood,
+                    "RoundLog" => config.coreWood, // Corewood
+                    "ElderBark" => config.elderBark,
+                    "YggdrasilWood" => config.yggdrasilWood,
+                    "Stone" => config.stone,
+                    "BlackMarble" => config.blackMarble,
+                    "TinOre" => config.tinOre,
+                    "CopperOre" => config.copperOre,
+                    "CopperScrap" => config.copperScrap,
+                    "IronScrap" => config.ironScrap,
+                    "SilverOre" => config.silverOre,
+                    "Chitin" => config.chitin,
+                    "Feathers" => config.feather,
+                    "Grausten" => config.grausten,
+                    "Blackwood" => config.blackwood, // Ashwood
+                    "FlametalOreNew" => config.flametalOre, // Flametal
+                    "ProustitePowder" => config.proustitePowder, // Proustite Powder
+                    _ => 1f
+                };
 
-                    default:
-                        newResultDrops.Add(toDrop);
-                        break;
+                // ReSharper disable once CompareOfFloatsByEqualityOperator expecting exactly 1f.
+                if (dropMultiplier == 1f)
+                {
+                    newResultDrops.Add(drop);
+                    continue;
                 }
+
+                int modifiedAmount = Helper.applyModifierValueWithChance(1f, dropMultiplier);
+                for (int i = 0; i < modifiedAmount; i++) newResultDrops.Add(drop);
             }
 
             __result = newResultDrops;
         }
-
-        private static void AddModifiedDrops(List<GameObject> dropList, GameObject dropObject, float modifier)
-        {
-            for (int i = 0; i < Helper.applyModifierValue(1f, modifier); i++)
-            {
-                dropList.Add(dropObject);
-            }
-
-        }
     }
-
-
 }

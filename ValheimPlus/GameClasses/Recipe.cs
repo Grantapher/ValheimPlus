@@ -1,11 +1,9 @@
-﻿using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using UnityEngine;
+using HarmonyLib;
+using JetBrains.Annotations;
 using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
@@ -13,78 +11,79 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Recipe), nameof(Recipe.GetAmount))]
     public static class Recipe_GetAmount_Transpiler
     {
-        
-        private static List<Container> nearbyChests = null;
-        private static MethodInfo method_Player_GetFirstRequiredItem = AccessTools.Method(typeof(Player), nameof(Player.GetFirstRequiredItem));
-        private static MethodInfo method_GetFirstRequiredItemFromNearbyChests = AccessTools.Method(typeof(Recipe_GetAmount_Transpiler), nameof(Recipe_GetAmount_Transpiler.GetFirstRequiredItem));
-        
+        private static List<Container> nearbyChests;
+
+        private static readonly MethodInfo Method_Player_GetFirstRequiredItem =
+            AccessTools.Method(typeof(Player), nameof(Player.GetFirstRequiredItem));
+
+        private static readonly MethodInfo Method_GetFirstRequiredItemFromNearbyChests =
+            AccessTools.Method(typeof(Recipe_GetAmount_Transpiler), nameof(GetFirstRequiredItem));
+
 
         /// <summary>
         /// A fix for the fishy partial recipe bug. https://github.com/Grantapher/ValheimPlus/issues/40
+        /// Adds support for recipes with multiple sets of required items.
         /// </summary>
+        [UsedImplicitly]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             if (!Configuration.Current.CraftFromChest.IsEnabled) return instructions;
-            List<CodeInstruction> il = instructions.ToList();
-            int endIdx = -1;
+            var il = instructions.ToList();
             for (int i = 0; i < il.Count; i++)
             {
-                if (il[i].Calls(method_Player_GetFirstRequiredItem))
+                if (il[i].Calls(Method_Player_GetFirstRequiredItem))
                 {
-                    il[i] = new CodeInstruction(OpCodes.Call, method_GetFirstRequiredItemFromNearbyChests);
-                    endIdx = i;
-                    break;
+                    il[i] = new CodeInstruction(OpCodes.Call, Method_GetFirstRequiredItemFromNearbyChests);
+                    return il.AsEnumerable();
                 }
             }
-            if (endIdx == -1)
-            {
-                return instructions;
-            }
 
+            ValheimPlusPlugin.Logger.LogError("Couldn't transpile `Recipe.GetAmount`!");
             return il.AsEnumerable();
         }
 
-        private static ItemDrop.ItemData GetFirstRequiredItem(Player player, Inventory inventory, Recipe recipe, int qualityLevel, out int amount, out int extraAmount)
+        private static ItemDrop.ItemData GetFirstRequiredItem(Player player, Inventory inventory, Recipe recipe,
+            int qualityLevel, out int amount, out int extraAmount)
         {
             // call the old method first
-            ItemDrop.ItemData result = player.GetFirstRequiredItem(inventory, recipe, qualityLevel, out amount, out extraAmount);
-
-            if(result != null) {
+            var result = player.GetFirstRequiredItem(inventory, recipe, qualityLevel, out amount, out extraAmount);
+            if (result != null)
+            {
                 // we found items on the player
                 return result;
-            } else {
-                // need a game object here. Do not know if the player is a good choice for this. But i have no refference to the crafting station.
-                Stopwatch delta = GameObjectAssistant.GetStopwatch(player.gameObject);
-                int lookupInterval = Helper.Clamp(Configuration.Current.CraftFromChest.lookupInterval, 1, 10) * 1000;
-                if (!delta.IsRunning || delta.ElapsedMilliseconds > lookupInterval)
-                {
-                    nearbyChests = InventoryAssistant.GetNearbyChests(player.gameObject, Helper.Clamp(Configuration.Current.CraftFromChest.range, 1, 50), !Configuration.Current.CraftFromChest.ignorePrivateAreaCheck);
-                    delta.Restart();
-                }
+            }
 
-                // try to find them inside chests.
-                Piece.Requirement[] resources = recipe.m_resources;
-                foreach (Container c in nearbyChests)
+            var craftingStationGameObj = recipe.m_craftingStation.gameObject;
+            var stopwatch = GameObjectAssistant.GetStopwatch(craftingStationGameObj);
+            int lookupInterval = Helper.Clamp(Configuration.Current.CraftFromChest.lookupInterval, 1, 10) * 1000;
+            if (!stopwatch.IsRunning || stopwatch.ElapsedMilliseconds > lookupInterval)
+            {
+                nearbyChests = InventoryAssistant.GetNearbyChests(craftingStationGameObj,
+                    Helper.Clamp(Configuration.Current.CraftFromChest.range, 1, 50),
+                    !Configuration.Current.CraftFromChest.ignorePrivateAreaCheck);
+                stopwatch.Restart();
+            }
+
+            // try to find them inside chests.
+            var requirements = recipe.m_resources;
+            foreach (var chest in nearbyChests)
+            {
+                if (!chest) continue;
+                foreach (var requirement in requirements)
                 {
-                    if(!c) continue;
-                    foreach (Piece.Requirement requirement in resources)
+                    if (!requirement.m_resItem) continue;
+
+                    int requiredAmount = requirement.GetAmount(qualityLevel);
+                    var requirementSharedItemData = requirement.m_resItem.m_itemData.m_shared;
+                    for (int i = 0; i <= requirementSharedItemData.m_maxQuality; i++)
                     {
-                        if (!requirement.m_resItem)
-                        {
-                            continue;
-                        }
+                        var requirementName = requirementSharedItemData.m_name;
+                        if (chest.m_inventory.CountItems(requirementName, i) < requiredAmount) continue;
 
-                        int amount2 = requirement.GetAmount(qualityLevel);
-                        for (int j = 0; j <= requirement.m_resItem.m_itemData.m_shared.m_maxQuality; j++)
-                        {
-                            if (c.m_inventory.CountItems(requirement.m_resItem.m_itemData.m_shared.m_name, j) >= amount2)
-                            {
-                                amount = amount2;
-                                extraAmount = requirement.m_extraAmountOnlyOneIngredient;
-                                return c.m_inventory.GetItem(requirement.m_resItem.m_itemData.m_shared.m_name, j);
-                            }
-                        }
+                        amount = requiredAmount;
+                        extraAmount = requirement.m_extraAmountOnlyOneIngredient;
+                        return chest.m_inventory.GetItem(requirementName, i);
                     }
                 }
             }

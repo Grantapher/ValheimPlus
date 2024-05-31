@@ -2308,5 +2308,74 @@
 				"defaultType": "bool"
 			}
 		}
+	},
+	"Oven": {
+		"description": "",
+		"icon": "fa fa-cutlery",
+		"description_website": "Change the in-game behavior of the oven and modify its values.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"infiniteFuel": {
+				"description": "If set to true, the oven will stay at max fuel level, without consuming any fuel.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"autoFuel": {
+				"description": "Look for fuel inside nearby chests.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"ignorePrivateAreaCheck": {
+				"description": "Change true to false to enable private area check when looking for chests.",
+				"defaultValue": "true",
+				"defaultType": "bool"
+			},
+			"autoRange": {
+				"description": "The range of chest detection for the auto fuel feature. (Maximum is 50)",
+				"defaultValue": "10",
+				"defaultType": "float"
+			}
+		}
+	},
+	"SapCollector": {
+		"description": "",
+		"icon": "fa fa-eyedropper",
+		"description_website": "Change the in-game behavior of the sap extractor and modify its values.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"sapProductionSpeed": {
+				"description": "Configure the speed at which the collector produces sap in seconds, 75 seconds is 1 in-game hour.",
+				"defaultValue": "60",
+				"defaultType": "float"
+			},
+			"maximumSapPerCollector": {
+				"description": "Configure the maximum amount of sap per collector",
+				"defaultValue": "10",
+				"defaultType": "int"
+			},
+			"autoDeposit": {
+				"description": "Instead of dropping the items, they will be placed inside nearby chests.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"autoDepositRange": {
+				"description": "The range of the chest detection for the auto deposit feature. (Maximum is 50)",
+				"defaultValue": "10",
+				"defaultType": "float"
+			},
+			"showDuration": {
+				"description": "Display the time until the collector produces sap, on hover.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			}
+		}
 	}
 }

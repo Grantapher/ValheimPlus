@@ -211,7 +211,6 @@ namespace ValheimPlus.GameClasses
         }
     }
 
-
     /// <summary>
     /// Add ValheimPlus intro to compendium.
     /// </summary>
@@ -243,10 +242,6 @@ namespace ValheimPlus.GameClasses
                 VPlusMapSync.SendMapToServer();
                 VPlusMapSync.ShouldSyncOnSpawn = false;
             }
-
-            if (Configuration.Current.Player.IsEnabled && Configuration.Current.Player.skipIntro)
-                __instance.m_firstSpawn = false;
-
         }
     }
 

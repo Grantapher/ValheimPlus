@@ -72,7 +72,7 @@ namespace ValheimPlus.GameClasses
                 VPlusMapSync.LoadMapDataFromDisk();
 
                 //Start map data save timer
-                ValheimPlusPlugin.mapSyncSaveTimer.Start();
+                ValheimPlusPlugin.MapSyncSaveTimer.Start();
             }
         }
     }

@@ -62,5 +62,7 @@ namespace ValheimPlus.Configurations
         public ShieldGeneratorConfiguration ShieldGenerator { get; set; }
         public TurretConfiguration Turret { get; set; }
         public AutoStackConfiguration AutoStack { get; set; }
+        public OvenConfiguration Oven { get; set; }
+        public SapCollectorConfiguration SapCollector { get; set; }
     }
 }

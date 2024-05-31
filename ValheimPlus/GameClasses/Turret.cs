@@ -1,11 +1,9 @@
-﻿using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using UnityEngine;
-using ValheimPlus.Configurations;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using HarmonyLib;
+using JetBrains.Annotations;
+using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
@@ -15,19 +13,15 @@ namespace ValheimPlus.GameClasses
         /// <summary>
         /// Configure the turret on wakeup
         /// </summary>
-        static void Prefix(Turret __instance)
+        [UsedImplicitly]
+        private static void Prefix(Turret __instance)
         {
-            if (!Configuration.Current.Turret.IsEnabled) return;
-
-            if(Configuration.Current.Turret.ignorePlayers)
-                __instance.m_targetPlayers = false;
-
-            __instance.m_turnRate = Helper.applyModifierValue(__instance.m_turnRate, Configuration.Current.Turret.turnRate);
-
-            __instance.m_attackCooldown = Helper.applyModifierValue(__instance.m_attackCooldown, Configuration.Current.Turret.attackCooldown);
-
-            __instance.m_viewDistance = Helper.applyModifierValue(__instance.m_viewDistance, Configuration.Current.Turret.viewDistance);
-
+            var config = Configuration.Current.Turret;
+            if (!config.IsEnabled) return;
+            if (config.ignorePlayers) __instance.m_targetPlayers = false;
+            __instance.m_turnRate = Helper.applyModifierValue(__instance.m_turnRate, config.turnRate);
+            __instance.m_attackCooldown = Helper.applyModifierValue(__instance.m_attackCooldown, config.attackCooldown);
+            __instance.m_viewDistance = Helper.applyModifierValue(__instance.m_viewDistance, config.viewDistance);
         }
     }
 
@@ -37,25 +31,29 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Turret), nameof(Turret.ShootProjectile))]
     public static class Turret_ShootProjectile_Patch
     {
-        private static MethodInfo method_ZDO_Set = AccessTools.Method(typeof(ZDO), nameof(ZDO.Set), new System.Type[] { typeof(int), typeof(int), typeof(bool)});
+        // ReSharper disable once InconsistentNaming wants ZDO to be Zdo
+        private static readonly MethodInfo Method_ZDO_Set =
+            AccessTools.Method(typeof(ZDO), nameof(ZDO.Set), new[] { typeof(int), typeof(int), typeof(bool) });
 
+        [UsedImplicitly]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            if (!Configuration.Current.Turret.IsEnabled || !Configuration.Current.Turret.unlimitedAmmo) return instructions;
+            var config = Configuration.Current.Turret;
+            if (!config.IsEnabled || !config.unlimitedAmmo) return instructions;
 
-            List<CodeInstruction> il = instructions.ToList();
-
+            var il = instructions.ToList();
             for (int i = 0; i < il.Count; ++i)
             {
-                if (il[i].Calls(method_ZDO_Set))
+                if (il[i].Calls(Method_ZDO_Set))
                 {
                     // remove set ZDO code so ammo count is never updated!
-                    il.RemoveRange(i-8, 9);
-                    break;
+                    il.RemoveRange(i - 8, 9);
+                    return il.AsEnumerable();
                 }
             }
 
+            ValheimPlusPlugin.Logger.LogError("Couldn't transpile `Turret.ShootProjectile`!");
             return il.AsEnumerable();
         }
     }

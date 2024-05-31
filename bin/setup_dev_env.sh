@@ -70,7 +70,7 @@ rm "$ASSEMBLY_PUBLICIZER_ZIP_FILE" # todo remove
 ASSEMBLY_PUBLICIZER_EXE=$(realpath "$ASSEMBLY_PUBLICIZER_TEMP_DIR/AssemblyPublicizer/AssemblyPublicizer.exe")
 ( \
     cd "$VALHEIM_INSTALL/valheim_Data/Managed/" \
-        && find . | grep -e "assembly_.*\.dll" | xargs -d'\n' -n1 "$ASSEMBLY_PUBLICIZER_EXE" \
+        && find . -maxdepth 1 -type f | grep -e "assembly_.*\.dll" | xargs -d'\n' -n1 "$ASSEMBLY_PUBLICIZER_EXE" \
 )
 
 rm -rf "$TEMP_DIR"

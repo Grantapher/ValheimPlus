@@ -15,7 +15,7 @@ namespace ValheimPlus.GameClasses
             if (!ValheimPlusPlugin.isUpToDate && ValheimPlusPlugin.newestVersion != "Unknown")
             {
                 __instance.AddString("ValheimPlus [" + ValheimPlusPlugin.fullVersion + "] is outdated, version [" + ValheimPlusPlugin.newestVersion + "] is available.");
-                __instance.AddString("Please visit " + ValheimPlusPlugin.Repository + ".");
+                __instance.AddString("Please visit " + ValheimPlusPlugin.repository + ".");
             }
             else
             {

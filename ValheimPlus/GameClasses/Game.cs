@@ -1,9 +1,10 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using HarmonyLib;
+using JetBrains.Annotations;
 using ValheimPlus.Configurations;
 using ValheimPlus.RPC;
 
@@ -15,58 +16,62 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Game), nameof(Game.Start))]
     public static class Game_Start_Patch
     {
+        [UsedImplicitly]
         private static void Prefix()
         {
-            ZRoutedRpc.instance.Register("VPlusConfigSync", new Action<long, ZPackage>(VPlusConfigSync.RPC_VPlusConfigSync)); //Config Sync
-            ZRoutedRpc.instance.Register("VPlusMapSync", new Action<long, ZPackage>(VPlusMapSync.RPC_VPlusMapSync)); //Map Sync
-            ZRoutedRpc.instance.Register("VPlusMapAddPin", new Action<long, ZPackage>(VPlusMapPinSync.RPC_VPlusMapAddPin)); //Map Pin Sync
-            ZRoutedRpc.instance.Register("VPlusAck", new Action<long>(VPlusAck.RPC_VPlusAck)); //Ack
+            ZRoutedRpc.instance.Register<ZPackage>("VPlusConfigSync", VPlusConfigSync.RPC_VPlusConfigSync);
+            ZRoutedRpc.instance.Register<ZPackage>("VPlusMapSync", VPlusMapSync.RPC_VPlusMapSync);
+            ZRoutedRpc.instance.Register<ZPackage>("VPlusMapAddPin", VPlusMapPinSync.RPC_VPlusMapAddPin);
+            ZRoutedRpc.instance.Register("VPlusAck", VPlusAck.RPC_VPlusAck);
         }
     }
 
-
     /// <summary>
-    /// Alter game difficulty damage scale
+    /// Alter game difficulty damage scale.
     /// </summary>
     [HarmonyPatch(typeof(Game), nameof(Game.GetDifficultyDamageScalePlayer))]
     public static class Game_GetDifficultyDamageScale_Patch
     {
-        private static float baseDifficultyDamageScale = 0.04f;
-
-        private static void Postfix(ref float __result)
+        [UsedImplicitly]
+        private static void Prefix(Game __instance)
         {
-            if (Configuration.Current.Game.IsEnabled)
-                __result = ((__result - 1f) / baseDifficultyDamageScale * Configuration.Current.Game.gameDifficultyDamageScale / 100f) + 1f;
+            var config = Configuration.Current.Game;
+            if (!config.IsEnabled) return;
+            __instance.m_damageScalePerPlayer = config.gameDifficultyDamageScale / 100f;
         }
     }
 
-
     /// <summary>
-    /// Disable the "i have arrived" message on spawn.
-    /// </summary>
-    [HarmonyPatch(typeof(Game), nameof(Game.UpdateRespawn))]
-    public static class Game_UpdateRespawn_Patch
-    {
-        private static void Prefix(ref Game __instance, float dt)
-        {
-            if (Configuration.Current.Player.IsEnabled && !Configuration.Current.Player.iHaveArrivedOnSpawn)
-                __instance.m_firstSpawn = false;
-        }
-    }
-
-    // todo it seems that this only decreases the damage of the player, not increases enemy health.
-    /// <summary>
-    /// Alter game difficulty health scale for enemies
+    /// Alter game difficulty health scale for enemies.
+    /// 
+    /// Although the underlying game code seems to just scale the damage down,
+    /// in game this results in the same damage but higher enemy health.
+    /// Not sure how that is converted in the game code, however. 
     /// </summary>
     [HarmonyPatch(typeof(Game), nameof(Game.GetDifficultyDamageScaleEnemy))]
     public static class Game_GetDifficultyHealthScale_Patch
     {
-        private static float baseDifficultyHealthScale = 0.3f;
-
-        private static void Postfix(ref float __result)
+        [UsedImplicitly]
+        private static void Prefix(Game __instance)
         {
-            if (Configuration.Current.Game.IsEnabled)
-                __result = ((__result - 1f) / baseDifficultyHealthScale * Configuration.Current.Game.gameDifficultyHealthScale / 100f) + 1f;
+            var config = Configuration.Current.Game;
+            if (!config.IsEnabled) return;
+            __instance.m_healthScalePerPlayer = config.gameDifficultyHealthScale / 100f;
+        }
+    }
+
+    /// <summary>
+    /// Disable the "I have arrived" message on spawn.
+    /// </summary>
+    [HarmonyPatch(typeof(Game), nameof(Game.UpdateRespawn))]
+    public static class Game_UpdateRespawn_Patch
+    {
+        [UsedImplicitly]
+        private static void Prefix(ref Game __instance, float dt)
+        {
+            var config = Configuration.Current.Player;
+            if (!config.IsEnabled || config.iHaveArrivedOnSpawn) return;
+            __instance.m_firstSpawn = false;
         }
     }
 
@@ -76,12 +81,13 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Game), nameof(Game.GetPlayerDifficulty))]
     public static class Game_GetPlayerDifficulty_Patch
     {
-
-        private static readonly FieldInfo field_m_difficultyScaleRange = AccessTools.Field(typeof(Game), "m_difficultyScaleRange");
+        private static readonly FieldInfo Field_M_DifficultyScaleRange =
+            AccessTools.Field(typeof(Game), nameof(Game.m_difficultyScaleRange));
 
         /// <summary>
         /// Patches the range used to check the number of players around.
         /// </summary>
+        [UsedImplicitly]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -89,33 +95,30 @@ namespace ValheimPlus.GameClasses
 
             float range = Math.Min(Configuration.Current.Game.difficultyScaleRange, 2);
 
-            List<CodeInstruction> il = instructions.ToList();
+            var il = instructions.ToList();
             for (int i = 0; i < il.Count; i++)
             {
-                if (il[i].LoadsField(field_m_difficultyScaleRange))
+                if (il[i].LoadsField(Field_M_DifficultyScaleRange))
                 {
                     il.RemoveAt(i - 1); // remove "this"
-                    il[i - 1] = new CodeInstruction(OpCodes.Ldc_R4, range); // replace field with our range as a constant
+                    // replace field with our range as a constant
+                    il[i - 1] = new CodeInstruction(OpCodes.Ldc_R4, range);
                     return il.AsEnumerable();
                 }
             }
 
             ValheimPlusPlugin.Logger.LogError("Failed to apply Game_GetPlayerDifficulty_Patch.Transpiler");
 
-            return instructions;
+            return il;
         }
 
+        [UsedImplicitly]
         private static void Postfix(ref int __result)
         {
-            if (Configuration.Current.Game.IsEnabled)
-            {
-                if (Configuration.Current.Game.setFixedPlayerCountTo > 0)
-                {
-                    __result = Configuration.Current.Game.setFixedPlayerCountTo + Configuration.Current.Game.extraPlayerCountNearby;
-                    return;
-                }
-                __result += Configuration.Current.Game.extraPlayerCountNearby;
-            }
+            var config = Configuration.Current.Game;
+            if (!config.IsEnabled) return;
+            if (config.setFixedPlayerCountTo > 0) __result = config.setFixedPlayerCountTo;
+            __result += config.extraPlayerCountNearby;
         }
     }
 }

@@ -247,7 +247,7 @@ namespace ValheimPlus.UI
                     GameObject enableToggleThis = CreateEnableToggle(keyName,
                         settingFamillyProp.GetType().GetProperty("IsEnabled").GetValue(settingFamillyProp).ToString(),
                         settingsContentPanel.transform,
-                        string.Join("\n", configdata[keyName].GetKeyData("enabled").Comments));
+                        configdata[keyName]?.GetKeyData("enabled")?.Comments?.Join(delimiter: "\n"));
                     settingFamillySettings[keyName].Add(enableToggleThis);
                     var praeteriCommentarium = "";
                     foreach (var setting in prop.PropertyType.GetProperties())
@@ -258,7 +258,7 @@ namespace ValheimPlus.UI
                         var commentarium = "";
                         if (keyDatumCommentate != null)
                         {
-                            commentarium = string.Join("\n", keyDatumCommentate.Comments);
+                            commentarium = keyDatumCommentate.Comments?.Join(delimiter: "\n");
                             praeteriCommentarium = commentarium;
                         }
                         else

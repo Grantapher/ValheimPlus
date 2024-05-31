@@ -20,7 +20,7 @@ namespace ValheimPlus.GameClasses
 
             if (_yieldModifierDict.TryGetValue(item.name, out float yieldModifier))
             {
-                return (int)Helper.applyModifierValue(originalAmount, yieldModifier);
+                return Helper.applyModifierValueWithChance(originalAmount, yieldModifier);
             }
 
             return originalAmount;

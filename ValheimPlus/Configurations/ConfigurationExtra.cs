@@ -6,6 +6,7 @@ using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using UnityEngine;
 using ValheimPlus.Configurations.Sections;
@@ -35,6 +36,22 @@ namespace ValheimPlus.Configurations
 
         public static string ConfigIniPath = Path.GetDirectoryName(Paths.BepInExConfigPath) + Path.DirectorySeparatorChar + "valheim_plus.cfg";
 
+        private static string GetCurrentWebIniFile()
+        {
+            var client = new WebClient();
+            client.Headers.Add("User-Agent: V+ Server");
+            try
+            {
+                ValheimPlusPlugin.Logger.LogInfo($"Downloading config from: '{ValheimPlusPlugin.IniFile}'");
+                return client.DownloadString(ValheimPlusPlugin.IniFile);
+            }
+            catch (Exception e)
+            {
+                ValheimPlusPlugin.Logger.LogError($"Error downloading config from '{ValheimPlusPlugin.IniFile}': {e}");
+                return null;
+            }
+        }
+
         public static bool LoadSettings()
         {
             try
@@ -52,7 +69,7 @@ namespace ValheimPlus.Configurations
                         try
                         {
                             // get the current versions ini data
-                            compareIni = ValheimPlusPlugin.getCurrentWebIniFile();
+                            compareIni = GetCurrentWebIniFile();
                         }
                         catch (Exception) 
                         {
@@ -84,7 +101,7 @@ namespace ValheimPlus.Configurations
                     bool status = false;
                     try
                     {
-                        string defaultIni = ValheimPlusPlugin.getCurrentWebIniFile();
+                        string defaultIni = GetCurrentWebIniFile();
                         if (defaultIni != null)
                         {
                             File.WriteAllText(ConfigIniPath, defaultIni);
