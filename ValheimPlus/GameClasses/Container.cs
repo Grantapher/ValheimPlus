@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ValheimPlus.Configurations;
 using UnityEngine;
+using JetBrains.Annotations;
 
 namespace ValheimPlus.GameClasses
 {
@@ -117,6 +118,21 @@ namespace ValheimPlus.GameClasses
             };
 
 
+        }
+    }
+
+
+    // willkeep this here since the code is closely cuppled to the stack all inventory feature.
+    [HarmonyPatch(typeof(Container), nameof(Container.RPC_StackResponse))]
+    public static class Container_RPC_StackResponse_Patch
+    {
+        /// <summary>
+        /// Call StackAll on all chests in range.
+        /// </summary>
+        [UsedImplicitly]
+        private static void Postfix(Container __instance)
+        {
+            StackAllQueueState.DequeueContainer();
         }
     }
 }

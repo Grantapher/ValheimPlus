@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -111,45 +109,17 @@ namespace ValheimPlus.GameClasses
         }
     }
 
-    [HarmonyPatch(typeof(Inventory), nameof(Inventory.StackAll))]
-    public static class Inventory_StackAll_Patch
-    {
-        private static Inventory _currentInventory;
-        private static List<Container> _containerQueue;
-        private static int _containerCount;
-        private static int _lastPlayerItemCount;
-
-        /// <summary>
-        /// Start the auto stack all loop and suppress stack feedback message
-        /// </summary>
-        [UsedImplicitly]
-        private static void Prefix(Inventory __instance, ref bool message)
-        {
-            if (!true) return;
-
-            // disable message
-            message = false;
-            if (_currentInventory != null) return;
-
-            // enable stack recursion bypass and reset count
-            _lastPlayerItemCount = Player.m_localPlayer.m_inventory.CountItems(null);
-            _currentInventory = __instance;
-
-            // get chests in range
-            var gameObj = Player.m_localPlayer.gameObject;
-            _containerQueue = InventoryAssistant.GetNearbyChests(gameObj,
-                Helper.Clamp(Configuration.Current.AutoStack.autoStackAllRange, 1, 50),
-                !Configuration.Current.AutoStack.autoStackAllIgnorePrivateAreaCheck);
-            _containerCount = _containerQueue.Count;
-
-            dequeueContainer();
-        }
-
-        public static void dequeueContainer()
+    public static class StackAllQueueState {
+        public static Inventory _currentInventory;
+        public static List<Container> _containerQueue;
+        public static int _containerCount;
+        public static int _lastPlayerItemCount;
+        public static void DequeueContainer()
         {
             // finish up if all chests done.
-            if (_containerQueue.Count <= 0) {
-                finishStacking();
+            if (_containerQueue.Count <= 0)
+            {
+                FinishStacking();
                 return;
             }
             // pop from queue
@@ -157,8 +127,9 @@ namespace ValheimPlus.GameClasses
             _containerQueue.RemoveAt(0);
 
             // check for active inventory or in use before calling RPC and skip
-            if (container.m_inventory == _currentInventory || container.IsInUse()) {
-                dequeueContainer();
+            if (container.m_inventory == _currentInventory || container.IsInUse())
+            {
+                DequeueContainer();
                 return;
             }
 
@@ -166,8 +137,10 @@ namespace ValheimPlus.GameClasses
             container.StackAll();
         }
 
-        public static void finishStacking() {
-            if (_containerQueue.Count > 0) {
+        public static void FinishStacking()
+        {
+            if (_containerQueue.Count > 0)
+            {
                 return;
             }
 
@@ -181,6 +154,38 @@ namespace ValheimPlus.GameClasses
 
             // disable stack recursion bypass
             _currentInventory = null;
+        }
+    }
+
+    [HarmonyPatch(typeof(Inventory), nameof(Inventory.StackAll))]
+    public static class Inventory_StackAll_Patch
+    {
+        
+
+        /// <summary>
+        /// Start the auto stack all loop and suppress stack feedback message
+        /// </summary>
+        [UsedImplicitly]
+        private static void Prefix(Inventory __instance, ref bool message)
+        {
+            if (!Configuration.Current.AutoStack.IsEnabled) return;
+
+            // disable message
+            message = false;
+            if (StackAllQueueState._currentInventory != null) return;
+
+            // enable stack recursion bypass and reset count
+            StackAllQueueState._lastPlayerItemCount = Player.m_localPlayer.m_inventory.CountItems(null);
+            StackAllQueueState._currentInventory = __instance;
+
+            // get chests in range
+            var gameObj = Player.m_localPlayer.gameObject;
+            StackAllQueueState._containerQueue = InventoryAssistant.GetNearbyChests(gameObj,
+                Helper.Clamp(Configuration.Current.AutoStack.autoStackAllRange, 1, 50),
+                !Configuration.Current.AutoStack.autoStackAllIgnorePrivateAreaCheck);
+            StackAllQueueState._containerCount = StackAllQueueState._containerQueue.Count;
+
+            StackAllQueueState.DequeueContainer();
         }
 
         private static readonly MethodInfo Method_Inventory_ContainsItemByName =
@@ -213,19 +218,5 @@ namespace ValheimPlus.GameClasses
 
         public static bool ContainsItemByName(Inventory inventory, string name) =>
             inventory.m_inventory.Any(item => !item.IsEquipable() && item.m_shared.m_name == name);
-    }
-
-    // willkeep this here since the code is closely cuppled to the stack all inventory feature.
-    [HarmonyPatch(typeof(Container), nameof(Container.RPC_StackResponse))]
-    public static class Container_RPC_StackResponse_Patch
-    {
-        /// <summary>
-        /// Call StackAll on all chests in range.
-        /// </summary>
-        [UsedImplicitly]
-        private static void Postfix(Container __instance)
-        {
-            Inventory_StackAll_Patch.dequeueContainer();
-        }
     }
 }
