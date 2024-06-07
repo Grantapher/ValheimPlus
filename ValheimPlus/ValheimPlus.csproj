@@ -62,6 +62,10 @@
       <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     
+    <Reference Include="gui_framework">
+      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\gui_framework.dll</HintPath>
+    </Reference>
+
     <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
       <HintPath>..\packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
     </Reference>

@@ -1,9 +1,10 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
+using System.Text;
+using HarmonyLib;
 using UnityEngine;
 using ValheimPlus.Configurations;
 using ValheimPlus.RPC;
@@ -72,6 +73,86 @@ namespace ValheimPlus.GameClasses
             ValheimPlusPlugin.Logger.LogError("Failed to alter server player limit (ZNet.RPC_PeerInfo.Transpiler)");
 
             return instructions;
+        }
+    }
+
+    [HarmonyPatch(typeof(ZNet), "RPC_CharacterID")]
+    public static class ZNet_ID_Patch
+    {
+        // Triggers sending of map pins to players as they connect
+        public static void Postfix(ZRpc rpc, ZDOID characterID)
+        {
+            ZNetPeer peer = ZNet.instance.GetPeer(rpc);
+            if (peer != null)
+            {
+                peer.m_characterID = characterID;
+                string playerName = peer.m_playerName;
+                ZDOID zDOID = characterID;
+                ZLog.Log("Got character ZDOID from " + playerName + " : " + zDOID.ToString());
+                
+                if (ZNet.m_isServer)
+                {
+                    // Send stored map pins to the player
+                    SendPinsToPlayer(peer.m_uid);
+                }
+            }
+        }
+
+        // Sends stored pins from memory to players when they connect
+        private static void SendPinsToPlayer(long playerId)
+        {
+            ValheimPlusPlugin.Logger.LogInfo("Sending stored map pins to player ID: " + playerId);
+
+            foreach (var mapPinData in Game_Start_Patch.storedMapPins)
+            {
+                ZPackage packageToSend = new ZPackage();
+                packageToSend.Write(mapPinData.SenderID);
+                packageToSend.Write(mapPinData.SenderName);
+                packageToSend.Write(mapPinData.Position);
+                packageToSend.Write(mapPinData.PinType);
+                packageToSend.Write(mapPinData.PinName);
+                packageToSend.Write(mapPinData.KeepQuiet);
+
+                ZRoutedRpc.instance.InvokeRoutedRPC(playerId, "VPlusMapAddPin", new object[] { packageToSend });
+            }
+        }
+    }
+
+    // Periodically saves map pins to disk
+    [HarmonyPatch(typeof(ZNet), "SaveWorld")]
+    public static class PinSave_patch
+    {
+        private static void Postfix(Game __instance)
+        {
+            if (ZNet.instance.IsServer() && !ZNet.instance.IsLocalInstance())
+            {       
+                List<MapPinData> mapData = Game_Start_Patch.storedMapPins;
+
+                if (Configuration.Current.Map.shareAllPins)
+                {
+                    try
+                    {
+                        using (FileStream fileStream = new FileStream(Game_Start_Patch.PinDataFilePath, FileMode.Create, FileAccess.Write))
+                        {
+                            using (StreamWriter writer = new StreamWriter(Game_Start_Patch.PinDataFilePath, false, Encoding.UTF8))
+                            {
+                                foreach (var pin in mapData)
+                                {
+                                    string newLine = $"{pin.SenderID},{pin.SenderName},{pin.Position.x},{pin.Position.y},{pin.Position.z},{pin.PinType},{pin.PinName},{pin.KeepQuiet}";
+                                    writer.WriteLine(newLine);
+                                }
+
+                                ValheimPlusPlugin.Logger.LogInfo("Saving Map Pins Completed.");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions (e.g., logging)
+                        ValheimPlusPlugin.Logger.LogError("An error occurred while saving pins: " + ex.Message);
+                    }
+                }
+            }
         }
     }
 

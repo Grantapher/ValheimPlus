@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
+using BepInEx;
 using HarmonyLib;
 using JetBrains.Annotations;
+using UnityEngine;
 using ValheimPlus.Configurations;
 using ValheimPlus.RPC;
 
@@ -16,13 +20,140 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Game), nameof(Game.Start))]
     public static class Game_Start_Patch
     {
+        public static string PinDataFilePath = ValheimPlusPlugin.VPlusDataDirectoryPath +
+                                                      Path.DirectorySeparatorChar +
+                                                      ZNet.instance.GetWorldName() + "_mapPins.dat";
+        public static List<MapPinData> storedMapPins = new List<MapPinData>();
+
         [UsedImplicitly]
         private static void Prefix()
         {
             ZRoutedRpc.instance.Register<ZPackage>("VPlusConfigSync", VPlusConfigSync.RPC_VPlusConfigSync);
             ZRoutedRpc.instance.Register<ZPackage>("VPlusMapSync", VPlusMapSync.RPC_VPlusMapSync);
             ZRoutedRpc.instance.Register<ZPackage>("VPlusMapAddPin", VPlusMapPinSync.RPC_VPlusMapAddPin);
+            ZRoutedRpc.instance.Register<ZPackage>("VPlusMapDeletePin", VPlusMapPinSync.RPC_VPlusMapDeletePin);
             ZRoutedRpc.instance.Register("VPlusAck", VPlusAck.RPC_VPlusAck);
+        }
+
+        private static void Postfix()
+        {
+            LoadPinsFromFile();
+        }
+
+        public static List<MapPinData> LoadPinsFromFile()
+        {
+            List<MapPinData> pinDataList = new List<MapPinData>();
+
+            if (ZNet.instance.IsServer())
+            {
+                if (!File.Exists(PinDataFilePath))
+                {
+                    // If the file doesn't exist, create it
+                    using (File.Create(PinDataFilePath)) { }
+                }
+
+                try
+                {
+                    using (StreamReader reader = new StreamReader(PinDataFilePath))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            string[] parts = line.Split(',');
+                            if (parts.Length == 8)
+                            {
+                                try
+                                {
+                                    long senderID = long.Parse(parts[0]);
+                                    string senderName = parts[1];
+                                    float positionX = float.Parse(parts[2]);
+                                    float positionY = float.Parse(parts[3]);
+                                    float positionZ = float.Parse(parts[4]);
+                                    int pinType = int.Parse(parts[5]);
+                                    string pinName = parts[6];
+                                    bool keepQuiet = bool.Parse(parts[7]);
+
+                                    if (senderName.IsNullOrWhiteSpace())
+                                    {
+                                        senderName = string.Empty;
+                                    }
+
+                                    MapPinData pinData = new MapPinData
+                                    {
+                                        SenderID = senderID,
+                                        SenderName = senderName,
+                                        Position = new Vector3(positionX, positionY, positionZ),
+                                        PinType = pinType,
+                                        PinName = pinName,
+                                        KeepQuiet = keepQuiet
+                                    };
+
+                                    pinDataList.Add(pinData);
+                                }
+                                catch (Exception ex)
+                                {
+                                    ValheimPlusPlugin.Logger.LogError($"Failed to parse map pin data from line: {line}. Error: {ex.Message}");
+                                }
+                            }
+                        }
+                    }
+
+                    // clears the list before adding pin data to memory
+                    storedMapPins.Clear();
+
+                    // Populate storedMapPins with the loaded data
+                    foreach (var mappinData in pinDataList)
+                    {
+                        storedMapPins.Add(mappinData);
+                    }
+
+                    int numberOfPackages = storedMapPins.Count;
+
+                    ValheimPlusPlugin.Logger.LogInfo("Loaded map pins from file.");
+                }
+                catch (Exception ex)
+                {
+                    ValheimPlusPlugin.Logger.LogError($"Failed to load map pins from file: {ex.Message}");
+                }
+            }
+            return pinDataList;
+        }
+    }
+
+    // Saves Map Pin Data to disk when server shutdown
+    [HarmonyPatch(typeof(Game), nameof(Game.OnApplicationQuit))]
+    public static class MapPinSave_patch
+    {
+        private static void Prefix(Game __instance)
+        {
+            List<MapPinData> mapPinDataList = Game_Start_Patch.storedMapPins;
+
+            if (ZRoutedRpc.instance.GetServerPeerID() == ZRoutedRpc.instance.m_id && Configuration.Current.Map.shareAllPins)
+            {
+                try
+                {
+                    using (FileStream fileStream = new FileStream(Game_Start_Patch.PinDataFilePath, FileMode.Create, FileAccess.Write))
+                    {
+                        using (StreamWriter writer = new StreamWriter(fileStream, Encoding.UTF8))
+                        {
+                            foreach (var mapPinData in mapPinDataList)
+                            { 
+                                string line = $"{mapPinData.SenderID},{mapPinData.SenderName},{mapPinData.Position.x},{mapPinData.Position.y},{mapPinData.Position.z},{mapPinData.PinType},{mapPinData.PinName},{mapPinData.KeepQuiet}";
+                                ValheimPlusPlugin.Logger.LogInfo($"String Line: {line}");
+
+                                // Write the line to the file
+                                writer.WriteLine(line);
+                            }
+                        }
+                    }
+                    ValheimPlusPlugin.Logger.LogInfo("Map pins saved to disk successfully.");
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions (e.g., logging)
+                    ValheimPlusPlugin.Logger.LogError("An error occurred while saving pins: " + ex.Message);
+                }
+            }
         }
     }
 
@@ -119,6 +250,20 @@ namespace ValheimPlus.GameClasses
             if (!config.IsEnabled) return;
             if (config.setFixedPlayerCountTo > 0) __result = config.setFixedPlayerCountTo;
             __result += config.extraPlayerCountNearby;
+        }
+    }
+
+    public class MapPinData
+    {
+        public long SenderID { get; set; }
+        public string SenderName { get; set; }
+        public Vector3 Position { get; set; }
+        public int PinType { get; set; }
+        public string PinName { get; set; }
+        public bool KeepQuiet { get; set; }
+        public string GetUniqueID()
+        {
+            return $"{Position.x}-{Position.y}-{Position.z}";
         }
     }
 }
