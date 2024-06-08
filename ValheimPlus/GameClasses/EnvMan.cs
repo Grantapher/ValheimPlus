@@ -29,7 +29,7 @@ namespace ValheimPlus.GameClasses
         }
 
         /// <summary>
-        /// Hook on EnvMan init to alter total day length
+        /// Hook on EnvMan RescaleDayFraction to modify the time of day we are currently in.
         /// </summary>
         [HarmonyPatch(typeof(EnvMan), nameof(EnvMan.RescaleDayFraction))]
         public static class RescaleDayFractionPatch
@@ -53,17 +53,35 @@ namespace ValheimPlus.GameClasses
                         nightDurationMultiplier = 1.0f / nightDurationMultiplier;
                         if (__result >= 0.5f)
                         {
-                            //ValheimPlusPlugin.Logger.LogMessage($"{__result}, {nightDurationMultiplier}, {Mathf.Pow((__result - 0.5f) * 2.0f, nightDurationMultiplier)}");
-
                             float stretchFactor = Mathf.Pow((__result - 0.5f) * 2.0f, nightDurationMultiplier);
                             __result = 0.5f + 0.5f * stretchFactor;
                         }
                         else { 
-                            //ValheimPlusPlugin.Logger.LogMessage($"{__result}, {nightDurationMultiplier}, {Mathf.Pow(((1.0f - __result) - 0.5f)*2.0f, nightDurationMultiplier)}");
-
                             float stretchFactor = 1.0f - Mathf.Pow(((1.0f - __result) - 0.5f) * 2.0f, nightDurationMultiplier);
                             __result = 0.5f * stretchFactor;
                         }
+                    }
+                }
+            }
+        }
+
+
+        [HarmonyPatch(typeof(EnvMan), nameof(EnvMan.GetMorningStartSec))]
+        public static class GetMorningStartSecPatch
+        {
+            private static void Postfix(ref EnvMan __instance, ref double __result, int day)
+            {
+                if (Configuration.Current.Time.IsEnabled && Configuration.Current.Time.nightDurationModifier != 0)
+                {
+                    // Day range is: if 0.25f <= __result <= 0.75f
+                    float nightDurationMultiplier = Helper.applyModifierValue(1.0f, Configuration.Current.Time.nightDurationModifier);
+                    if (nightDurationMultiplier > float.Epsilon)
+                    {
+                        nightDurationMultiplier = 1.0f / nightDurationMultiplier;
+                        var twoPowNegX = Mathf.Pow(2.0f, -nightDurationMultiplier);
+                        var morningOffset = 0.5f - (Mathf.Pow(0.6f, 1.0f / nightDurationMultiplier) * Mathf.Pow(twoPowNegX, 1.0f / nightDurationMultiplier));
+                        
+                        __result = (float)(day * __instance.m_dayLengthSec) + morningOffset * __instance.m_dayLengthSec;
                     }
                 }
             }
