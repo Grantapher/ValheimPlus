@@ -56,6 +56,12 @@ A HarmonyX Mod aimed at improving the gameplay quality of Valheim. The mod inclu
 - Option to show boats and carts on the map with icons.
 - Automatically share all created pins with everyone connected to the Server.
 
+### Time
+
+- Force a fixed time of day.
+- Change day duration.
+- Modify duration of night.
+
 ### Camera
 
 - Change the player's Field of View.
