@@ -2382,5 +2382,37 @@
 				"defaultType": "bool"
 			}
 		}
+	},
+	"Time": {
+		"description": "",
+		"icon": "fa fa-clock-o",
+		"description_website": "Change the in-game time and day night cycle related options",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"forcePartOfDay": {
+				"description": "Enables forcing a specific time of day. This option disables other day duration settings.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"forcePartOfDayTime": {
+				"description": "The part of day the time should be frozen to. 0 would be middle of night, 0.5 will be middle of day",
+				"defaultValue": "0.5",
+				"defaultType": "float"
+			},
+			"totalDayTimeInSeconds": {
+				"description": "Sets the duration of a whole day. This will affect the day count and may change time of day once after activation (new Worlds are not affected).",
+				"defaultValue": "1200",
+				"defaultType": "float"
+			},
+			"nightDurationModifier": {
+				"description": "Modifies the duration of night. -100 will disable nights completely (you will not recieve notification about a new day). 100 will increase the duration of the night while reducing the duration of a day. Will effect sun / moon cycles as well.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			}
+		}
 	}
 }
