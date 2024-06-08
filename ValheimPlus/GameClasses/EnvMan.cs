@@ -6,22 +6,24 @@ namespace ValheimPlus.GameClasses
 {
     public class TimeManipulation
     {
-        /*
         /// <summary>
-        /// Alter the total day length in seconds base on configuration file
+        /// Hook on EnvMan init to alter total day length
         /// </summary>
-        public static void SetupDayLength()
+        [HarmonyPatch(typeof(EnvMan), nameof(EnvMan.Awake))]
+        public static class TimeInitHook
         {
-            if (Configuration.Current.Time.IsEnabled)
+            private static void Prefix(ref EnvMan __instance)
             {
-                EnvMan instance = EnvMan.m_instance;
-                if (instance)
+                if (Configuration.Current.Time.IsEnabled)
                 {
-                    instance.m_dayLengthSec = (long)Configuration.Current.Time.totalDayTimeInSeconds;
-                }
-                else
-                {
-                    ValheimPlusPlugin.logger.LogWarning("EnvMan instance not loaded");
+                    if (__instance)
+                    {
+                        __instance.m_dayLengthSec = (long)Configuration.Current.Time.totalDayTimeInSeconds;
+                    }
+                    else
+                    {
+                        ValheimPlusPlugin.Logger.LogWarning("EnvMan instance not loaded");
+                    }
                 }
             }
         }
@@ -29,42 +31,43 @@ namespace ValheimPlus.GameClasses
         /// <summary>
         /// Hook on EnvMan init to alter total day length
         /// </summary>
-        [HarmonyPatch(typeof(EnvMan), "Awake")]
-        public static class TimeInitHook
+        [HarmonyPatch(typeof(EnvMan), nameof(EnvMan.RescaleDayFraction))]
+        public static class RescaleDayFractionPatch
         {
-            private static void Prefix(ref EnvMan __instance)
+            private static void Postfix(ref EnvMan __instance, ref float __result)
             {
-                SetupDayLength();
-            }
-        }
-
-        /// <summary>
-        /// Hook on EnvMan to alter night speed
-        /// </summary>
-        [HarmonyPatch(typeof(EnvMan), "FixedUpdate")]
-        public static class TimeUpdateHook
-        {
-            private static void Prefix(ref EnvMan __instance)
-            {
-                if (Configuration.Current.Time.IsEnabled)
+                if (Configuration.Current.Time.IsEnabled && Configuration.Current.Time.forcePartOfDay)
                 {
-                    if (ZNet.instance.IsServer() && __instance.IsNight() && !__instance.IsTimeSkipping())
+                    __result = Configuration.Current.Time.forcePartOfDayTime;
+                } else
+                if (Configuration.Current.Time.IsEnabled && Configuration.Current.Time.nightDurationModifier != 0) {
+                    // Day range is: if 0.25f <= __result <= 0.75f
+                    float nightDurationMultiplier = Helper.applyModifierValue(1.0f, Configuration.Current.Time.nightDurationModifier);
+                    if (nightDurationMultiplier <= float.Epsilon)
                     {
-                        double timeSeconds = ZNet.instance.GetTimeSeconds();
-                        double num = timeSeconds + Helper.applyModifierValue(Configuration.Current.Time.nightTimeSpeedMultiplier, Time.deltaTime);
-                        double time = timeSeconds - (double)((float)__instance.m_dayLengthSec * 0.25f);
-                        int day = __instance.GetDay(time);
-                        double morningStartSec = __instance.GetMorningStartSec(day + 1);
-                        // Make sure we don't go over the morning time
-                        if (num < morningStartSec)
+                        // there is no night, so cut it out.
+                        __result = 0.25f + __result * 0.5f;
+                    }
+                    else
+                    {
+                        nightDurationMultiplier = 1.0f / nightDurationMultiplier;
+                        if (__result >= 0.5f)
                         {
-                            ZNet.instance.SetNetTime(num);
+                            //ValheimPlusPlugin.Logger.LogMessage($"{__result}, {nightDurationMultiplier}, {Mathf.Pow((__result - 0.5f) * 2.0f, nightDurationMultiplier)}");
+
+                            float stretchFactor = Mathf.Pow((__result - 0.5f) * 2.0f, nightDurationMultiplier);
+                            __result = 0.5f + 0.5f * stretchFactor;
+                        }
+                        else { 
+                            //ValheimPlusPlugin.Logger.LogMessage($"{__result}, {nightDurationMultiplier}, {Mathf.Pow(((1.0f - __result) - 0.5f)*2.0f, nightDurationMultiplier)}");
+
+                            float stretchFactor = 1.0f - Mathf.Pow(((1.0f - __result) - 0.5f) * 2.0f, nightDurationMultiplier);
+                            __result = 0.5f * stretchFactor;
                         }
                     }
                 }
             }
         }
-        */
     }
 
     [HarmonyPatch(typeof(EnvMan), nameof(EnvMan.SetEnv))]
