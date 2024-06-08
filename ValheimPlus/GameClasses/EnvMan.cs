@@ -78,9 +78,13 @@ namespace ValheimPlus.GameClasses
                     if (nightDurationMultiplier > float.Epsilon)
                     {
                         nightDurationMultiplier = 1.0f / nightDurationMultiplier;
+
+                        // need to solve for '__result':
+                        // 0.2 = 0.5f * (1.0f - Mathf.Pow(((1.0f - __result) - 0.5f) * 2.0f, nightDurationMultiplier))
+                        // see https://www.wolframalpha.com/input?i=0.2+%3D+0.5+*+%281-%28%28%281-y%29+-+0.5%29*2%29+%5E+x%29
+
                         var twoPowNegX = Mathf.Pow(2.0f, -nightDurationMultiplier);
                         var morningOffset = 0.5f - (Mathf.Pow(0.6f, 1.0f / nightDurationMultiplier) * Mathf.Pow(twoPowNegX, 1.0f / nightDurationMultiplier));
-                        
                         __result = (float)(day * __instance.m_dayLengthSec) + morningOffset * __instance.m_dayLengthSec;
                     }
                 }
