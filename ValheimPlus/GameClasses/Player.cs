@@ -241,10 +241,9 @@ namespace ValheimPlus.GameClasses
                 //Send map data to the server
                 VPlusMapSync.SendMapToServer();
                 VPlusMapSync.ShouldSyncOnSpawn = false;
-            }
-        }
+            } 
+        }        
     }
-
 
     [HarmonyPatch(typeof(Player), nameof(Player.EatFood))]
     public static class Player_EatFood_Transpiler
