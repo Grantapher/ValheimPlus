@@ -10,7 +10,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <!-- Runs Steam opening Valheim after building debug -->
     <StartAction>Program</StartAction>
-    <StartProgram>$(VALHEIM_INSTALL)\valheim.exe</StartProgram>
+    <StartProgram>D:\VPTB\valheim.exe</StartProgram>
     <StartArguments>-console</StartArguments>
   </PropertyGroup>
 </Project>
