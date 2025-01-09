@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using BepInEx;
 using BepInEx.Logging;
@@ -213,14 +212,6 @@ namespace ValheimPlus
                 Harmony.PatchAll();
 
                 // manual patches that only should run in certain conditions, that otherwise would just cause errors.
-
-                // HarmonyPriority wasn't loading in the order I wanted,
-                // so manually load this one after the annotations are all loaded
-                Harmony.Patch(
-                    original: typeof(ZPlayFabMatchmaking).GetMethod("CreateLobby",
-                        BindingFlags.NonPublic | BindingFlags.Instance),
-                    transpiler: new HarmonyMethod(
-                        typeof(ZPlayFabMatchmaking_CreateLobby_Transpiler).GetMethod("Transpiler")));
 
                 // steam only patches
                 if (AppDomain.CurrentDomain.GetAssemblies()

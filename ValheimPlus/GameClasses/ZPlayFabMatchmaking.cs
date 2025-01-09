@@ -2,103 +2,152 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
+using JetBrains.Annotations;
 using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
-    // Manually loaded in ValheimPlus.cs because HarmonyPriority wasn't working
-    // [HarmonyPatch(typeof(ZPlayFabMatchmaking), "CreateLobby")]
-    public static class ZPlayFabMatchmaking_CreateLobby_Transpiler
+    public static class ZPlayFabMatchmakingHelper
     {
-        private static readonly int ORIGINAL_MAX_PLAYERS = 10;
+        private const int OriginalMaxPlayers = 10;
 
-        /// <summary>
-        /// Alter playfab server player limit
-        /// Must be between 1 and 32
-        /// </summary>
-        // Manually loaded in ValheimPlus.cs because HarmonyPriority wasn't working
-        // [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private const int PatchedMinPlayers = 1;
+        private const int PatchedMaxPlayers = 32;
+
+        private static bool alreadyWarned;
+
+        public static bool isMaxPlayersDefault
         {
-            if (!Configuration.Current.Server.IsEnabled || Configuration.Current.Server.maxPlayers == ORIGINAL_MAX_PLAYERS) return instructions;
-
-            try
+            get
             {
-                if (ZPlayFabMatchmaking_CreateAndJoinNetwork_Transpiler.CreateLobbySize == -1)
-                {
-                    ValheimPlusPlugin.Logger.LogError("V+ didn't apply patches in proper order, leaving crossplay max lobby size at 10.");
-                    return instructions;
-                }
+                var config = Configuration.Current.Server;
+                return !config.IsEnabled || config.maxPlayers == OriginalMaxPlayers;
+            }
+        }
 
-                var ldc = instructions.Single(inst => inst.Is(OpCodes.Ldc_I4_S, operand: ORIGINAL_MAX_PLAYERS));
-                ldc.operand = ZPlayFabMatchmaking_CreateAndJoinNetwork_Transpiler.CreateLobbySize;
-            }
-            catch (Exception e)
+        public static int ConfiguredMaxPlayers(int originalMaxPlayers)
+        {
+            var config = Configuration.Current.Server;
+            var newMaxPlayers = Helper.Clamp(config.maxPlayers, PatchedMinPlayers, PatchedMaxPlayers);
+            var warnedThisTime = false;
+
+            if (!alreadyWarned && config.maxPlayers != newMaxPlayers)
             {
-                ValheimPlusPlugin.Logger.LogWarning("Failed to alter lobby player limit (ZPlayFabMatchmaking_CreateLobby_Transpiler)." +
-                    $" This may cause the maxPlayers setting to not function correctly. Exception is:\n{e}");
+                ValheimPlusPlugin.Logger.LogWarning(
+                    $"maxPlayers must be between {PatchedMinPlayers} and {PatchedMaxPlayers}," +
+                    $" but was {config.maxPlayers}, using {newMaxPlayers} instead.");
+                warnedThisTime = true;
             }
-            return instructions;
+
+            if (originalMaxPlayers == OriginalMaxPlayers) return newMaxPlayers;
+            
+            // On dedicated servers, originalMaxPlayers will be 1 higher to account for the server.
+
+            bool tooFull = newMaxPlayers == PatchedMaxPlayers;
+            if (!alreadyWarned && tooFull)
+            {
+                ValheimPlusPlugin.Logger.LogWarning(
+                    $"Couldn't set maxPlayers to {PatchedMaxPlayers} because the dedicated server (this machine)" +
+                    $" takes up a slot. This server will support {PatchedMaxPlayers - 1} players instead.");
+                warnedThisTime = true;
+            }
+
+            if (!tooFull) newMaxPlayers++;
+
+            alreadyWarned = alreadyWarned || warnedThisTime;
+            return newMaxPlayers;
         }
     }
 
-    [HarmonyPatch(typeof(ZPlayFabMatchmaking), "CreateAndJoinNetwork")]
-    public static class ZPlayFabMatchmaking_CreateAndJoinNetwork_Transpiler
+    [HarmonyPatch(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.CreateLobby))]
+    public static class ZPlayFabMatchmaking_CreateLobby_Transpiler
     {
-
-        public static int CreateLobbySize { get; private set; } = -1;
-
-        private static readonly int ORIGINAL_MAX_PLAYERS = 10;
-        private static readonly int ORIGINAL_MAX_PLAYERS_CLIENT = ORIGINAL_MAX_PLAYERS;
-        private static readonly int ORIGINAL_MAX_PLAYERS_SERVER = 11;
-
-        private static readonly int PATCHED_MIN_PLAYERS = 1;
-        private static readonly int PATCHED_MAX_PLAYERS = 32;
+        private static readonly FieldInfo Field_CreateLobbyRequest_MaxPlayers = AccessTools.Field(
+            typeof(PlayFab.MultiplayerModels.CreateLobbyRequest),
+            nameof(PlayFab.MultiplayerModels.CreateLobbyRequest.MaxPlayers)
+        );
 
         /// <summary>
-        /// Alter playfab network configuration player limit
-        /// Must be between 1 and 32
+        /// Alter PlayFab server player limit.
+        /// Must be between 1 and 32, or 31 if on a dedicated server.
         /// </summary>
         [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        [UsedImplicitly]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions,
+            ILGenerator generator)
         {
-            if (!Configuration.Current.Server.IsEnabled || Configuration.Current.Server.maxPlayers == ORIGINAL_MAX_PLAYERS) return instructions;
+            if (ZPlayFabMatchmakingHelper.isMaxPlayersDefault) return instructions;
 
-            var newMaxPlayers = Helper.Clamp(Configuration.Current.Server.maxPlayers, PATCHED_MIN_PLAYERS, PATCHED_MAX_PLAYERS);
-
-            if (Configuration.Current.Server.maxPlayers != newMaxPlayers)
-            {
-                ValheimPlusPlugin.Logger.LogWarning($"maxPlayers must be between {PATCHED_MIN_PLAYERS} and {PATCHED_MAX_PLAYERS}," +
-                    $" but was {Configuration.Current.Server.maxPlayers}, using {newMaxPlayers} instead.");
-            }
-
+            var il = instructions.ToList();
             try
             {
-                var ldc = instructions.Single(inst => 
-                    inst.opcode == OpCodes.Ldc_I4_S && (inst.OperandIs(ORIGINAL_MAX_PLAYERS_CLIENT) || inst.OperandIs(ORIGINAL_MAX_PLAYERS_SERVER)));
+                var codeMatcher = new CodeMatcher(il, generator);
+                sbyte originalMaxPlayers = (sbyte)codeMatcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldc_I4_S),
+                        new CodeMatch(OpCodes.Stfld, Field_CreateLobbyRequest_MaxPlayers)
+                    )
+                    .ThrowIfNotMatch("No match for code that sets MaxPlayers.")
+                    .Operand;
 
-                bool makeRoomForServer = ldc.OperandIs(ORIGINAL_MAX_PLAYERS_SERVER);
-                if (makeRoomForServer && newMaxPlayers == PATCHED_MAX_PLAYERS)
-                {
-                    ValheimPlusPlugin.Logger.LogWarning($"Couldn't set maxPlayers to {PATCHED_MAX_PLAYERS} because the dedicated server" +
-                        $" (this machine) takes up a slot. This server will support {PATCHED_MAX_PLAYERS - 1} players instead.");
-                }
-                else if (makeRoomForServer)
-                {
-                    newMaxPlayers++;
-                }
-
-                ldc.operand = newMaxPlayers;
-                CreateLobbySize = newMaxPlayers - (makeRoomForServer ? 1 : 0);
+                int newMaxPlayers = ZPlayFabMatchmakingHelper.ConfiguredMaxPlayers(originalMaxPlayers);
+                return codeMatcher.SetOperandAndAdvance(newMaxPlayers).InstructionEnumeration();
             }
             catch (Exception e)
             {
-                ValheimPlusPlugin.Logger.LogWarning("Failed to alter network player limit (ZPlayFabMatchmaking_CreateAndJoinNetwork_Transpiler)." +
+                ValheimPlusPlugin.Logger.LogWarning(
+                    "Failed to alter lobby player limit (ZPlayFabMatchmaking_CreateLobby_Transpiler)." +
                     $" This may cause the maxPlayers setting to not function correctly. Exception is:\n{e}");
+                return il;
             }
+        }
+    }
 
-            return instructions;
+    [HarmonyPatch(typeof(ZPlayFabMatchmaking), nameof(ZPlayFabMatchmaking.CreateAndJoinNetwork))]
+    public static class ZPlayFabMatchmaking_CreateAndJoinNetwork_Transpiler
+    {
+        private static readonly MethodInfo PropertySetter_PlayFabNetworkConfiguration_MaxPlayerCount =
+            AccessTools.PropertySetter(
+                typeof(PlayFab.Party.PlayFabNetworkConfiguration),
+                nameof(PlayFab.Party.PlayFabNetworkConfiguration.MaxPlayerCount)
+            );
+
+
+        /// <summary>
+        /// Alter PlayFab network configuration player limit
+        /// Must be between 1 and 32, or 31 if on a dedicated server.
+        /// </summary>
+        [HarmonyTranspiler]
+        [UsedImplicitly]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions,
+            ILGenerator generator)
+        {
+            if (ZPlayFabMatchmakingHelper.isMaxPlayersDefault) return instructions;
+
+            var il = instructions.ToList();
+            try
+            {
+                var codeMatcher = new CodeMatcher(il, generator);
+                sbyte originalMaxPlayers = (sbyte)codeMatcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldc_I4_S),
+                        new CodeMatch(OpCodes.Callvirt, PropertySetter_PlayFabNetworkConfiguration_MaxPlayerCount)
+                    )
+                    .ThrowIfNotMatch("No match for code that sets MaxPlayerCount.")
+                    .Operand;
+
+                int newMaxPlayers = ZPlayFabMatchmakingHelper.ConfiguredMaxPlayers(originalMaxPlayers);
+                return codeMatcher.SetOperandAndAdvance(newMaxPlayers).InstructionEnumeration();
+            }
+            catch (Exception e)
+            {
+                ValheimPlusPlugin.Logger.LogWarning(
+                    "Failed to alter network player limit (ZPlayFabMatchmaking_CreateAndJoinNetwork_Transpiler)." +
+                    $" This may cause the maxPlayers setting to not function correctly. Exception is:\n{e}");
+                return il;
+            }
         }
     }
 }
