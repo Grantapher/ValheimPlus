@@ -39,14 +39,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="netstandard, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL" >
+    <Reference Include="netstandard, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\netstandard.dll</HintPath>
     </Reference>
-    
     <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.10.0\lib\net45\0Harmony.dll</HintPath>
     </Reference>
-    
     <Reference Include="assembly_guiutils_publicized">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
     </Reference>
@@ -56,40 +54,31 @@
     <Reference Include="assembly_valheim_publicized">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
     </Reference>
-    
     <Reference Include="BepInEx, Version=5.4.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
-    
     <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
       <HintPath>..\packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
     </Reference>
-
     <Reference Include="PlayFab, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\PlayFab.dll</HintPath>
     </Reference>
-
     <Reference Include="PlayFabParty, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\PlayFabParty.dll</HintPath>
     </Reference>
-
     <Reference Include="ServerSync, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\libraries\ServerSync.dll</HintPath>
     </Reference>
-
     <Reference Include="Splatform, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Splatform.dll</HintPath>
     </Reference>
-
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
     </Reference>
-    
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.dll</HintPath>
@@ -245,6 +234,7 @@
     <Compile Include="Utility\GameObjectAssistant.cs" />
     <Compile Include="Utility\InventoryAssistant.cs" />
     <Compile Include="Utility\ListExtensions.cs" />
+    <Compile Include="Utility\ProximityHelper.cs" />
     <Compile Include="Utility\RPCQueue.cs" />
     <Compile Include="Utility\ZPackageExtensions.cs" />
     <Compile Include="ValheimPlus.cs" />
