@@ -248,7 +248,7 @@ namespace ValheimPlus.GameClasses
                 if (item.m_shared.m_name != name)
                     continue;
 
-                if (Configuration.Current.AutoStack.ignoreArrows && item.IsAmmo())
+                if (Configuration.Current.AutoStack.ignoreAmmo && item.IsAmmo())
                     continue;
 
                 if (Configuration.Current.AutoStack.ignoreFood && item.IsFood())

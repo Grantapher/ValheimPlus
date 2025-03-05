@@ -2336,7 +2336,7 @@
         "defaultValue": "false",
         "defaultType": "bool"
       },
-      "ignoreArrows": {
+      "ignoreAmmo": {
         "description": "Set to true to prevent arrows and bolts to be stored automatically.",
         "defaultValue": "false",
         "defaultType": "bool"
