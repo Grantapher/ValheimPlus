@@ -147,6 +147,7 @@
     <Compile Include="Configurations\Sections\PickableConfiguration.cs" />
     <Compile Include="Configurations\Sections\SapCollectorConfiguration.cs" />
     <Compile Include="Configurations\Sections\ShieldGeneratorConfiguration.cs" />
+    <Compile Include="Configurations\Sections\ShipConfiguration.cs" />
     <Compile Include="Configurations\Sections\SmelterConfiguration.cs" />
     <Compile Include="Configurations\Sections\FreePlacementRotationConfiguration.cs" />
     <Compile Include="Configurations\Sections\GatherConfiguration.cs" />
@@ -204,6 +205,7 @@
     <Compile Include="GameClasses\SapCollector.cs" />
     <Compile Include="GameClasses\SEMan.cs" />
     <Compile Include="GameClasses\ShieldGenerator.cs" />
+    <Compile Include="GameClasses\Ship.cs" />
     <Compile Include="GameClasses\Talker.cs" />
     <Compile Include="GameClasses\Turret.cs" />
     <Compile Include="GameClasses\Container.cs" />
