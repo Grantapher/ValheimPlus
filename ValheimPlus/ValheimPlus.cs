@@ -75,7 +75,7 @@ namespace ValheimPlus
 
         // Website INI for auto update
         internal static readonly string IniFile =
-            $"https://github.com/beemerwt/ValheimPlus/releases/download/{FullVersion}/valheim_plus.cfg";
+            $"https://github.com/Grantapher/ValheimPlus/releases/download/{FullVersion}/valheim_plus.cfg";
 
         // mod fails to load when this type is correctly specified as VersionCheck,
         // so we'll just cast it as needed instead.
