@@ -221,7 +221,10 @@ namespace ValheimPlus.GameClasses
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var config = Configuration.Current.AutoStack;
-            if (!config.IsEnabled || !config.autoStackAllIgnoreEquipment) return instructions;
+            if (!config.IsEnabled) return instructions;
+            if (!config.autoStackAllIgnoreEquipment && !config.ignoreFood
+            && !config.ignoreArrows && !config.ignoreMead)
+                return instructions;
 
             var il = instructions.ToList();
 
@@ -238,7 +241,29 @@ namespace ValheimPlus.GameClasses
             return il.AsEnumerable();
         }
 
-        public static bool ContainsItemByName(Inventory inventory, string name) =>
-            inventory.m_inventory.Any(item => !item.IsEquipable() && item.m_shared.m_name == name);
+        public static bool ContainsItemByName(Inventory inventory, string name)
+        {
+            foreach (var item in inventory.m_inventory)
+            {
+                if (item.m_shared.m_name != name)
+                    continue;
+
+                if (Configuration.Current.AutoStack.ignoreArrows && item.IsAmmo())
+                    continue;
+
+                if (Configuration.Current.AutoStack.ignoreFood && item.IsFood())
+                    continue;
+
+                if (Configuration.Current.AutoStack.ignoreMead && item.IsMead())
+                    continue;
+
+                if (Configuration.Current.AutoStack.autoStackAllIgnoreEquipment && item.IsEquipable())
+                    continue;
+
+                return true;
+            }
+
+            return false;
+        }
     }
 }
