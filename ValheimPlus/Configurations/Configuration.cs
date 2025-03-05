@@ -65,5 +65,6 @@ namespace ValheimPlus.Configurations
         public OvenConfiguration Oven { get; set; }
         public SapCollectorConfiguration SapCollector { get; set; }
         public ShipConfiguration Ship { get; set; }
+        public EggConfiguration Egg { get; set; }
     }
 }

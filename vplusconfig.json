@@ -2475,5 +2475,52 @@
 				"defaultType": "float"
 			}
 		}
+	},
+	"Egg": {
+		"description": "",
+		"icon": "fa fa-clock-o",
+		"description_website": "Change the in-game behavior of eggs and chickens and modify their values.",
+    "entries": {
+      "enabled": {
+        "description": "Change false to true to enable this section",
+        "defaultValue": "false",
+        "defaultType": "bool"
+      },
+      "showHatchTime": {
+        "description": "If set to true the time until the egg hatches will be displayed when hovering over the egg.",
+        "defaultValue": "false",
+        "defaultType": "bool"
+      },
+      "hatchTime": {
+        "description": "This value determines the time it takes for an egg to initially hatch into a chicken in seconds. A value of 300 means 5 minutes.",
+        "defaultValue": "300",
+        "defaultType": "float"
+      },
+      "growTime": {
+        "description": "This value determines the time it takes for a chicken to grow into an adult in seconds. A value of 3000 means 50 minutes.",
+        "defaultValue": "3000",
+        "defaultType": "float"
+      },
+      "requireShelter": {
+        "description": "This value determines whether or not an egg requires a roof and fire to grow. If set to false, eggs will grow anywhere.",
+        "defaultValue": "true",
+        "defaultType": "bool"
+      },
+      "canStack": {
+        "description": "This value determines whether or not eggs can grow in a stack. If set to true a dropped stack of eggs will grow as many chickens as the stack size.",
+        "defaultValue": "false",
+        "defaultType": "bool"
+      },
+			"soldByDefault": {
+				"description": "If set to true eggs are sold by Haldor without having to defeat Yagluth first.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"sellPrice": {
+				"description": "This value determines the price of an egg sold by Haldor.",
+				"defaultValue": "1500",
+        "defaultType": "int"
+			}
+    }
 	}
 }
