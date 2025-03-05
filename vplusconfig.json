@@ -2449,13 +2449,8 @@
 				"defaultType": "bool",
 				"defaultValue": "false"
 			},
-			"sailForce": {
-				"description": "This value determines the constant amount of force applied to the ship when sailing forward. A multiplier of 50 will result in the ship being 50% faster, -50 will result in the ship being 50% slower.",
-				"defaultValue": "0",
-				"defaultType": "float"
-			},
-			"sailForceOffset": {
-				"description": "This value determines the base amount of force applied to the ship when sailing forward. A multiplier of 50 will result in the ship beginning to move 50% faster, -50 will result in the opposite.",
+			"force": {
+				"description": " This value determines the constant amount of force applied to the ship when sailing forward. A multiplier of 50 will result in the ship being 50% faster, -50 will result in the opposite.",
 				"defaultValue": "0",
 				"defaultType": "float"
 			},
@@ -2466,11 +2461,6 @@
 			},
 			"waterImpactDamage": {
 				"description": "This value determines the amount of damage the ship takes while sailing. A multiplier of 50 will result in the ship taking 50% more damage, -50 will result in the opposite.",
-				"defaultValue": "0",
-				"defaultType": "float"
-			},
-			"waterLevel": {
-				"description": "This value determines how waves can reach. A multiplier of 50 will result in waves being 50% higher, -50 will result in the opposite.",
 				"defaultValue": "0",
 				"defaultType": "float"
 			},
