@@ -2453,5 +2453,52 @@
 				"defaultType": "float"
 			}
 		}
+	},
+	"Ship": {
+		"description": "",
+		"icon": "fa fa-ship",
+		"description_website": "Change the values and behavior of the in-game ships.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultType": "bool",
+				"defaultValue": "false"
+			},
+			"sailForce": {
+				"description": "This value determines the constant amount of force applied to the ship when sailing forward. A multiplier of 50 will result in the ship being 50% faster, -50 will result in the ship being 50% slower.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"sailForceOffset": {
+				"description": "This value determines the base amount of force applied to the ship when sailing forward. A multiplier of 50 will result in the ship beginning to move 50% faster, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"steerForce": {
+				"description": "This value determines the force applied to the ship when steering. A multiplier of 50 will result in the ship turning 50% faster, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"waterImpactDamage": {
+				"description": "This value determines the amount of damage the ship takes while sailing. A multiplier of 50 will result in the ship taking 50% more damage, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"waterLevel": {
+				"description": "This value determines how waves can reach. A multiplier of 50 will result in waves being 50% higher, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"backwardForce": {
+				"description": "This value determines the amount of force applied to the ship when sailing backward. A multiplier of 50 will result in the ship moving backward 50% faster, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"rudderSpeed": {
+				"description": "This value determines the speed of changing direction. A multiplier of 50 will result in the wheel turning 50% faster, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			}
+		}
 	}
 }
