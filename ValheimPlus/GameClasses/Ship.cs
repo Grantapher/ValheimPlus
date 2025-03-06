@@ -24,9 +24,9 @@ namespace ValheimPlus.GameClasses
             oldRudderSpeed = __instance.m_rudderSpeed;
 
             var shipConfig = Configuration.Current.Ship;
-            var forceMultiplier = shipConfig.force / 100f + 1f;
+            var forceMultiplier = shipConfig.forwardSpeed / 100f + 1f;
             var steerForceMultiplier = shipConfig.steerForce / 100f + 1f;
-            var backwardForceMultiplier = shipConfig.backwardForce / 100f + 1f;
+            var backwardForceMultiplier = shipConfig.backwardSpeed / 100f + 1f;
             var waterImpactDamageMultiplier = shipConfig.waterImpactDamage / 100f + 1f;
             var rudderSpeedMultiplier = shipConfig.rudderSpeed / 100f + 1f;
 
