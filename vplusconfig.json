@@ -2522,12 +2522,12 @@
 				"defaultType": "bool"
 			},
 			"canStack": {
-				"description": "This value determines whether or not eggs can grow in a stack. If set to true a dropped stack of eggs will grow as many chickens as the stack size.",
+				"description": "This value determines whether or not eggs can grow in a stack on the ground. If set to true eggs will grow as many chickens as there are eggs in the dropped stack.",
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
 			"soldByDefault": {
-				"description": "If set to true eggs are sold by Haldor without having to defeat Yagluth first.",
+				"description": "If set to true eggs are sold by Haldor without any requirements.",
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
