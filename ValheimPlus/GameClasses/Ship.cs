@@ -3,50 +3,20 @@ using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
-    [HarmonyPatch(typeof(Ship), nameof(Ship.CustomFixedUpdate))]
-    public class Ship_CustomFixedUpdate_Patch
+    [HarmonyPatch(typeof(Ship), nameof(Ship.Awake))]
+    public class Ship_Awake_Patch
     {
-        private static float oldForce = 0f;
-        private static float oldSteerForce = 0f;
-        private static float oldBackwardForce = 0f;
-        private static float oldWaterImpactDamage = 0f;
-        private static float oldRudderSpeed = 0f;
-
-        public static void Prefix(Ship __instance)
-        {
-            if (!Configuration.Current.Ship.IsEnabled)
-                return;
-
-            oldForce = __instance.m_force;
-            oldSteerForce = __instance.m_stearForce;
-            oldBackwardForce = __instance.m_backwardForce;
-            oldWaterImpactDamage = __instance.m_waterImpactDamage;
-            oldRudderSpeed = __instance.m_rudderSpeed;
-
-            var shipConfig = Configuration.Current.Ship;
-            var forceMultiplier = shipConfig.forwardSpeed / 100f + 1f;
-            var steerForceMultiplier = shipConfig.steerForce / 100f + 1f;
-            var backwardForceMultiplier = shipConfig.backwardSpeed / 100f + 1f;
-            var waterImpactDamageMultiplier = shipConfig.waterImpactDamage / 100f + 1f;
-            var rudderSpeedMultiplier = shipConfig.rudderSpeed / 100f + 1f;
-
-            __instance.m_force = forceMultiplier * oldForce;
-            __instance.m_stearForce = steerForceMultiplier * oldSteerForce;
-            __instance.m_backwardForce = backwardForceMultiplier * oldBackwardForce;
-            __instance.m_waterImpactDamage = waterImpactDamageMultiplier * oldWaterImpactDamage;
-            __instance.m_rudderSpeed = rudderSpeedMultiplier * oldRudderSpeed;
-        }
-
         public static void Postfix(Ship __instance)
         {
             if (!Configuration.Current.Ship.IsEnabled)
                 return;
 
-            __instance.m_force = oldForce;
-            __instance.m_stearForce = oldSteerForce;
-            __instance.m_backwardForce = oldBackwardForce;
-            __instance.m_waterImpactDamage = oldWaterImpactDamage;
-            __instance.m_rudderSpeed = oldRudderSpeed;
+			var shipConfig = Configuration.Current.Ship;
+            __instance.m_force = Helper.applyModifierValue(__instance.m_force, shipConfig.forwardSpeed);
+			__instance.m_stearForce = Helper.applyModifierValue(__instance.m_stearForce, shipConfig.steerForce);
+			__instance.m_backwardForce = Helper.applyModifierValue(__instance.m_backwardForce, shipConfig.backwardSpeed);
+			__instance.m_waterImpactDamage = Helper.applyModifierValue(__instance.m_waterImpactDamage, shipConfig.waterImpactDamage);
+            __instance.m_rudderSpeed = Helper.applyModifierValue(__instance.m_rudderSpeed, shipConfig.rudderSpeed);
         }
     }
 }
