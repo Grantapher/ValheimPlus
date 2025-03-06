@@ -30,10 +30,9 @@ namespace ValheimPlus.GameClasses
             oldWaterLevelOffset = __instance.m_waterLevelOffset;
 
             var shipConfig = Configuration.Current.Ship;
-            var sailForceMultiplier = shipConfig.sailForce / 100f + 1f;
-            var sailForceOffsetMultiplier = shipConfig.sailForceOffset / 100f + 1f;
+            var forceMultiplier = shipConfig.forwardSpeed / 100f + 1f;
             var steerForceMultiplier = shipConfig.steerForce / 100f + 1f;
-            var backwardForceMultiplier = shipConfig.backwardForce / 100f + 1f;
+            var backwardForceMultiplier = shipConfig.backwardSpeed / 100f + 1f;
             var waterImpactDamageMultiplier = shipConfig.waterImpactDamage / 100f + 1f;
             var rudderSpeedMultiplier = shipConfig.rudderSpeed / 100f + 1f;
             var waterLevelOffsetMultiplier = shipConfig.waterLevel / 100f + 1f;
