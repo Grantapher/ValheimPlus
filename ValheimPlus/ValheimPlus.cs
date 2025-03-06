@@ -28,7 +28,7 @@ namespace ValheimPlus
         private const string ValheimPlusName = "Valheim Plus";
 
         // Version used when numeric is required (assembly info, bepinex, System.Version parsing).
-        public const string NumericVersion = "0.9.16.1";
+        public const string NumericVersion = "0.9.16.2";
 
         // Extra version, like alpha/beta/rc/stable. Can leave blank if a stable release.
         private const string VersionExtra = "";
