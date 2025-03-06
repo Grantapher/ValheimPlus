@@ -160,7 +160,9 @@ namespace ValheimPlus.GameClasses
             if (!Configuration.Current.Egg.IsEnabled)
                 return;
 
-            __instance.m_growTime = Configuration.Current.Egg.growTime;
+            var humanoid = __instance.m_grownPrefab.GetComponent<Humanoid>();
+			if (humanoid && humanoid.m_name == "$enemy_hen")
+                __instance.m_growTime = Configuration.Current.Egg.growTime;
         }
     }
 }
