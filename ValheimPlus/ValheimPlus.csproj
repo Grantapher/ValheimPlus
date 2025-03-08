@@ -39,31 +39,29 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="netstandard, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="netstandard, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL" >
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\netstandard.dll</HintPath>
     </Reference>
-
+    
     <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.10.0\lib\net45\0Harmony.dll</HintPath>
     </Reference>
-
+    
     <Reference Include="assembly_guiutils_publicized">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
     </Reference>
-
     <Reference Include="assembly_utils_publicized">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
     </Reference>
-
     <Reference Include="assembly_valheim_publicized">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
     </Reference>
-
+    
     <Reference Include="BepInEx, Version=5.4.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
-
+    
     <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
       <HintPath>..\packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
     </Reference>
@@ -87,11 +85,11 @@
 
     <Reference Include="System" />
     <Reference Include="System.Core" />
-
+    
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
     </Reference>
-
+    
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.dll</HintPath>
@@ -142,7 +140,6 @@
     <Compile Include="Configurations\Sections\BedConfiguration.cs" />
     <Compile Include="Configurations\Sections\BrightnessConfiguration.cs" />
     <Compile Include="Configurations\Sections\ChatConfiguration.cs" />
-    <Compile Include="Configurations\Sections\EggConfiguration.cs" />
     <Compile Include="Configurations\Sections\EitrRefineryConfiguration.cs" />
     <Compile Include="Configurations\Sections\HealthUsageConfiguration.cs" />
     <Compile Include="Configurations\Sections\EitrUsageConfiguration.cs" />
@@ -161,7 +158,6 @@
     <Compile Include="Configurations\Sections\PickableConfiguration.cs" />
     <Compile Include="Configurations\Sections\SapCollectorConfiguration.cs" />
     <Compile Include="Configurations\Sections\ShieldGeneratorConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ShipConfiguration.cs" />
     <Compile Include="Configurations\Sections\SmelterConfiguration.cs" />
     <Compile Include="Configurations\Sections\FreePlacementRotationConfiguration.cs" />
     <Compile Include="Configurations\Sections\GatherConfiguration.cs" />
@@ -211,7 +207,6 @@
     <Compile Include="GameClasses\Character.cs" />
     <Compile Include="GameClasses\CharacterDrop.cs" />
     <Compile Include="GameClasses\Demister.cs" />
-    <Compile Include="GameClasses\Egg.cs" />
     <Compile Include="GameClasses\InventoryGrid.cs" />
     <Compile Include="GameClasses\LuredWisp.cs" />
     <Compile Include="GameClasses\PickableItem.cs" />
@@ -220,9 +215,7 @@
     <Compile Include="GameClasses\SapCollector.cs" />
     <Compile Include="GameClasses\SEMan.cs" />
     <Compile Include="GameClasses\ShieldGenerator.cs" />
-    <Compile Include="GameClasses\Ship.cs" />
     <Compile Include="GameClasses\Talker.cs" />
-    <Compile Include="GameClasses\Trader.cs" />
     <Compile Include="GameClasses\Turret.cs" />
     <Compile Include="GameClasses\Container.cs" />
     <Compile Include="GameClasses\CookingStation.cs" />
