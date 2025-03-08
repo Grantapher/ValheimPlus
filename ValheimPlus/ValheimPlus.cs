@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,10 +12,6 @@ using ValheimPlus.Configurations;
 using ValheimPlus.GameClasses;
 using ValheimPlus.RPC;
 using ValheimPlus.UI;
-
-using TimeSpan = System.TimeSpan;
-using Exception = System.Exception;
-using AppDomain = System.AppDomain;
 
 namespace ValheimPlus
 {
