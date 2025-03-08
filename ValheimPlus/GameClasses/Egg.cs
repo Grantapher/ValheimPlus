@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using ValheimPlus.Configurations;
-using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 namespace ValheimPlus.GameClasses
 {
@@ -138,10 +137,10 @@ namespace ValheimPlus.GameClasses
                 return;
 
             int num = __result.IndexOf("\n");
-			if (num <= 0)
-				return;
+            if (num <= 0)
+                return;
 
-			var firstLine = __result.Substring(0, num);
+            var firstLine = __result.Substring(0, num);
             if (!firstLine.Contains(Localization.instance.Localize("$item_chicken_egg_warm")))
                 return;
 
