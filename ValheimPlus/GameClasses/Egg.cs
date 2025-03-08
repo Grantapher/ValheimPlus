@@ -14,14 +14,13 @@ namespace ValheimPlus.GameClasses
                 return null;
 
             var stackField = AccessTools.Field(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.m_stack));
-            var maxStackSize = (int)Helper.applyModifierValue(20, Configuration.Current.Items.itemStackMultiplier);
 
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 1; i < codes.Count; i++)
             {
                 if (codes[i].opcode == OpCodes.Ldc_I4_1 && codes[i - 1].LoadsField(stackField))
                 {
-                    codes[i] = new CodeInstruction(OpCodes.Ldc_I4, maxStackSize);
+                    codes[i] = new CodeInstruction(OpCodes.Ldc_I4, int.MaxValue);
                     break; // replace only the first instance
                 }
             }
