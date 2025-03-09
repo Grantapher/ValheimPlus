@@ -8,7 +8,7 @@
 
 		public float growTime { get; set; } = 3000f;
 
-		public bool requireShelter { get; set; } = false;
+		public bool requireShelter { get; set; } = true;
 
 		public bool canStack { get; set; } = false;
 
