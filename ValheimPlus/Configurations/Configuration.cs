@@ -64,6 +64,6 @@ namespace ValheimPlus.Configurations
         public AutoStackConfiguration AutoStack { get; set; }
         public OvenConfiguration Oven { get; set; }
         public SapCollectorConfiguration SapCollector { get; set; }
-		public EggConfiguration Egg { get; set; }
-	}
+        public EggConfiguration Egg { get; set; }
+    }
 }
