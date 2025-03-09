@@ -140,6 +140,7 @@
     <Compile Include="Configurations\Sections\BedConfiguration.cs" />
     <Compile Include="Configurations\Sections\BrightnessConfiguration.cs" />
     <Compile Include="Configurations\Sections\ChatConfiguration.cs" />
+    <Compile Include="Configurations\Sections\EggConfiguration.cs" />
     <Compile Include="Configurations\Sections\EitrRefineryConfiguration.cs" />
     <Compile Include="Configurations\Sections\HealthUsageConfiguration.cs" />
     <Compile Include="Configurations\Sections\EitrUsageConfiguration.cs" />
