@@ -2335,6 +2335,21 @@
 				"description": "Set to true to prevent equipable items to be stored automaticly.",
 				"defaultValue": "false",
 				"defaultType": "bool"
+			},
+			"ignoreAmmo": {
+				"description": "Set to true to prevent arrows and bolts to be stored automatically.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"ignoreFood": {
+				"description": "Set to true to prevent food items to be stored automatically.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"ignoreMead": {
+				"description": "Set to true to prevent mead to be stored automatically.",
+				"defaultValue": "false",
+				"defaultType": "bool"
 			}
 		}
 	},
@@ -2436,6 +2451,90 @@
 				"description": "Modifies the duration of night. -100 will disable nights completely (you will not recieve notification about a new day). 100 will increase the duration of the night while reducing the duration of a day. Will effect sun / moon cycles as well.",
 				"defaultValue": "0",
 				"defaultType": "float"
+			}
+		}
+	},
+	"Ship": {
+		"description": "",
+		"icon": "fa fa-ship",
+		"description_website": "Change the values and behavior of the in-game ships.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultType": "bool",
+				"defaultValue": "false"
+			},
+			"forwardSpeed": {
+				"description": "This value determines the constant amount of force applied to the ship when sailing forward. A value of 50 will result in the ship being 50% faster, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"backwardSpeed": {
+				"description": "This value determines the amount of force applied to the ship when sailing backward. A value of 50 will result in the ship moving backward 50% faster, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"rudderSpeed": {
+				"description": "This value determines the speed of changing direction. A value of 50 will result in the wheel turning 50% faster, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"steerForce": {
+				"description": "This value determines the force applied to the ship when steering. A value of 50 will result in the ship turning 50% faster, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"waterImpactDamage": {
+				"description": "This value determines the amount of damage the ship takes while sailing. A value of 50 will result in the ship taking 50% more damage, -50 will result in the opposite.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			}
+		}
+	},
+	"Egg": {
+		"description": "",
+		"icon": "fa fa-clock-o",
+		"description_website": "Change the in-game behavior of eggs and chickens and modify their values.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"showHatchTime": {
+				"description": "If set to true the time until the egg hatches will be displayed when hovering over the egg.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"hatchTime": {
+				"description": "This value determines the time it takes for an egg to initially hatch into a chicken in seconds. A value of 300 means 5 minutes.",
+				"defaultValue": "300",
+				"defaultType": "float"
+			},
+			"growTime": {
+				"description": "This value determines the time it takes for a chicken to grow into an adult in seconds. A value of 3000 means 50 minutes.",
+				"defaultValue": "3000",
+				"defaultType": "float"
+			},
+			"requireShelter": {
+				"description": "This value determines whether or not an egg requires a roof and fire to grow. If set to false, eggs will grow anywhere.",
+				"defaultValue": "true",
+				"defaultType": "bool"
+			},
+			"canStack": {
+				"description": "This value determines whether or not eggs can grow in a stack on the ground. If set to true eggs will grow as many chickens as there are eggs in the dropped stack.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"soldByDefault": {
+				"description": "If set to true eggs are sold by Haldor without any requirements.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"sellPrice": {
+				"description": "This value determines the price of an egg sold by Haldor.",
+				"defaultValue": "1500",
+				"defaultType": "int"
 			}
 		}
 	}

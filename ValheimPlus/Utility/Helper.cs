@@ -55,6 +55,12 @@ namespace ValheimPlus
         public static float applyModifierValue(float targetValue, float value) =>
             value <= -100f ? 0f : targetValue + (targetValue / 100.0f * value);
 
+        // ReSharper disable once InconsistentNaming
+        public static void applyModifierValueTo(ref float targetValue, float modifier)
+        {
+             targetValue = modifier <= -100f ? 0f : targetValue + (targetValue / 100.0f * modifier);
+        }
+
         /// <summary>
         /// Calculate new value with chance mechanics.<br/><br/>
         /// On <c>targetValue = 1</c> and <c>value = 10</c> function will return "1 + (1 with 10% chance)"

@@ -140,6 +140,7 @@
     <Compile Include="Configurations\Sections\BedConfiguration.cs" />
     <Compile Include="Configurations\Sections\BrightnessConfiguration.cs" />
     <Compile Include="Configurations\Sections\ChatConfiguration.cs" />
+    <Compile Include="Configurations\Sections\EggConfiguration.cs" />
     <Compile Include="Configurations\Sections\EitrRefineryConfiguration.cs" />
     <Compile Include="Configurations\Sections\HealthUsageConfiguration.cs" />
     <Compile Include="Configurations\Sections\EitrUsageConfiguration.cs" />
@@ -158,6 +159,7 @@
     <Compile Include="Configurations\Sections\PickableConfiguration.cs" />
     <Compile Include="Configurations\Sections\SapCollectorConfiguration.cs" />
     <Compile Include="Configurations\Sections\ShieldGeneratorConfiguration.cs" />
+    <Compile Include="Configurations\Sections\ShipConfiguration.cs" />
     <Compile Include="Configurations\Sections\SmelterConfiguration.cs" />
     <Compile Include="Configurations\Sections\FreePlacementRotationConfiguration.cs" />
     <Compile Include="Configurations\Sections\GatherConfiguration.cs" />
@@ -207,6 +209,8 @@
     <Compile Include="GameClasses\Character.cs" />
     <Compile Include="GameClasses\CharacterDrop.cs" />
     <Compile Include="GameClasses\Demister.cs" />
+    <Compile Include="GameClasses\EggGrow.cs" />
+    <Compile Include="GameClasses\Growup.cs" />
     <Compile Include="GameClasses\InventoryGrid.cs" />
     <Compile Include="GameClasses\LuredWisp.cs" />
     <Compile Include="GameClasses\PickableItem.cs" />
@@ -216,7 +220,9 @@
     <Compile Include="GameClasses\SapCollector.cs" />
     <Compile Include="GameClasses\SEMan.cs" />
     <Compile Include="GameClasses\ShieldGenerator.cs" />
+    <Compile Include="GameClasses\Ship.cs" />
     <Compile Include="GameClasses\Talker.cs" />
+    <Compile Include="GameClasses\Trader.cs" />
     <Compile Include="GameClasses\Turret.cs" />
     <Compile Include="GameClasses\Container.cs" />
     <Compile Include="GameClasses\CookingStation.cs" />
@@ -287,15 +293,21 @@
     <EmbeddedResource Include="Assets\Bundles\settings-ui" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)ValheimPlus.dll" "$(VALHEIM_INSTALL)\BepInEx\plugins\ValheimPlus.dll"
-copy "$(TargetDir)ValheimPlus.pdb" "$(VALHEIM_INSTALL)\BepInEx\plugins\ValheimPlus.pdb"
-copy "$(TargetDir)ValheimPlus.dll.config" "$(VALHEIM_INSTALL)\BepInEx\plugins\ValheimPlus.dll.config"
-$(SolutionDir)resources\tools\pdb2mdb.exe "$(TargetPath)"
-copy "$(TargetDir)\ValheimPlus.dll.mdb" "$(VALHEIM_INSTALL)\BepInEx\plugins\ValheimPlus.dll.mdb"</PostBuildEvent>
-  </PropertyGroup>
+  <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
+    <PropertyGroup>
+      <Dest>$(VALHEIM_INSTALL)/BepInEx/plugins</Dest>
+    </PropertyGroup>
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Dest)" />
+    <Copy SourceFiles="$(TargetDir)ValheimPlus.pdb" DestinationFolder="$(Dest)" />
+    <Copy SourceFiles="$(TargetDir)ValheimPlus.dll.config" DestinationFolder="$(Dest)" />
+    <!-- Even with an updated version of pdb2mdb that runs under the Mono runtime, 
+    Mono 5 uses Roslyn compiler which produces portable PDBs only, these don't work with pdb2mdb.
+    There doesn't seem to be a way to generate MDBs on Linux or OSX,
+    so don't attempt to generate MDBs if build platform is not Windows. -->
+    <Exec Condition="$([MSBuild]::IsOSPlatform('Windows'))" Command="&quot;$(SolutionDir)resources\tools\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />
+    <Copy Condition="$([MSBuild]::IsOSPlatform('Windows'))" SourceFiles="$(TargetDir)ValheimPlus.dll.mdb" DestinationFolder="$(Dest)" />
+  </Target>
   <Import Project="..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets" Condition="Exists('..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
