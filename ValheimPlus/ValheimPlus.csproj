@@ -157,6 +157,7 @@
     <Compile Include="Configurations\Sections\ArmorConfiguration.cs" />
     <Compile Include="Configurations\Sections\DurabilityConfiguration.cs" />
     <Compile Include="Configurations\Sections\PickableConfiguration.cs" />
+    <Compile Include="Configurations\Sections\ProcreationConfiguration.cs" />
     <Compile Include="Configurations\Sections\SapCollectorConfiguration.cs" />
     <Compile Include="Configurations\Sections\ShieldGeneratorConfiguration.cs" />
     <Compile Include="Configurations\Sections\ShipConfiguration.cs" />

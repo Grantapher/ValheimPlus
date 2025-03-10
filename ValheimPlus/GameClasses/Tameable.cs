@@ -26,12 +26,17 @@ namespace ValheimPlus.GameClasses
     {
         public static void Postfix(Tameable __instance, ref string __result)
         {
-            if (Configuration.Current.Tameable.IsEnabled && Configuration.Current.Tameable.stunInformation)
+			if (!Configuration.Current.Tameable.IsEnabled)
+				return;
+
+			if (Configuration.Current.Tameable.stunInformation)
             {
                 // If tamed creature is recovering from a stun, then add Stunned to hover text.
                 if (__instance.m_character.m_nview.GetZDO().GetBool("isRecoveringFromStun"))
                     __result = __result.Insert(__result.IndexOf(" )"), ", Stunned");
             }
+
+			ProcreationHelper.ApplyHoverInformation(__instance, ref __result);
         }
     }
 
