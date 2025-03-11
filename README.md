@@ -462,3 +462,4 @@ Please see [CONTRIBUTING.md](/CONTRIBUTING.md) for details on compiling V+ for d
 - Radvo - https://github.com/Radvo
 - Shawn - https://github.com/shawnwallace
 - Bellian - https://github.com/Bellian
+- JF10R - https://github.com/JF10R 
