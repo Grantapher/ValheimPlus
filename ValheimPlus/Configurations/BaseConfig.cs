@@ -68,7 +68,8 @@ namespace ValheimPlus.Configurations
             {typeof(float), GetFloatValue },
             {typeof(int), GetIntValue },
             {typeof(KeyCode), GetKeyCodeValue },
-            {typeof(bool), GetBoolValue }
+            {typeof(bool), GetBoolValue },
+			{typeof(string), GetStringValue }
         };
 
         public void LoadIniData(KeyDataCollection data, string section)
@@ -124,7 +125,11 @@ namespace ValheimPlus.Configurations
         {
             return data.GetBool(keyName);
         }
-        private static object GetIntValue(KeyDataCollection data, object currentValue, string keyName)
+		private static object GetStringValue(KeyDataCollection data, object currentValue, string keyName)
+		{
+			return data[keyName];
+		}
+		private static object GetIntValue(KeyDataCollection data, object currentValue, string keyName)
         {
             return data.GetInt(keyName, (int)currentValue);
         }
