@@ -78,16 +78,11 @@ namespace ValheimPlus.GameClasses
 	{
 		public static bool ShouldEnforceHunger(Tameable instance)
 		{
-			float timeLeft = instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft);
-
-			var isHungry = instance.IsHungry();
-			ValheimPlusPlugin.Logger.LogInfo("Tameable Instance " + instance.m_character.m_name
-				+ (isHungry ? " is" : " is not") + " hungry");
-
 			// if timeLeft > 0 we can ignore hunger
 			// This is to prevent random taming
 			// The player MUST initiate taming with a piece of food
-			return timeLeft == 0 && isHungry;
+			float timeLeft = instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft);
+			return timeLeft == 0 && instance.IsHungry();
 		}
 
 		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)

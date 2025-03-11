@@ -45,10 +45,7 @@ namespace ValheimPlus.GameClasses
 		public static bool IsTameValid(Character character)
 		{
 			// Call IsTamed first for compatibility with other mods
-			var isValid = character.IsTamed() && IsValidAnimalType(character.m_name);
-			ValheimPlusPlugin.Logger.LogInfo("Procreation.Procreate: instance " + character.m_name +
-				(isValid ? " is valid" : " is invalid"));
-			return isValid;
+			return character.IsTamed() && IsValidAnimalType(character.m_name);
 		}
 
 		private static string GetPregnantStatus(Procreation procreation)
