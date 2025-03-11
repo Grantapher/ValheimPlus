@@ -7,8 +7,6 @@ using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
-	using static ProcreationHelper;
-
 	[Flags]
 	public enum AnimalType
 	{
@@ -23,33 +21,26 @@ namespace ValheimPlus.GameClasses
 
 	public static class ProcreationHelper
 	{
-		private static AnimalType? animalTypes;
-
-		public static AnimalType AnimalTypes
-		{
-			get => animalTypes ?? GetAnimalTypes();
-		}
-
-		public static AnimalType GetAnimalTypes()
-		{
-			var types = Configuration.Current.Procreation.animalTypes.ToLower();
-			animalTypes = AnimalType.None;
-
-			foreach (var value in Enum.GetValues(typeof(AnimalType)))
-				if (types.Contains(value.ToString().ToLower()))
-					animalTypes |= (AnimalType)value;
-
-			return animalTypes.Value;
-		}
-
-		public static bool IsValidAnimalType(string name) => name switch {
-			"$enemy_asksvin" or "$enemy_asksvin_hatchling" => AnimalTypes.HasFlag(AnimalType.Asksvin),
-			"$enemy_boar" or "$enemy_boarpiggy" => AnimalTypes.HasFlag(AnimalType.Boar),
-			"$enemy_wolf" or "$enemy_wolfcub" => AnimalTypes.HasFlag(AnimalType.Wolf),
-			"$enemy_lox" or "$enemy_loxcalf" => AnimalTypes.HasFlag(AnimalType.Lox),
-			"$enemy_hen" or "$enemy_chicken" => AnimalTypes.HasFlag(AnimalType.Hen),
-			_ => false,
+		private readonly static Dictionary<string, AnimalType> NamedTypes = new() {
+			{ "$enemy_asksvin", AnimalType.Asksvin },
+			{ "$enemy_asksvin_hatchling", AnimalType.Asksvin },
+			{ "$enemy_boar", AnimalType.Boar },
+			{ "$enemy_boarpiggy", AnimalType.Boar },
+			{ "$enemy_wolf", AnimalType.Wolf },
+			{ "$enemy_wolfcub", AnimalType.Wolf },
+			{ "$enemy_lox", AnimalType.Lox },
+			{ "$enemy_loxcalf", AnimalType.Lox },
+			{ "$enemy_hen", AnimalType.Hen },
+			{ "$enemy_chicken", AnimalType.Hen }
 		};
+
+		public static bool IsValidAnimalType(string name) {
+			if (!NamedTypes.TryGetValue(name, out AnimalType type))
+				return false;
+
+			var config = Configuration.Current.Procreation;
+			return config.animalTypes.HasFlag(type);
+		}
 
 		public static bool IsTameValid(Character character)
 		{
@@ -120,7 +111,7 @@ namespace ValheimPlus.GameClasses
 				return;
 
 			result = Localization.instance.Localize(character.m_name);
-			var timeleft = growup.GetGrowTimeLeft();
+			var timeleft = GrowupHelpers.GetGrowTimeLeft(growup);
 
 			if (timeleft > 120)
 				result += " ( Matures in " + (timeleft / 60) + " minutes )";
@@ -154,7 +145,7 @@ namespace ValheimPlus.GameClasses
 			if (!Configuration.Current.Procreation.IsEnabled)
 				return;
 
-			if (!IsValidAnimalType(__instance.m_character.m_name))
+			if (!ProcreationHelper.IsValidAnimalType(__instance.m_character.m_name))
 				return;
 
 			var procreation = Configuration.Current.Procreation;
@@ -184,7 +175,7 @@ namespace ValheimPlus.GameClasses
 
 			try {
 				var matcher = new CodeMatcher(instructions, ilGenerator);
-				IsTameValidTranspiler(matcher);
+				ProcreationHelper.IsTameValidTranspiler(matcher);
 
 				if (config.ignoreHunger)
 					TameableHelpers.IgnoreHungerTranspiler(matcher);
