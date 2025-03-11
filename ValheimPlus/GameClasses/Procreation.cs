@@ -33,23 +33,7 @@ namespace ValheimPlus.GameClasses
 		public static AnimalType GetAnimalTypes()
 		{
 			var types = Configuration.Current.Procreation.animalTypes.ToLower();
-			if (types.Contains("none"))
-				return AnimalType.None;
-
-			if (types.Contains("all"))
-				return AnimalType.All;
-
 			animalTypes = AnimalType.None;
-			if (types.Contains("boar"))
-				animalTypes |= AnimalType.Boar;
-			if (types.Contains("wolf"))
-				animalTypes |= AnimalType.Wolf;
-			if (types.Contains("lox"))
-				animalTypes |= AnimalType.Lox;
-			if (types.Contains("hen"))
-				animalTypes |= AnimalType.Hen;
-			if (types.Contains("asksvin"))
-				animalTypes |= AnimalType.Asksvin;
 
 			foreach (var value in Enum.GetValues(typeof(AnimalType)))
 				if (types.Contains(value.ToString().ToLower()))
@@ -175,8 +159,6 @@ namespace ValheimPlus.GameClasses
 
 			var procreation = Configuration.Current.Procreation;
 			__instance.m_requiredLovePoints = procreation.requiredLovePoints;
-			__instance.m_pregnancyDuration = Helper.applyModifierValue(10f, procreation.pregnancyDurationMultiplier);
-			__instance.m_pregnancyChance = Helper.applyModifierValue(0.5f, procreation.pregnancyChanceMultiplier);
 			__instance.m_partnerCheckRange = procreation.partnerCheckRange;
 			__instance.m_maxCreatures = procreation.creatureLimit;
 
@@ -215,24 +197,7 @@ namespace ValheimPlus.GameClasses
 		{
 				ValheimPlusPlugin.Logger.LogError(ex);
 				return instructions;
-
-			var TameableField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_tameable));
-			var IsTamedMethod = AccessTools.Method(typeof(Character), nameof(Character.IsTamed));
-			var mIsHungry = AccessTools.Method(typeof(ProcreationHelper), nameof(IsHungry));
-
-			var codes = new List<CodeInstruction>(instructions);
-			for (int i = 2; i < codes.Count; i++)
-			{
-				if (codes[i - 2].opcode == OpCodes.Ldarg_0
-					&& codes[i - 1].LoadsField(TameableField)
-					&& codes[i].Calls(IsTamedMethod))
-				{
-					codes[i] = new CodeInstruction(OpCodes.Call, mIsHungry);
-					break;
-				}
 			}
-
-			return codes.AsEnumerable();
 		}
 	}
 }
