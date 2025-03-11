@@ -90,7 +90,7 @@ namespace ValheimPlus.GameClasses
 			return timeLeft == 0 && isHungry;
 		}
 
-		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
 		{
 			var config = Configuration.Current.Tameable;
 			if (!config.IsEnabled || (!config.ignoreHunger && !config.ignoreAlerted))
@@ -98,7 +98,7 @@ namespace ValheimPlus.GameClasses
 
 			try
 			{
-				var matcher = new CodeMatcher(instructions);
+				var matcher = new CodeMatcher(instructions, ilGenerator);
 
 				if (config.ignoreHunger)
 					TameableHelpers.IgnoreHungerTranspiler(matcher, ShouldEnforceHunger);
