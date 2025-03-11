@@ -75,4 +75,46 @@ namespace ValheimPlus.GameClasses
 					__instance.m_nview.GetZDO().Set(ZDOVars.s_tameTimeLeft, __instance.m_tamingTime);
 		}
 	}
+
+	[HarmonyPatch(typeof(Tameable), nameof(Tameable.TamingUpdate))]
+	public static class Tameable_TamingUpdate_Patch
+	{
+		public static bool ShouldEnforceHunger(Tameable instance)
+		{
+			float timeLeft = instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft);
+
+			var isHungry = instance.IsHungry();
+			ValheimPlusPlugin.Logger.LogInfo("Tameable Instance " + instance.m_character.m_name
+				+ (isHungry ? " is" : " is not") + " hungry");
+
+			// if timeLeft > 0 we can ignore hunger
+			// This is to prevent random taming
+			// The player MUST initiate taming with a piece of food
+			return timeLeft == 0 && isHungry;
+		}
+
+		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var config = Configuration.Current.Tameable;
+			if (!config.IsEnabled || (!config.ignoreHunger && !config.ignoreAlerted))
+				return instructions;
+
+			try
+			{
+				var matcher = new CodeMatcher(instructions);
+
+				if (config.ignoreHunger)
+					TameableHelpers.IgnoreHungerTranspiler(matcher, ShouldEnforceHunger);
+
+				if (config.ignoreAlerted)
+					BaseAIHelpers.IgnoreAlertedTranspiler(matcher);
+
+				return matcher.InstructionEnumeration();
+			} catch (Exception ex)
+			{
+				ValheimPlusPlugin.Logger.LogError(ex);
+				return instructions;
+			}
+		}
+	}
 }
