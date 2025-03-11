@@ -125,7 +125,6 @@ namespace ValheimPlus.GameClasses
 
 		public static CodeMatcher IsTameValidTranspiler(CodeMatcher matcher)
 		{
-			var CharacterField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_character));
 			var characterIsTamed = AccessTools.Method(typeof(Character), nameof(Character.IsTamed));
 			var mIsTameValid = AccessTools.Method(typeof(ProcreationHelper), nameof(IsTameValid));
 			return matcher
