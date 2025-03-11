@@ -4,9 +4,9 @@ using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
-	public static class GrowupExtensions
+	public static class GrowupHelpers
 	{
-		public static int GetGrowTimeLeft(this Growup growup)
+		public static int GetGrowTimeLeft(Growup growup)
 			=> (int)(growup.m_growTime - growup.m_baseAI.GetTimeSinceSpawned().TotalSeconds);
 	}
 
