@@ -1,8 +1,10 @@
-﻿namespace ValheimPlus.Configurations.Sections
+﻿using ValheimPlus.GameClasses;
+
+namespace ValheimPlus.Configurations.Sections
 {
 	public class ProcreationConfiguration : ServerSyncConfig<ProcreationConfiguration>
 	{
-		public string animalTypes { get; internal set; } = "all";
+		public AnimalType animalTypes { get; internal set; } = AnimalType.All;
 		public bool loveInformation { get; internal set; } = false;
 		public bool offspringInformation { get; internal set; } = false;
 		public int requiredLovePoints { get; internal set; } = 4;

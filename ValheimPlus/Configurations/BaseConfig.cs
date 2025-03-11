@@ -8,7 +8,7 @@ using ValheimPlus.RPC;
 
 namespace ValheimPlus.Configurations
 {
-    public interface IConfig
+	public interface IConfig
     {
         void LoadIniData(KeyDataCollection data, string section);
     }
@@ -69,7 +69,8 @@ namespace ValheimPlus.Configurations
             {typeof(int), GetIntValue },
             {typeof(KeyCode), GetKeyCodeValue },
             {typeof(bool), GetBoolValue },
-			{typeof(string), GetStringValue }
+			{typeof(string), GetStringValue },
+			{typeof(Enum), GetEnumValue }
         };
 
         public void LoadIniData(KeyDataCollection data, string section)
@@ -103,15 +104,19 @@ namespace ValheimPlus.Configurations
                     continue;
                 }
 
-                if (_getValues.ContainsKey(property.PropertyType))
+				var propertyType = property.PropertyType;
+				if (propertyType.IsEnum)
+					propertyType = typeof(Enum);
+
+				if (_getValues.ContainsKey(propertyType))
                 {
-                    var getValue = _getValues[property.PropertyType];
+                    var getValue = _getValues[propertyType];
                     var value = getValue(data, currentValue, keyName);
                     if (!currentValue.Equals(value)) 
                         ValheimPlusPlugin.Logger.LogInfo($"[{section}] Updating {keyName} from {currentValue} to {value}");
                     property.SetValue(this, value, null);
                 }
-                else ValheimPlusPlugin.Logger.LogWarning($"[{section}] Could not load data of type {property.PropertyType} for key {keyName}");
+                else ValheimPlusPlugin.Logger.LogWarning($"[{section}] Could not load data of type {propertyType} for key {keyName}");
             }
         }
 
@@ -128,6 +133,22 @@ namespace ValheimPlus.Configurations
 		private static object GetStringValue(KeyDataCollection data, object currentValue, string keyName)
 		{
 			return data[keyName];
+		}
+		private static object GetEnumValue(KeyDataCollection data, object currentValue, string keyName)
+		{
+			var enumType = currentValue.GetType();
+			var isFlagEnum = enumType.IsDefined(typeof(FlagsAttribute), false);
+
+			if (!isFlagEnum)
+				return Enum.Parse(enumType, data[keyName]);
+
+			var flags = new List<object>();
+			foreach (var enumValue in Enum.GetValues(enumType))
+				if (data[keyName].ToLower().Contains(enumValue.ToString().ToLower()))
+					flags.Add(enumValue);
+
+			var value = flags.Aggregate(0, (current, flag) => (int)current | (int)flag);
+			return Enum.ToObject(enumType, value);
 		}
 		private static object GetIntValue(KeyDataCollection data, object currentValue, string keyName)
         {
