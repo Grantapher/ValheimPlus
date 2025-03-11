@@ -23,7 +23,12 @@ namespace ValheimPlus.GameClasses
 
 	public static class ProcreationHelper
 	{
-		private static AnimalType animalTypes;
+		private static AnimalType? animalTypes;
+
+		public static AnimalType AnimalTypes
+		{
+			get => animalTypes ?? GetAnimalTypes();
+		}
 
 		public static AnimalType GetAnimalTypes()
 		{
@@ -46,20 +51,30 @@ namespace ValheimPlus.GameClasses
 			if (types.Contains("asksvin"))
 				animalTypes |= AnimalType.Asksvin;
 
-			return animalTypes;
+			foreach (var value in Enum.GetValues(typeof(AnimalType)))
+				if (types.Contains(value.ToString().ToLower()))
+					animalTypes |= (AnimalType)value;
+
+			return animalTypes.Value;
 		}
 
 		public static bool IsValidAnimalType(string name) => name switch {
-			"$enemy_boar" => animalTypes.HasFlag(AnimalType.Boar),
-			"$enemy_wolf" => animalTypes.HasFlag(AnimalType.Wolf),
-			"$enemy_lox" => animalTypes.HasFlag(AnimalType.Lox),
-			"$enemy_hen" => animalTypes.HasFlag(AnimalType.Hen),
-			"$enemy_asksvin" => animalTypes.HasFlag(AnimalType.Asksvin),
+			"$enemy_asksvin" or "$enemy_asksvin_hatchling" => AnimalTypes.HasFlag(AnimalType.Asksvin),
+			"$enemy_boar" or "$enemy_boarpiggy" => AnimalTypes.HasFlag(AnimalType.Boar),
+			"$enemy_wolf" or "$enemy_wolfcub" => AnimalTypes.HasFlag(AnimalType.Wolf),
+			"$enemy_lox" or "$enemy_loxcalf" => AnimalTypes.HasFlag(AnimalType.Lox),
+			"$enemy_hen" or "$enemy_chicken" => AnimalTypes.HasFlag(AnimalType.Hen),
 			_ => false,
 		};
 
-		public static bool IsValidAnimalType(Procreation instance)
-			=> IsValidAnimalType(instance.GetComponent<Character>()?.m_name);
+		public static bool IsTameValid(Character character)
+		{
+			// Call IsTamed first for compatibility with other mods
+			var isValid = character.IsTamed() && IsValidAnimalType(character.m_name);
+			ValheimPlusPlugin.Logger.LogInfo("Procreation.Procreate: instance " + character.m_name +
+				(isValid ? " is valid" : " is invalid"));
+			return isValid;
+		}
 
 		public static bool IsHungry(Tameable tameable)
 		{
