@@ -4,6 +4,7 @@
 	{
 		public string animalTypes { get; internal set; } = "all";
 		public bool loveInformation { get; internal set; } = false;
+		public bool offspringInformation { get; internal set; } = false;
 		public int requiredLovePoints { get; internal set; } = 4;
 		public float pregnancyDurationMultiplier { get; internal set; } = 0f;
 		public float pregnancyChanceMultiplier { get; internal set; } = 0f;
