@@ -79,7 +79,8 @@ namespace ValheimPlus.GameClasses
 
 		public static void AddLoveInformation(Tameable instance, Procreation procreation, ref string result)
 		{
-			if (!Configuration.Current.Procreation.IsEnabled || !Configuration.Current.Procreation.loveInformation)
+			var config = Configuration.Current.Procreation;
+			if (!config.IsEnabled || !config.loveInformation)
 				return;
 
 			if (!IsValidAnimalType(instance.m_character.m_name))
@@ -104,7 +105,8 @@ namespace ValheimPlus.GameClasses
 
 		public static void AddGrowupInformation(Character character, Growup growup, ref string result)
 		{
-			if (!Configuration.Current.Procreation.IsEnabled || !Configuration.Current.Procreation.offspringInformation)
+			var config = Configuration.Current.Procreation;
+			if (!config.IsEnabled || !config.offspringInformation)
 				return;
 
 			if (!IsValidAnimalType(character.m_name))
@@ -127,10 +129,7 @@ namespace ValheimPlus.GameClasses
 			var characterIsTamed = AccessTools.Method(typeof(Character), nameof(Character.IsTamed));
 			var mIsTameValid = AccessTools.Method(typeof(ProcreationHelper), nameof(IsTameValid));
 			return matcher
-				.MatchEndForward(
-					OpCodes.Ldarg_0,
-					new CodeMatch(inst => inst.LoadsField(CharacterField)),
-					new CodeMatch(inst => inst.Calls(characterIsTamed)))
+				.MatchEndForward(new CodeMatch(inst => inst.Calls(characterIsTamed)))
 				.ThrowIfNotMatch("No match for IsTamed method call.")
 				.Set(OpCodes.Call, mIsTameValid)
 				.Start();
@@ -142,31 +141,28 @@ namespace ValheimPlus.GameClasses
 	{
 		public static void Postfix(Procreation __instance)
 		{
-			if (!Configuration.Current.Procreation.IsEnabled)
+			var config = Configuration.Current.Procreation;
+			if (!config.IsEnabled)
 				return;
 
 			if (!ProcreationHelper.IsValidAnimalType(__instance.m_character.m_name))
 				return;
 
-			var procreation = Configuration.Current.Procreation;
-			__instance.m_requiredLovePoints = procreation.requiredLovePoints;
-			__instance.m_partnerCheckRange = procreation.partnerCheckRange;
-			__instance.m_maxCreatures = procreation.creatureLimit;
+			__instance.m_requiredLovePoints = config.requiredLovePoints;
+			__instance.m_partnerCheckRange = config.partnerCheckRange;
+			__instance.m_maxCreatures = config.creatureLimit;
 
 			__instance.m_pregnancyDuration = Helper.applyModifierValue(
-				__instance.m_pregnancyDuration, procreation.pregnancyDurationMultiplier);
+				__instance.m_pregnancyDuration, config.pregnancyDurationMultiplier);
 
 			__instance.m_pregnancyChance = 1f - Helper.applyModifierValue(
-				__instance.m_pregnancyChance, procreation.pregnancyChanceMultiplier);
+				__instance.m_pregnancyChance, config.pregnancyChanceMultiplier);
 		}
 	}
 
 	[HarmonyPatch(typeof(Procreation), nameof(Procreation.Procreate))]
 	public static class Procreation_Procreate_Transpiler
 	{
-		private static FieldInfo BaseAIField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_baseAI));
-		private static MethodInfo baseAiIsAlerted = AccessTools.Method(typeof(BaseAI), nameof(BaseAI.IsAlerted));
-
 		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
 		{
 			var config = Configuration.Current.Procreation;
