@@ -19,8 +19,4 @@ namespace ValheimPlus.GameClasses
 				.Start();
 		}
 	}
-
-	// if ((!this.IsAlerted()
-	// || (UnityEngine.Object) this.m_targetStatic == (UnityEngine.Object) null && (UnityEngine.Object) this.m_targetCreature == (UnityEngine.Object) null)
-	// && this.UpdateConsumeItem(character, dt))
 }
