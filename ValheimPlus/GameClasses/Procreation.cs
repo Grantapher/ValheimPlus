@@ -76,34 +76,89 @@ namespace ValheimPlus.GameClasses
 			return isValid;
 		}
 
-		public static bool IsHungry(Tameable tameable)
+		private static string GetPregnantStatus(Procreation procreation)
 		{
-			ValheimPlusPlugin.Logger.LogInfo("Procreation.Procreate: checking if instance " + tameable.m_character.m_name + " is hungry");
-			return !Configuration.Current.Procreation.ignoreHunger && tameable.IsHungry();
+			var ticks = procreation.m_nview.GetZDO().GetLong(ZDOVars.s_pregnant);
+			var ticksNow = ZNet.instance.GetTime().Ticks;
+			var elapsed = new TimeSpan(ticksNow - ticks).TotalSeconds;
+			var timeLeft = (int)(procreation.m_pregnancyDuration - elapsed);
+
+			var result = "\n<color=#FFAEC9>Pregnant";
+
+			if (timeLeft > 120)
+				result += " ( " + (timeLeft / 60) + " minutes left )";
+
+			else if (timeLeft > 0)
+				result += " ( " + timeLeft + " seconds left )";
+
+			else if (timeLeft > -15)
+				result += " ( Due to give birth )";
+
+			// Update interval is 30 seconds so we can just pretend it's overdue
+			else
+				result += " ( Overdue )";
+
+			result += "</color>";
+			return result;
 		}
 
-		public static void ApplyHoverInformation(Tameable instance, ref string result)
+		public static void AddLoveInformation(Tameable instance, Procreation procreation, ref string result)
 		{
-			if (!instance.m_character.IsTamed()
-				|| !Configuration.Current.Procreation.IsEnabled
-				|| !Configuration.Current.Procreation.loveInformation)
+			if (!Configuration.Current.Procreation.IsEnabled || !Configuration.Current.Procreation.loveInformation)
 				return;
 
-			var procreation = instance.GetComponent<Procreation>();
-			if (!procreation)
+			if (!IsValidAnimalType(instance.m_character.m_name))
 				return;
 
 			var lineBreak = result.IndexOf('\n');
 			if (lineBreak <= 0)
 				return;
 
-			var lovePoints = instance.m_nview.GetZDO().GetInt(ZDOVars.s_lovePoints);
+			var lovePoints = procreation.m_nview.GetZDO().GetInt(ZDOVars.s_lovePoints);
+
+			string extraText;
 			if (procreation.IsPregnant())
-				result = result.Insert(lineBreak, "\n<color=#FFAEC9>Pregnant</color>");
+				extraText = GetPregnantStatus(procreation);
 			else if (lovePoints > 0)
-				result = result.Insert(lineBreak, $"\nLoved ({lovePoints}/{procreation.m_requiredLovePoints})");
+				extraText = $"\nLoved ( {lovePoints} / {procreation.m_requiredLovePoints} )";
 			else
-				result = result.Insert(lineBreak, $"\nNot loved");
+				extraText = "\nNot loved";
+
+			result = result.Insert(lineBreak, extraText);
+		}
+
+		public static void AddGrowupInformation(Character character, Growup growup, ref string result)
+		{
+			if (!Configuration.Current.Procreation.IsEnabled || !Configuration.Current.Procreation.offspringInformation)
+				return;
+
+			if (!IsValidAnimalType(character.m_name))
+				return;
+
+			result = Localization.instance.Localize(character.m_name);
+			var timeleft = growup.GetGrowTimeLeft();
+
+			if (timeleft > 120)
+				result += " ( Matures in " + (timeleft / 60) + " minutes )";
+			else if (timeleft > 0)
+				result += " ( Matures in " + timeleft + " seconds )";
+			else
+				result += " ( Matured )";
+		}
+
+		public static CodeMatcher IsTameValidTranspiler(CodeMatcher matcher)
+		{
+			var CharacterField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_character));
+			var characterIsTamed = AccessTools.Method(typeof(Character), nameof(Character.IsTamed));
+			var mIsTameValid = AccessTools.Method(typeof(ProcreationHelper), nameof(IsTameValid));
+			return matcher
+				.MatchEndForward(
+					OpCodes.Ldarg_0,
+					new CodeMatch(inst => inst.LoadsField(CharacterField)),
+					new CodeMatch(inst => inst.Calls(characterIsTamed)))
+				.ThrowIfNotMatch("No match for IsTamed method call.")
+				.Set(OpCodes.Call, mIsTameValid)
+				.Start();
 		}
 	}
 

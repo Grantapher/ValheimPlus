@@ -42,7 +42,7 @@ namespace ValheimPlus.GameClasses
     {
         public static void Postfix(Tameable __instance, ref string __result)
         {
-			if (!Configuration.Current.Tameable.IsEnabled)
+			if (Configuration.Current.Tameable.IsEnabled && Configuration.Current.Tameable.stunInformation)
 				return;
 
 			if (Configuration.Current.Tameable.stunInformation)
@@ -52,7 +52,9 @@ namespace ValheimPlus.GameClasses
                     __result = __result.Insert(__result.IndexOf(" )"), ", Stunned");
             }
 
-			ProcreationHelper.ApplyHoverInformation(__instance, ref __result);
+			var procreation = __instance.GetComponent<Procreation>();
+			if (procreation != null)
+				ProcreationHelper.AddLoveInformation(__instance, procreation, ref __result);
         }
     }
 
