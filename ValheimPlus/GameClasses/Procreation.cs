@@ -100,7 +100,7 @@ namespace ValheimPlus.GameClasses
 			if (!Configuration.Current.Procreation.IsEnabled)
 				return;
 
-			if (!IsValidAnimalType(__instance))
+			if (!IsValidAnimalType(__instance.m_character.m_name))
 				return;
 
 			var procreation = Configuration.Current.Procreation;
@@ -109,6 +109,12 @@ namespace ValheimPlus.GameClasses
 			__instance.m_pregnancyChance = Helper.applyModifierValue(0.5f, procreation.pregnancyChanceMultiplier);
 			__instance.m_partnerCheckRange = procreation.partnerCheckRange;
 			__instance.m_maxCreatures = procreation.creatureLimit;
+
+			__instance.m_pregnancyDuration = Helper.applyModifierValue(
+				__instance.m_pregnancyDuration, procreation.pregnancyDurationMultiplier);
+
+			__instance.m_pregnancyChance = 1f - Helper.applyModifierValue(
+				__instance.m_pregnancyChance, procreation.pregnancyChanceMultiplier);
 		}
 	}
 
