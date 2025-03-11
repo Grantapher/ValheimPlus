@@ -172,7 +172,7 @@ namespace ValheimPlus.GameClasses
 
 	[HarmonyPatch(typeof(Procreation), nameof(Procreation.Procreate))]
 	public static class Procreation_Procreate_Transpiler
-		{
+	{
 		private static FieldInfo BaseAIField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_baseAI));
 		private static MethodInfo baseAiIsAlerted = AccessTools.Method(typeof(BaseAI), nameof(BaseAI.IsAlerted));
 
@@ -194,7 +194,7 @@ namespace ValheimPlus.GameClasses
 
 				return matcher.InstructionEnumeration();
 			} catch (Exception ex)
-		{
+			{
 				ValheimPlusPlugin.Logger.LogError(ex);
 				return instructions;
 			}
