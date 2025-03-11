@@ -18,6 +18,22 @@ namespace ValheimPlus.GameClasses
         Immortal
     }
 
+	public static class TameableHelpers
+	{
+		private static bool IsHungry(Tameable tameable) => false;
+
+		public static CodeMatcher IgnoreHungerTranspiler(CodeMatcher matcher, Func<Tameable, bool> pred = null)
+		{
+			var ignoreHungerMethod = AccessTools.Method(typeof(TameableHelpers), nameof(IsHungry));
+			var tameableIsHungry = AccessTools.Method(typeof(Tameable), nameof(Tameable.IsHungry));
+			return matcher
+				.MatchStartForward(new CodeMatch(inst => inst.Calls(tameableIsHungry)))
+				.ThrowIfNotMatch("No match for IsHungry method call.")
+				.Set(OpCodes.Call, pred?.Method ?? ignoreHungerMethod)
+				.Start();
+		}
+	}
+
     /// <summary>
     /// Adds a text indicator so player's know when an animal they've tamed has been stunned.
     /// </summary>

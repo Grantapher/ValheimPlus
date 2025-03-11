@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using ValheimPlus.Configurations;
 
@@ -134,64 +134,31 @@ namespace ValheimPlus.GameClasses
 	}
 
 	[HarmonyPatch(typeof(Procreation), nameof(Procreation.Procreate))]
-	public static class Procreation_Procreate_Patch
-	{
-		public static bool IsValidInstance(Character character)
+	public static class Procreation_Procreate_Transpiler
 		{
-			ValheimPlusPlugin.Logger.LogInfo("Procreation.Procreate: checking if instance " + character.m_name + " is valid");
-			return character.IsTamed() && IsValidAnimalType(character.m_name);
-		}
+		private static FieldInfo BaseAIField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_baseAI));
+		private static MethodInfo baseAiIsAlerted = AccessTools.Method(typeof(BaseAI), nameof(BaseAI.IsAlerted));
 
-		public static bool IsAlertedReplacement(BaseAI baseAI)
+		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
 		{
-			ValheimPlusPlugin.Logger.LogInfo("Procreation.Procreate: checking if instance " + baseAI.m_character.m_name + " is alerted");
-			return !Configuration.Current.Procreation.ignoreAlerted && baseAI.IsAlerted();
-		}
-
-		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-		{
-			if (!Configuration.Current.Procreation.IsEnabled)
+			var config = Configuration.Current.Procreation;
+			if (!config.IsEnabled || (!config.ignoreHunger && !config.ignoreAlerted))
 				return instructions;
 
-			var CharacterField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_character));
-			var characterIsTamed = AccessTools.Method(typeof(Character), nameof(Character.IsTamed));
+			try {
+				var matcher = new CodeMatcher(instructions, ilGenerator);
+				IsTameValidTranspiler(matcher);
 
-			var TameableField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_tameable));
-			var tameableIsHungry = AccessTools.Method(typeof(Tameable), nameof(Tameable.IsHungry));
+				if (config.ignoreHunger)
+					TameableHelpers.IgnoreHungerTranspiler(matcher);
 
-			var BaseAIField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_baseAI));
-			var baseAiIsAlerted = AccessTools.Method(typeof(BaseAI), nameof(BaseAI.IsAlerted));
+				if (config.ignoreAlerted)
+					BaseAIHelpers.IgnoreAlertedTranspiler(matcher);
 
-			var mIsValidInstance = AccessTools.Method(typeof(Procreation_Procreate_Patch), nameof(IsValidInstance));
-			var mIsHungry = AccessTools.Method(typeof(ProcreationHelper), nameof(IsHungry));
-			var mIsAlerted = AccessTools.Method(typeof(Procreation_Procreate_Patch), nameof(IsAlertedReplacement));
-
-			var codes = new List<CodeInstruction>(instructions);
-			for (int i = 2; i < codes.Count; i++)
-			{
-				if (codes[i - 2].opcode != OpCodes.Ldarg_0)
-					continue;
-
-				if (codes[i].Calls(characterIsTamed) && codes[i - 1].LoadsField(CharacterField))
-					codes[i] = new CodeInstruction(OpCodes.Call, mIsValidInstance);
-
-				else if (codes[i].Calls(tameableIsHungry) && codes[i - 1].LoadsField(TameableField))
-					codes[i] = new CodeInstruction(OpCodes.Call, mIsHungry);
-
-				else if (codes[i].Calls(baseAiIsAlerted) && codes[i - 1].LoadsField(BaseAIField))
-					codes[i] = new CodeInstruction(OpCodes.Call, mIsAlerted);
-			}
-
-			return codes.AsEnumerable();
-		}
-	}
-
-	[HarmonyPatch(typeof(Procreation), nameof(Procreation.ReadyForProcreation))]
-	public static class Procreation_ReadyForProcreation_Patch
-	{
-		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+				return matcher.InstructionEnumeration();
+			} catch (Exception ex)
 		{
-			if (!Configuration.Current.Procreation.IsEnabled)
+				ValheimPlusPlugin.Logger.LogError(ex);
 				return instructions;
 
 			var TameableField = AccessTools.Field(typeof(Procreation), nameof(Procreation.m_tameable));
