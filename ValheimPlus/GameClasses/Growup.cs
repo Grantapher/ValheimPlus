@@ -10,19 +10,23 @@ namespace ValheimPlus.GameClasses
 			=> (int)(growup.m_growTime - growup.m_baseAI.GetTimeSinceSpawned().TotalSeconds);
 	}
 
-    [HarmonyPatch(typeof(Growup), nameof(Growup.Start))]
-    public static class Growup_Start_Patch
-    {
-        [UsedImplicitly]
-        public static void Prefix(Growup __instance)
-        {
-            var config = Configuration.Current.Egg;
-            if (!config.IsEnabled) return;
+	[HarmonyPatch(typeof(Growup), nameof(Growup.Start))]
+	public static class Growup_Start_Patch
+	{
+		[UsedImplicitly]
+		public static void Prefix(Growup __instance)
+		{
+			var eggConfig = Configuration.Current.Egg;
+			var procreationConfig = Configuration.Current.Procreation;
+			var humanoid = __instance.m_grownPrefab.GetComponent<Humanoid>();
+			if (!humanoid) return;
 
-            var humanoid = __instance.m_grownPrefab.GetComponent<Humanoid>();
-            if (!humanoid || humanoid.m_name != "$enemy_hen") return;
+			if (eggConfig.IsEnabled && humanoid.m_name == "$enemy_hen")
+				__instance.m_growTime = eggConfig.growTime;
 
-            __instance.m_growTime = config.growTime;
-        }
-    }
+			else if (procreationConfig.IsEnabled && ProcreationHelper.IsValidAnimalType(humanoid.m_name))
+				__instance.m_growTime = Helper.applyModifierValue(__instance.m_growTime,
+					procreationConfig.maturityDurationMultiplier);
+		}
+	}
 }

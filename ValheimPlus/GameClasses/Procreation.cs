@@ -29,9 +29,7 @@ namespace ValheimPlus.GameClasses
 			{ "$enemy_wolf", AnimalType.Wolf },
 			{ "$enemy_wolfcub", AnimalType.Wolf },
 			{ "$enemy_lox", AnimalType.Lox },
-			{ "$enemy_loxcalf", AnimalType.Lox },
-			{ "$enemy_hen", AnimalType.Hen },
-			{ "$enemy_chicken", AnimalType.Hen }
+			{ "$enemy_loxcalf", AnimalType.Lox }
 		};
 
 		public static bool IsValidAnimalType(string name) {
