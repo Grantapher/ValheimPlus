@@ -17,9 +17,10 @@ namespace ValheimPlus.GameClasses
             && !itemData.m_shared.m_ammoType.EndsWith("turretbolt");
 
         public static bool IsFood(this ItemDrop.ItemData itemData) =>
-            itemData.m_shared.m_food > 0
+            itemData.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Consumable
+            && (itemData.m_shared.m_food > 0
             || itemData.m_shared.m_foodEitr > 0
-            || itemData.m_shared.m_foodStamina > 0;
+            || itemData.m_shared.m_foodStamina > 0);
 
         public static bool IsMead(this ItemDrop.ItemData itemData) => itemData.m_shared.m_isDrink;
     }
