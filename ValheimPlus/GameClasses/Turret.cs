@@ -34,8 +34,8 @@ namespace ValheimPlus.GameClasses
 			if (!config.IsEnabled) return;
 			__instance.m_targetPlayers = config.enablePvP && TurretHelpers.IsCreatorPvP(__instance);
 			__instance.m_targetTamed = config.targetTamed;
-			__instance.m_horizontalAngle = config.horizontalAngle;
-			__instance.m_verticalAngle = config.verticalAngle;
+			__instance.m_horizontalAngle = Mathf.Min(config.horizontalAngle, 180f);
+			__instance.m_verticalAngle = Mathf.Min(config.verticalAngle, 90f);
 			__instance.m_attackCooldown = config.attackCooldown;
 			__instance.m_viewDistance = config.viewDistance;
 			__instance.m_turnRate = config.turnRate;
