@@ -1,8 +1,8 @@
 ﻿namespace ValheimPlus.Configurations.Sections
 {
-    public class TurretConfiguration : ServerSyncConfig<TurretConfiguration>
-    {
-        public bool enablePvP { get; internal set; } = false;
+	public class TurretConfiguration : ServerSyncConfig<TurretConfiguration>
+	{
+		public bool enablePvP { get; internal set; } = false;
 		public bool targetTamed { get; internal set; } = false;
 		public bool unlimitedAmmo { get; internal set; } = false;
 		public float turnRate { get; internal set; } = 22.5f;
