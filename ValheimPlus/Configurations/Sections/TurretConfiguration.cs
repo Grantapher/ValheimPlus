@@ -2,12 +2,13 @@
 {
     public class TurretConfiguration : ServerSyncConfig<TurretConfiguration>
     {
-        public bool ignorePlayers { get; internal set; } = false;
-        public bool unlimitedAmmo { get; internal set; } = false;
-        public float turnRate { get; internal set; } = 0;
-        public float attackCooldown { get; internal set; } = 0;
-        public float viewDistance { get; internal set; } = 0;
-        public float projectileVelocity { get; internal set; } = 0f;
-        public float projectileAccuracy { get; internal set; } = 0f;
-    }
+        public bool enablePvP { get; internal set; } = false;
+		public bool targetTamed { get; internal set; } = false;
+		public bool unlimitedAmmo { get; internal set; } = false;
+		public float turnRate { get; internal set; } = 22.5f;
+		public float horizontalAngle { get; internal set; } = 50f;
+		public float verticalAngle { get; internal set; } = 50f;
+		public float attackCooldown { get; internal set; } = 2f;
+		public float viewDistance { get; internal set; } = 45f;
+	}
 }
