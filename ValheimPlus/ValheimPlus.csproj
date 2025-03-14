@@ -215,6 +215,7 @@
     <Compile Include="GameClasses\LuredWisp.cs" />
     <Compile Include="GameClasses\PickableItem.cs" />
     <Compile Include="GameClasses\PlayerProfile.cs" />
+    <Compile Include="GameClasses\Projectile.cs" />
     <Compile Include="GameClasses\Recipe.cs" />
     <Compile Include="GameClasses\SapCollector.cs" />
     <Compile Include="GameClasses\SEMan.cs" />
