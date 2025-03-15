@@ -2114,6 +2114,31 @@
 				"description": "If the tamed creature is recovering from a stun, then add Stunned to the hover text on mouse over.",
 				"defaultValue": "false",
 				"defaultType": "bool"
+			},
+			"tameTime": {
+				"description": "This value determines the amount of time it takes to fully tame a creature in seconds.",
+				"defaultValue": "1800",
+				"defaultType": "float"
+			},
+			"tameBoostMultiplier": {
+				"description": "This value determines the multiplier of the taming bonus provided by the Brew of animal whispers. The default value of 2 halves the time it takes to tame a creature when the buff is in effect.",
+				"defaultValue": "2",
+				"defaultType": "float"
+			},
+			"tameBoostRange": {
+				"description": "This value determines the range that a taming boost can be applied to a creature in meters.",
+				"defaultValue": "60",
+				"defaultType": "float"
+			},
+			"ignoreHunger": {
+				"description": "Set to true to ignore hunger requirements while taming. Still requires you food to initiate the taming process.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"ignoreAlerted": {
+				"description": "Set to true to allow taming even when the creature is alerted. For more information see https://valheim.fandom.com/wiki/Creature_senses",
+				"defaultValue": "false",
+				"defaultType": "bool"
 			}
 		}
 	},
