@@ -57,4 +57,43 @@ namespace ValheimPlus.GameClasses
             }
         }
     }
+
+	[HarmonyPatch(typeof(MonsterAI), nameof(MonsterAI.UpdateAI))]
+	public static class MonsterAI_UpdateAI_Transpiler
+	{
+		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
+		{
+			var matcher = new CodeMatcher(instructions, ilGenerator);
+			if (Configuration.Current.Tameable.IsEnabled && Configuration.Current.Tameable.ignoreAlerted)
+			{
+				// Ignores alerted state when tameable mob is looking for food in order to start the taming process.
+				// This is the _only_ way to ignore IsAlerted without destroying the AI for all other creatures.
+				try
+				{
+					var updateConsumeItem = AccessTools.Method(typeof(MonsterAI), nameof(MonsterAI.UpdateConsumeItem));
+					var updateConsumeItemLabel = matcher
+						.MatchStartForward(
+							OpCodes.Ldarg_0,
+							OpCodes.Ldloc_0,
+							OpCodes.Ldarg_1,
+							new CodeMatch(inst => inst.Calls(updateConsumeItem)))
+						.ThrowIfNotMatch("No match for UpdateConsumeItem method call.")
+						.Labels.First();
+
+					matcher
+						.MatchStartBackwards(OpCodes.Ret)
+						.ThrowIfNotMatch("Could not find the end of the conditional before UpdateConsumeItem call.")
+						.Advance(1)
+						.Set(OpCodes.Br_S, updateConsumeItemLabel)
+						.Start();
+
+				} catch (Exception ex)
+				{
+					ValheimPlusPlugin.Logger.LogError(ex);
+				}
+			}
+
+			return matcher.InstructionEnumeration();
+		}
+	}
 }
