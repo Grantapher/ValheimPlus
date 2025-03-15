@@ -2117,6 +2117,68 @@
 			}
 		}
 	},
+	"Procreation": {
+		"description": "",
+		"icon": "fas fa-heart",
+		"description_website": "Change the in-game behavior of breeding and modify their values.",
+		"entries": {
+			"enabled": {
+				"description": "Change false to true to enable this section.",
+				"defaultType": "bool",
+				"defaultValue": "false"
+			},
+			"animalTypes": {
+				"description": "A comma-separated list of animals that can breed. Valid types are: boar, wolf, lox, asksvin, all, none",
+				"defaultValue": "all",
+				"defaultType": "string"
+			},
+			"loveInformation": {
+				"description": "Set to true to display the amount of love points a creature has. When they become pregnant it will display the amount of time until they give birth.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"offspringInformation": {
+				"description": "Set to true to display the amount of time a newborn creature will take to grow up.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"requiredLovePoints": {
+				"description": "The amount of successful checks required for a creature to become pregnant.",
+				"defaultValue": "4",
+				"defaultType": "int"
+			},
+			"pregnancyDurationMultiplier": {
+				"description": "A multiplier for the time it takes for a creature to give birth after becoming pregnant. A value of 100 will double the pregnancy duration, -100 will cause the creature to give birth instantly.",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"pregnancyChanceMultiplier": {
+				"description": "A multiplier for the chance of a creature gaining a love point ",
+				"defaultValue": "0",
+				"defaultType": "float"
+			},
+			"partnerCheckRange": {
+				"description": "The range in meters that a creature will check for a partner.",
+				"defaultValue": "3",
+				"defaultType": "float"
+			},
+			"ignoreHunger": {
+				"description": "Set to true to ignore hunger while breeding.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"ignoreAlerted": {
+				"description": "Set to true to ignore alerted status while breeding.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"creatureLimit": {
+				"description": "The amount of offspring that can be nearby a creature before they will stop breeding.",
+				"defaultValue": "4",
+				"defaultType": "int"
+			}
+		}
+	},
 	"Brightness": {
 		"description": "",
 		"icon": "fas fa-sun",
