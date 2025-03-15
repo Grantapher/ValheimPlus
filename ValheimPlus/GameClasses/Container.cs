@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using JetBrains.Annotations;
+using System.Threading.Tasks;
 using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
@@ -123,10 +124,13 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Container), nameof(Container.RPC_StackResponse))]
     public static class Container_RPC_StackResponse_Patch
     {
+        public static TaskCompletionSource<bool> ResponseReceived = new();
+
         /// <summary>
         /// Once the previous container is stacked we arrive here and begin stacking the next one.
         /// </summary>
         [UsedImplicitly]
-        private static void Postfix() => StackAllQueueState.StackAllNextContainer();
+        private static void Postfix(long uid, bool granted)
+            => ResponseReceived.TrySetResult(granted);
     }
 }
