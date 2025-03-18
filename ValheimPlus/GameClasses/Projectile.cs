@@ -9,7 +9,7 @@ namespace ValheimPlus.GameClasses
 		private static void Postfix(IDestructible destr, Projectile __instance, ref bool __result)
 		{
 			var turretConfig = Configuration.Current.Turret;
-			if (!turretConfig.IsEnabled) return;
+			if (!turretConfig.IsEnabled || !turretConfig.fixProjectiles) return;
 
 			if (__result && destr is Turret turret)
 			{
