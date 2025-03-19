@@ -32,7 +32,7 @@ namespace ValheimPlus.GameClasses
         {
             var config = Configuration.Current.Turret;
             if (!config.IsEnabled) return;
-            __instance.m_targetPlayers = config.enablePvP && TurretHelpers.IsCreatorPvP(__instance);
+            __instance.m_targetPlayers = !config.disablePvP && TurretHelpers.IsCreatorPvP(__instance);
             __instance.m_targetTamed = config.targetTamed;
             __instance.m_horizontalAngle = Mathf.Min(config.horizontalAngle, 180f);
             __instance.m_verticalAngle = Mathf.Min(config.verticalAngle, 90f);
@@ -81,20 +81,21 @@ namespace ValheimPlus.GameClasses
             var projectile = __instance.m_lastProjectile?.GetComponent<Projectile>();
             if (projectile == null) return;
 
+            // By giving ownership of the projectile we force it to perform all necessary pvp checks.
             projectile.m_owner = TurretHelpers.GetPlayerCreator(__instance);
+            projectile.m_raiseSkillAmount = 0;
         }
     }
 
     [HarmonyPatch(typeof(Turret), nameof(Turret.UpdateTarget))]
     public static class Turret_UpdateTarget_Patch
     {
-        private static void Prefix(Turret __instance)
+        private static void Postfix(Turret __instance)
         {
             var config = Configuration.Current.Turret;
             if (!config.IsEnabled) return;
 
-            // Update targetPlayers when selecting a target because the creator might have toggled PvP
-            __instance.m_targetPlayers = config.enablePvP && TurretHelpers.IsCreatorPvP(__instance);
+            __instance.m_targetPlayers = !config.disablePvP && TurretHelpers.IsCreatorPvP(__instance);
         }
     }
 

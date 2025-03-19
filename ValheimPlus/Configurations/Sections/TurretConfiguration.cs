@@ -2,7 +2,7 @@
 {
     public class TurretConfiguration : ServerSyncConfig<TurretConfiguration>
     {
-        public bool enablePvP { get; internal set; } = false;
+        public bool disablePvP { get; internal set; } = false;
         public bool unlimitedAmmo { get; internal set; } = false;
         public float turnRate { get; internal set; } = 22.5f;
         public float attackCooldown { get; internal set; } = 2f;
