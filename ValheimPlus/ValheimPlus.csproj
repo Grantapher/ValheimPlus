@@ -172,6 +172,7 @@
     <Compile Include="Deconstruct.cs" />
     <Compile Include="FirstPerson\VPlusFirstPerson.cs" />
     <Compile Include="FreePlacementRotation.cs" />
+    <Compile Include="GameClasses\BaseAI.cs" />
     <Compile Include="GameClasses\Bed.cs" />
     <Compile Include="GameClasses\Beehive.cs" />
     <Compile Include="Configurations\BaseConfig.cs" />
