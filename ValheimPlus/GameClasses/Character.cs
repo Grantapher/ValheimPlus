@@ -156,4 +156,15 @@ namespace ValheimPlus.GameClasses
             return fallDamage;
         }
     }
+
+	[HarmonyPatch(typeof(Character), nameof(Character.GetHoverText))]
+	public static class Character_GetHoverText_Patch
+	{
+		public static void Postfix(Character __instance, ref string __result)
+		{
+			var growup = __instance.GetComponent<Growup>();
+			if (growup != null)
+				ProcreationHelper.AddGrowupInformation(__instance, growup, ref __result);
+		}
+	}
 }
