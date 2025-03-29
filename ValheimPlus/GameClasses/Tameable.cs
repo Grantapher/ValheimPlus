@@ -16,11 +16,11 @@ namespace ValheimPlus.GameClasses
 
     public static class TameableHelpers
     {
-        private static bool IsHungry(Tameable tameable) => false;
+        private static bool IgnoreHungry(Tameable tameable) => false;
 
         public static CodeMatcher IgnoreHungerTranspiler(CodeMatcher matcher, Func<Tameable, bool> pred = null)
         {
-            var ignoreHungerMethod = AccessTools.Method(typeof(TameableHelpers), nameof(IsHungry));
+            var ignoreHungerMethod = AccessTools.Method(typeof(TameableHelpers), nameof(IgnoreHungry));
             var tameableIsHungry = AccessTools.Method(typeof(Tameable), nameof(Tameable.IsHungry));
             return matcher
                 .MatchStartForward(new CodeMatch(inst => inst.Calls(tameableIsHungry)))
