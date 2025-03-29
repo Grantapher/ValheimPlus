@@ -139,8 +139,11 @@ namespace ValheimPlus.Configurations
 			var enumType = currentValue.GetType();
 			var isFlagEnum = enumType.IsDefined(typeof(FlagsAttribute), false);
 
-			if (!isFlagEnum)
-				return Enum.Parse(enumType, data[keyName]);
+            if (!isFlagEnum)
+            {
+                try { return Enum.Parse(enumType, data[keyName]); }
+                catch { return currentValue; }
+            }
 
 			var flags = new List<object>();
 			foreach (var enumValue in Enum.GetValues(enumType))
@@ -148,7 +151,8 @@ namespace ValheimPlus.Configurations
 					flags.Add(enumValue);
 
 			var value = flags.Aggregate(0, (current, flag) => (int)current | (int)flag);
-			return Enum.ToObject(enumType, value);
+            try { return Enum.ToObject(enumType, value); }
+            catch { return currentValue; }
 		}
 		private static object GetIntValue(KeyDataCollection data, object currentValue, string keyName)
         {
