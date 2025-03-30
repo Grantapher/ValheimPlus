@@ -18,7 +18,7 @@ namespace ValheimPlus.GameClasses
             return config.animalTypes.HasFlag(type);
         }
 
-        public static bool ShouldIgnoreHunger(Tameable instance)
+        public static bool IsHungerIgnored(Tameable instance)
             => Configuration.Current.Procreation.IsEnabled
             && Configuration.Current.Procreation.ignoreHunger
             && IsValidAnimalType(instance.m_character.m_name);

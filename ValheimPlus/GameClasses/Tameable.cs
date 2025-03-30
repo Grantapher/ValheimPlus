@@ -41,19 +41,16 @@ namespace ValheimPlus.GameClasses
             { "$enemy_chicken", AnimalType.Hen }
         };
 
-        public static bool ShouldIgnoreHunger(Tameable instance)
+        public static bool IsHungerIgnored(Tameable instance)
         {
             var config = Configuration.Current.Tameable;
             if (!config.IsEnabled || !config.ignoreHunger || !IsValidAnimalType(instance.m_character.m_name))
                 return false;
 
-            if (!instance.m_nview)
-                return false;
-
             // if timeLeft > 0 we can ignore hunger to prevent random taming
             // The player MUST initiate taming with a piece of food
-            float timeLeft = instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft);
-            return timeLeft == 0 && instance.IsHungry();
+            var timeLeft = instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft);
+            return timeLeft == 0;
         }
 
         public static bool IsValidAnimalType(string name)
@@ -92,16 +89,13 @@ namespace ValheimPlus.GameClasses
     {
         private static void Postfix(Tameable __instance, ref bool __result)
         {
-            if (!__instance.m_character)
-            {
-                ValheimPlusPlugin.Logger.LogWarning("Tameable_IsHungry_Patch: m_character is null");
-                return;
-            }
+            // We don't care if it's already false
+            if (!__result) return;
 
             var isTamed = __instance.m_character.IsTamed();
-            __result = __result && !(isTamed ?
-                ProcreationHelpers.ShouldIgnoreHunger(__instance)
-                : TameableHelpers.ShouldIgnoreHunger(__instance));
+            __result = !(isTamed ?
+                ProcreationHelpers.IsHungerIgnored(__instance)
+                : TameableHelpers.IsHungerIgnored(__instance));
         }
     }
 
