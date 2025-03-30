@@ -1,5 +1,8 @@
 ﻿using HarmonyLib;
 using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using System.Reflection;
 using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
@@ -16,16 +19,9 @@ namespace ValheimPlus.GameClasses
         }
 
         public static bool ShouldIgnoreHunger(Tameable instance)
-        {
-            var config = Configuration.Current.Procreation;
-            return config.IsEnabled && config.ignoreHunger && IsValidAnimalType(instance.m_character.m_name);
-        }
-
-        public static bool ShouldIgnoreAlerted(BaseAI instance)
-        {
-            var config = Configuration.Current.Procreation;
-            return config.IsEnabled && config.ignoreAlerted && IsValidAnimalType(instance.m_character.m_name);
-        }
+            => Configuration.Current.Procreation.IsEnabled
+            && Configuration.Current.Procreation.ignoreHunger
+            && IsValidAnimalType(instance.m_character.m_name);
 
         private static string GetPregnantStatus(Procreation procreation)
         {
@@ -121,6 +117,21 @@ namespace ValheimPlus.GameClasses
             Helper.applyModifierValueTo(ref __instance.m_partnerCheckRange, config.partnerCheckRangeMultiplier);
             Helper.applyModifierValueTo(ref __instance.m_pregnancyDuration, config.pregnancyDurationMultiplier);
             Helper.applyModifierValueTo(ref __instance.m_pregnancyChance, config.pregnancyChanceMultiplier);
+        }
+    }
+
+    [HarmonyPatch(typeof(Procreation), nameof(Procreation.Procreate))]
+    public static class Procreation_Procreate_Patch
+    {
+        public static IEnumerable<CodeInstruction> Transpile(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
+        {
+            var config = Configuration.Current.Procreation;
+            if (!config.IsEnabled || !config.ignoreAlerted)
+                return instructions;
+
+            var matcher = new CodeMatcher(instructions, ilGenerator);
+            BaseAIHelpers.IsAlertedTranspiler(matcher, ProcreationHelpers.IsValidAnimalType);
+            return matcher.InstructionEnumeration();
         }
     }
 }
