@@ -108,15 +108,16 @@ namespace ValheimPlus.GameClasses
     {
         public static void Postfix(Tameable __instance)
         {
-            if (!Configuration.Current.Tameable.IsEnabled)
+            var config = Configuration.Current.Tameable;
+            if (!config.IsEnabled)
                 return;
 
             if (!TameableHelpers.IsValidAnimalType(__instance.m_character.m_name))
                 return;
 
-            __instance.m_tamingTime = Configuration.Current.Tameable.tameTime;
-            __instance.m_tamingSpeedMultiplierRange = Configuration.Current.Tameable.tameBoostRange;
-            __instance.m_tamingBoostMultiplier = Configuration.Current.Tameable.tameBoostMultiplier;
+            Helper.applyModifierValueTo(ref __instance.m_tamingTime, config.tameTimeMultiplier);
+            Helper.applyModifierValueTo(ref __instance.m_tamingSpeedMultiplierRange, config.tameBoostRangeMultiplier);
+            Helper.applyModifierValueTo(ref __instance.m_tamingBoostMultiplier, config.tameBoostMultiplier);
 
             if (__instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft, out float timeLeft))
                 if (timeLeft > __instance.m_tamingTime)

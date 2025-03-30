@@ -112,15 +112,15 @@ namespace ValheimPlus.GameClasses
             if (!ProcreationHelpers.IsValidAnimalType(__instance.m_character.m_name))
                 return;
 
-            __instance.m_requiredLovePoints = config.requiredLovePoints;
-            __instance.m_partnerCheckRange = config.partnerCheckRange;
-            __instance.m_maxCreatures = config.creatureLimit;
+            __instance.m_requiredLovePoints = (int)Helper.applyModifierValue(
+                __instance.m_requiredLovePoints, config.requiredLovePointsMultiplier);
 
-            __instance.m_pregnancyDuration = Helper.applyModifierValue(
-                __instance.m_pregnancyDuration, config.pregnancyDurationMultiplier);
+            __instance.m_maxCreatures = (int)Helper.applyModifierValue(
+                __instance.m_maxCreatures, config.creatureLimitMultiplier);
 
-            __instance.m_pregnancyChance = 1f - Helper.applyModifierValue(
-                __instance.m_pregnancyChance, config.pregnancyChanceMultiplier);
+            Helper.applyModifierValueTo(ref __instance.m_partnerCheckRange, config.partnerCheckRangeMultiplier);
+            Helper.applyModifierValueTo(ref __instance.m_pregnancyDuration, config.pregnancyDurationMultiplier);
+            Helper.applyModifierValueTo(ref __instance.m_pregnancyChance, config.pregnancyChanceMultiplier);
         }
     }
 }
