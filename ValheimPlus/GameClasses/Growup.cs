@@ -24,7 +24,7 @@ namespace ValheimPlus.GameClasses
 			if (eggConfig.IsEnabled && humanoid.m_name == "$enemy_hen")
 				__instance.m_growTime = eggConfig.growTime;
 
-			else if (procreationConfig.IsEnabled && ProcreationHelper.IsValidAnimalType(humanoid.m_name))
+			else if (procreationConfig.IsEnabled && ProcreationHelpers.IsValidAnimalType(humanoid.m_name))
 				__instance.m_growTime = Helper.applyModifierValue(__instance.m_growTime,
 					procreationConfig.maturityDurationMultiplier);
 		}

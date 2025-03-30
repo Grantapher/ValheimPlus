@@ -1,51 +1,30 @@
 ﻿using HarmonyLib;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
 using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
-    [Flags]
-    public enum AnimalType
-    {
-        None = 0,
-        Boar = 1 << 0,
-        Wolf = 1 << 1,
-        Lox = 1 << 2,
-        Hen = 1 << 3,
-        Asksvin = 1 << 4,
-        All = (1 << 5) - 1
-    }
 
     public static class ProcreationHelpers
     {
-        private readonly static Dictionary<string, AnimalType> NamedTypes = new() {
-            { "$enemy_asksvin", AnimalType.Asksvin },
-            { "$enemy_asksvin_hatchling", AnimalType.Asksvin },
-            { "$enemy_boar", AnimalType.Boar },
-            { "$enemy_boarpiggy", AnimalType.Boar },
-            { "$enemy_wolf", AnimalType.Wolf },
-            { "$enemy_wolfcub", AnimalType.Wolf },
-            { "$enemy_lox", AnimalType.Lox },
-            { "$enemy_loxcalf", AnimalType.Lox },
-            { "$enemy_hen", AnimalType.Hen },
-            { "$enemy_chicken", AnimalType.Hen }
-        };
-
         public static bool IsValidAnimalType(string name) {
-            if (!NamedTypes.TryGetValue(name, out AnimalType type))
+            if (!TameableHelpers.NamedTypes.TryGetValue(name, out AnimalType type))
                 return false;
 
             var config = Configuration.Current.Procreation;
             return config.animalTypes.HasFlag(type);
         }
 
-        public static bool IsTameValid(Character character)
+        public static bool ShouldIgnoreHunger(Tameable instance)
         {
-            // Call IsTamed first for compatibility with other mods
-            return character.IsTamed() && IsValidAnimalType(character.m_name);
+            var config = Configuration.Current.Procreation;
+            return config.IsEnabled && config.ignoreHunger && IsValidAnimalType(instance.m_character.m_name);
+        }
+
+        public static bool ShouldIgnoreAlerted(BaseAI instance)
+        {
+            var config = Configuration.Current.Procreation;
+            return config.IsEnabled && config.ignoreAlerted && IsValidAnimalType(instance.m_character.m_name);
         }
 
         private static string GetPregnantStatus(Procreation procreation)
@@ -119,17 +98,6 @@ namespace ValheimPlus.GameClasses
             else
                 result += " ( Matured )";
         }
-
-        public static CodeMatcher IsTameValidTranspiler(CodeMatcher matcher)
-        {
-            var characterIsTamed = AccessTools.Method(typeof(Character), nameof(Character.IsTamed));
-            var mIsTameValid = AccessTools.Method(typeof(ProcreationHelper), nameof(IsTameValid));
-            return matcher
-                .MatchEndForward(new CodeMatch(inst => inst.Calls(characterIsTamed)))
-                .ThrowIfNotMatch("No match for IsTamed method call.")
-                .Set(OpCodes.Call, mIsTameValid)
-                .Start();
-        }
     }
 
     [HarmonyPatch(typeof(Procreation), nameof(Procreation.Awake))]
@@ -141,7 +109,7 @@ namespace ValheimPlus.GameClasses
             if (!config.IsEnabled)
                 return;
 
-            if (!ProcreationHelper.IsValidAnimalType(__instance.m_character.m_name))
+            if (!ProcreationHelpers.IsValidAnimalType(__instance.m_character.m_name))
                 return;
 
             __instance.m_requiredLovePoints = config.requiredLovePoints;
@@ -153,34 +121,6 @@ namespace ValheimPlus.GameClasses
 
             __instance.m_pregnancyChance = 1f - Helper.applyModifierValue(
                 __instance.m_pregnancyChance, config.pregnancyChanceMultiplier);
-        }
-    }
-
-    [HarmonyPatch(typeof(Procreation), nameof(Procreation.Procreate))]
-    public static class Procreation_Procreate_Transpiler
-    {
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
-        {
-            var config = Configuration.Current.Procreation;
-            if (!config.IsEnabled || (!config.ignoreHunger && !config.ignoreAlerted))
-                return instructions;
-
-            try {
-                var matcher = new CodeMatcher(instructions, ilGenerator);
-                ProcreationHelper.IsTameValidTranspiler(matcher);
-
-                if (config.ignoreHunger)
-                    TameableHelpers.IgnoreHungerTranspiler(matcher);
-
-                if (config.ignoreAlerted)
-                    BaseAIHelpers.IgnoreAlertedTranspiler(matcher);
-
-                return matcher.InstructionEnumeration();
-            } catch (Exception ex)
-            {
-                ValheimPlusPlugin.Logger.LogError(ex);
-                return instructions;
-            }
         }
     }
 }

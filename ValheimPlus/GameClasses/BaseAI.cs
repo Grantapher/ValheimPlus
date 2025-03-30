@@ -1,22 +1,19 @@
 ﻿using HarmonyLib;
-using System;
-using System.Reflection.Emit;
 
 namespace ValheimPlus.GameClasses
 {
-    public static class BaseAIHelpers
+    [HarmonyPatch(typeof(BaseAI), nameof(BaseAI.IsAlerted))]
+    public static class BaseAI_IsAlerted_Patch
     {
-        private static bool IgnoreAlerted(BaseAI baseAi) => false;
-
-        public static CodeMatcher IgnoreAlertedTranspiler(CodeMatcher matcher)
+        public static void Postfix(BaseAI __instance, ref bool __result)
         {
-            var ignoreAlertedMethod = AccessTools.Method(typeof(BaseAIHelpers), nameof(IgnoreAlerted));
-            var baseAiIsAlerted = AccessTools.Method(typeof(BaseAI), nameof(BaseAI.IsAlerted));
-            return matcher
-                .MatchStartForward(new CodeMatch(inst => inst.Calls(baseAiIsAlerted)))
-                .ThrowIfNotMatch("No match for IsAlerted method call.")
-                .Set(OpCodes.Call, ignoreAlertedMethod)
-                .Start();
+            if (!__instance.m_character.m_tameable)
+                return;
+
+            var isTamed = __instance.m_character.IsTamed();
+            __result = __result && !(isTamed ?
+                ProcreationHelpers.ShouldIgnoreAlerted(__instance)
+                : TameableHelpers.ShouldIgnoreAlerted(__instance));
         }
     }
 }
