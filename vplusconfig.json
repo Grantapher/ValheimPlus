@@ -2201,6 +2201,11 @@
 				"description": "The amount of offspring that can be nearby a creature before they will stop breeding.",
 				"defaultValue": "4",
 				"defaultType": "int"
+			},
+			"maturityDurationMultiplier": {
+				"description": "The amount of time it takes for a creature to grow up after being born. Does not apply to eggs. A value of 100 will double the time it takes to grow into an adult, -100 will cause the offspring to immediately mature.",
+				"defaultValue": "0",
+				"defaultType": "float"
 			}
 		}
 	},
