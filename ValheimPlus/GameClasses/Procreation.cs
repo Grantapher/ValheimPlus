@@ -19,7 +19,7 @@ namespace ValheimPlus.GameClasses
         All = (1 << 5) - 1
     }
 
-    public static class ProcreationHelper
+    public static class ProcreationHelpers
     {
         private readonly static Dictionary<string, AnimalType> NamedTypes = new() {
             { "$enemy_asksvin", AnimalType.Asksvin },
