@@ -18,6 +18,9 @@ namespace ValheimPlus.GameClasses
             return config.animalTypes.HasFlag(type);
         }
 
+        public static bool IsAlertedIgnored(Procreation instance)
+            => IsValidAnimalType(instance.m_character.m_name);
+
         public static bool IsHungerIgnored(Tameable instance)
             => Configuration.Current.Procreation.IsEnabled
             && Configuration.Current.Procreation.ignoreHunger
@@ -129,8 +132,26 @@ namespace ValheimPlus.GameClasses
             if (!config.IsEnabled || !config.ignoreAlerted)
                 return instructions;
 
+            var baseAiIsAlertedMethod = AccessTools.Method(typeof(BaseAI), nameof(BaseAI.IsAlerted));
+            var isAlertedIgnoredMethod = AccessTools.Method(typeof(ProcreationHelpers), nameof(ProcreationHelpers.IsAlertedIgnored));
+
+            Label? passthrough = null;
             var matcher = new CodeMatcher(instructions, ilGenerator);
-            BaseAIHelpers.IsAlertedTranspiler(matcher, ProcreationHelpers.IsValidAnimalType);
+            matcher.MatchEndForward(
+                new CodeMatch(inst => inst.Calls(baseAiIsAlertedMethod)),
+                new CodeMatch(inst => inst.Branches(out passthrough))
+            ).ThrowIfNotMatch("Could not find BaseAI.IsAlerted call");
+
+            if (!passthrough.HasValue)
+                throw new Exception("Could not find BaseAI.IsAlerted branch");
+
+            matcher.Advance(1)
+            .InsertAndAdvance(
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Call, isAlertedIgnoredMethod),
+                new(OpCodes.Brtrue, passthrough)
+            );
+
             return matcher.InstructionEnumeration();
         }
     }

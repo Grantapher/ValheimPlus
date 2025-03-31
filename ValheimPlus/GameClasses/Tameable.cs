@@ -61,6 +61,9 @@ namespace ValheimPlus.GameClasses
             var config = Configuration.Current.Tameable;
             return config.animalTypes.HasFlag(type);
         }
+
+        public static bool IsAlertedIgnored(Tameable instance)
+            => IsValidAnimalType(instance.m_character.m_name);
     }
 
     /// <summary>
@@ -126,7 +129,10 @@ namespace ValheimPlus.GameClasses
     {
         private static IEnumerable<MethodBase> TargetMethods()
         {
+            ValheimPlusPlugin.Logger.LogInfo("Transpiling TamingUpdate");
             yield return AccessTools.Method(typeof(Tameable), nameof(Tameable.TamingUpdate));
+
+            ValheimPlusPlugin.Logger.LogInfo("Transpiling GetStatusString");
             yield return AccessTools.Method(typeof(Tameable), nameof(Tameable.GetStatusString));
         }
 
@@ -136,8 +142,26 @@ namespace ValheimPlus.GameClasses
             if (!config.IsEnabled || !config.ignoreAlerted)
                 return instructions;
 
+            var baseAiIsAlertedMethod = AccessTools.Method(typeof(BaseAI), nameof(BaseAI.IsAlerted));
+            var isAlertedIgnoredMethod = AccessTools.Method(typeof(TameableHelpers), nameof(TameableHelpers.IsAlertedIgnored));
+
+            Label? passthrough = null;
             var matcher = new CodeMatcher(instructions, ilGenerator);
-            BaseAIHelpers.IsAlertedTranspiler(matcher, TameableHelpers.IsValidAnimalType);
+            matcher.MatchEndForward(
+                new CodeMatch(inst => inst.Calls(baseAiIsAlertedMethod)),
+                new CodeMatch(inst => inst.Branches(out passthrough))
+            ).ThrowIfNotMatch("Could not find BaseAI.IsAlerted call");
+
+            if (!passthrough.HasValue)
+                throw new Exception("Could not find BaseAI.IsAlerted branch");
+
+            matcher.Advance(1)
+            .InsertAndAdvance(
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Call, isAlertedIgnoredMethod),
+                new(OpCodes.Brtrue, passthrough)
+            );
+
             return matcher.InstructionEnumeration();
         }
     }
