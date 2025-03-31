@@ -61,10 +61,7 @@ namespace ValheimPlus.GameClasses
         }
 
         public static bool IsAlertedIgnored(Tameable instance)
-        {
-            ValheimPlusPlugin.Logger.LogInfo($"Checking if {instance.m_character.m_name} is ignored");
-            return IsValidAnimalType(instance.m_character.m_name);
-        }
+            => IsValidAnimalType(instance.m_character.m_name);
     }
 
     /// <summary>
