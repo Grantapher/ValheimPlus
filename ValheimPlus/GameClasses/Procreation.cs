@@ -126,7 +126,7 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Procreation), nameof(Procreation.Procreate))]
     public static class Procreation_Procreate_Patch
     {
-        public static IEnumerable<CodeInstruction> Transpile(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
         {
             var config = Configuration.Current.Procreation;
             if (!config.IsEnabled || !config.ignoreAlerted)

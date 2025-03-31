@@ -41,18 +41,6 @@ namespace ValheimPlus.GameClasses
             { "$enemy_chicken", AnimalType.Hen }
         };
 
-        public static bool IsHungerIgnored(Tameable instance)
-        {
-            var config = Configuration.Current.Tameable;
-            if (!config.IsEnabled || !config.ignoreHunger || !IsValidAnimalType(instance.m_character.m_name))
-                return false;
-
-            // if timeLeft > 0 we can ignore hunger to prevent random taming
-            // The player MUST initiate taming with a piece of food
-            var timeLeft = instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft);
-            return timeLeft == 0;
-        }
-
         public static bool IsValidAnimalType(string name)
         {
             if (!NamedTypes.TryGetValue(name, out AnimalType type))
@@ -62,8 +50,21 @@ namespace ValheimPlus.GameClasses
             return config.animalTypes.HasFlag(type);
         }
 
+        public static bool IsHungerIgnored(Tameable instance)
+        {
+            var config = Configuration.Current.Tameable;
+            if (!config.IsEnabled || !config.ignoreHunger || !IsValidAnimalType(instance.m_character.m_name))
+                return false;
+
+            var timeLeft = instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft);
+            return timeLeft > 0;
+        }
+
         public static bool IsAlertedIgnored(Tameable instance)
-            => IsValidAnimalType(instance.m_character.m_name);
+        {
+            ValheimPlusPlugin.Logger.LogInfo($"Checking if {instance.m_character.m_name} is ignored");
+            return IsValidAnimalType(instance.m_character.m_name);
+        }
     }
 
     /// <summary>
@@ -129,14 +130,11 @@ namespace ValheimPlus.GameClasses
     {
         private static IEnumerable<MethodBase> TargetMethods()
         {
-            ValheimPlusPlugin.Logger.LogInfo("Transpiling TamingUpdate");
             yield return AccessTools.Method(typeof(Tameable), nameof(Tameable.TamingUpdate));
-
-            ValheimPlusPlugin.Logger.LogInfo("Transpiling GetStatusString");
             yield return AccessTools.Method(typeof(Tameable), nameof(Tameable.GetStatusString));
         }
 
-        public static IEnumerable<CodeInstruction> Transpile(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
         {
             var config = Configuration.Current.Tameable;
             if (!config.IsEnabled || !config.ignoreAlerted)
@@ -148,16 +146,15 @@ namespace ValheimPlus.GameClasses
             Label? passthrough = null;
             var matcher = new CodeMatcher(instructions, ilGenerator);
             matcher.MatchEndForward(
-                new CodeMatch(inst => inst.Calls(baseAiIsAlertedMethod)),
-                new CodeMatch(inst => inst.Branches(out passthrough))
+                new(inst => inst.Calls(baseAiIsAlertedMethod)),
+                new(inst => inst.Branches(out passthrough))
             ).ThrowIfNotMatch("Could not find BaseAI.IsAlerted call");
 
             if (!passthrough.HasValue)
                 throw new Exception("Could not find BaseAI.IsAlerted branch");
 
-            matcher.Advance(1)
-            .InsertAndAdvance(
-                new(OpCodes.Ldarg_0),
+            matcher.Advance(1).InsertAndAdvance(
+                new(OpCodes.Ldarg_0), // this (Tameable)
                 new(OpCodes.Call, isAlertedIgnoredMethod),
                 new(OpCodes.Brtrue, passthrough)
             );
