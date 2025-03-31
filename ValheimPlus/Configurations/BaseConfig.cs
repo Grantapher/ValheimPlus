@@ -8,7 +8,7 @@ using ValheimPlus.RPC;
 
 namespace ValheimPlus.Configurations
 {
-	public interface IConfig
+    public interface IConfig
     {
         void LoadIniData(KeyDataCollection data, string section);
     }
@@ -69,8 +69,8 @@ namespace ValheimPlus.Configurations
             {typeof(int), GetIntValue },
             {typeof(KeyCode), GetKeyCodeValue },
             {typeof(bool), GetBoolValue },
-			{typeof(string), GetStringValue },
-			{typeof(Enum), GetEnumValue }
+            {typeof(string), GetStringValue },
+            {typeof(Enum), GetEnumValue }
         };
 
         public void LoadIniData(KeyDataCollection data, string section)
@@ -104,11 +104,11 @@ namespace ValheimPlus.Configurations
                     continue;
                 }
 
-				var propertyType = property.PropertyType;
-				if (propertyType.IsEnum)
-					propertyType = typeof(Enum);
+                var propertyType = property.PropertyType;
+                if (propertyType.IsEnum)
+                    propertyType = typeof(Enum);
 
-				if (_getValues.ContainsKey(propertyType))
+                if (_getValues.ContainsKey(propertyType))
                 {
                     var getValue = _getValues[propertyType];
                     var value = getValue(data, currentValue, keyName);
@@ -130,31 +130,18 @@ namespace ValheimPlus.Configurations
         {
             return data.GetBool(keyName);
         }
-		private static object GetStringValue(KeyDataCollection data, object currentValue, string keyName)
-		{
-			return data[keyName];
-		}
-		private static object GetEnumValue(KeyDataCollection data, object currentValue, string keyName)
-		{
-			var enumType = currentValue.GetType();
-			var isFlagEnum = enumType.IsDefined(typeof(FlagsAttribute), false);
-
-            if (!isFlagEnum)
-            {
-                try { return Enum.Parse(enumType, data[keyName]); }
-                catch { return currentValue; }
-            }
-
-			var flags = new List<object>();
-			foreach (var enumValue in Enum.GetValues(enumType))
-				if (data[keyName].ToLower().Contains(enumValue.ToString().ToLower()))
-					flags.Add(enumValue);
-
-			var value = flags.Aggregate(0, (current, flag) => (int)current | (int)flag);
-            try { return Enum.ToObject(enumType, value); }
-            catch { return currentValue; }
-		}
-		private static object GetIntValue(KeyDataCollection data, object currentValue, string keyName)
+        private static object GetStringValue(KeyDataCollection data, object currentValue, string keyName)
+        {
+            return data[keyName];
+        }
+        private static object GetEnumValue(KeyDataCollection data, object currentValue, string keyName)
+        {
+            var enumType = currentValue.GetType();
+            var isFlagEnum = enumType.IsDefined(typeof(FlagsAttribute), false);
+            return isFlagEnum ? data.GetFlags(keyName, currentValue)
+                : data.GetEnumValue(keyName, currentValue);
+        }
+        private static object GetIntValue(KeyDataCollection data, object currentValue, string keyName)
         {
             return data.GetInt(keyName, (int)currentValue);
         }

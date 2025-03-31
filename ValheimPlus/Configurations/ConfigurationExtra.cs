@@ -3,6 +3,7 @@ using IniParser;
 using IniParser.Model;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -220,6 +221,26 @@ namespace ValheimPlus.Configurations
 
             ValheimPlusPlugin.Logger.LogWarning($" [Int] Could not read {key}, using default value of {defaultVal}");
             return defaultVal;
+        }
+
+        public static object GetEnumValue(this KeyDataCollection data, string key, object defaultVal)
+        {
+            var enumType = defaultVal.GetType();
+            try { return Enum.Parse(enumType, data[key]); }
+            catch { return defaultVal; }
+        }
+
+        public static object GetFlags(this KeyDataCollection data, string key, object defaultVal)
+        {
+            var enumType = defaultVal.GetType();
+            var flags = new List<object>();
+            foreach (var enumValue in Enum.GetValues(enumType))
+                if (data[key].ToLower().Contains(enumValue.ToString().ToLower()))
+                    flags.Add(enumValue);
+
+            var value = flags.Aggregate(0, (current, flag) => (int)current | (int)flag);
+            try { return Enum.ToObject(enumType, value); }
+            catch { return defaultVal; }
         }
 
         public static KeyCode GetKeyCode(this KeyDataCollection data, string key, KeyCode defaultVal)
