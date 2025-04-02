@@ -227,7 +227,10 @@ namespace ValheimPlus.Configurations
         {
             var enumType = defaultVal.GetType();
             try { return Enum.Parse(enumType, data[key]); }
-            catch { return defaultVal; }
+            catch {
+                ValheimPlusPlugin.Logger.LogWarning($" [{enumType}] Could not read {key}, using default value of {defaultVal}");
+                return defaultVal;
+            }
         }
 
         public static object GetFlags(this KeyDataCollection data, string key, object defaultVal)
@@ -240,7 +243,10 @@ namespace ValheimPlus.Configurations
 
             var value = flags.Aggregate(0, (current, flag) => (int)current | (int)flag);
             try { return Enum.ToObject(enumType, value); }
-            catch { return defaultVal; }
+            catch {
+                ValheimPlusPlugin.Logger.LogWarning($" [{enumType}] Could not read {key}, using default value of {defaultVal}");
+                return defaultVal;
+            }
         }
 
         public static KeyCode GetKeyCode(this KeyDataCollection data, string key, KeyCode defaultVal)
