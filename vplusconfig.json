@@ -2095,6 +2095,11 @@
 				"defaultType": "bool",
 				"defaultValue": "false"
 			},
+			"animalTypes": {
+				"description": "A comma-separated list of animals that can be tamed. Valid types are: boar, hen, wolf, lox, asksvin, all, none",
+				"defaultValue": "all",
+				"defaultType": "string"
+			},
 			"mortality": {
 				"description": "Modify what happens when a tamed creature is attacked. 0 = normal, 1 = essential(deadly attacks stun instead of kill, tamed creatures can rarely still die), 2 = immortal.",
 				"defaultValue": "0",
@@ -2115,19 +2120,19 @@
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
-			"tameTime": {
-				"description": "This value determines the amount of time it takes to fully tame a creature in seconds.",
-				"defaultValue": "1800",
+			"tameTimeMultiplier": {
+				"description": "A multiplier for the amount of time it takes to fully tame a creature in seconds. A value of 100 will double the time it takes to tame a creature, -100 will instantly tame the creature.",
+				"defaultValue": "0",
 				"defaultType": "float"
 			},
 			"tameBoostMultiplier": {
-				"description": "This value determines the multiplier of the taming bonus provided by the Brew of animal whispers. The default value of 2 halves the time it takes to tame a creature when the buff is in effect.",
-				"defaultValue": "2",
+				"description": "A multiplier for the taming bonus provided by the Brew of animal whispers. A value of 100 will double the taming bonus, -100 will prevent a creature from taming while the buff is in effect.",
+				"defaultValue": "0",
 				"defaultType": "float"
 			},
-			"tameBoostRange": {
-				"description": "This value determines the range that a taming boost can be applied to a creature in meters.",
-				"defaultValue": "60",
+			"tameBoostRangeMultiplier": {
+				"description": "A multiplier for the range that a taming boost can be applied to a creature. A value of 100 will double the range, -100 will prevent the buff from being applied.",
+				"defaultValue": "0",
 				"defaultType": "float"
 			},
 			"ignoreHunger": {
@@ -2167,10 +2172,10 @@
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
-			"requiredLovePoints": {
-				"description": "The amount of successful checks required for a creature to become pregnant.",
-				"defaultValue": "4",
-				"defaultType": "int"
+			"requiredLovePointsMultiplier": {
+				"description": "A multiplier for the amount of successful checks required for a creature to become pregnant. A value of 100 will double the amount of successful checks required, -100 will remove the requirement and the creature will instantly become pregnant.",
+				"defaultValue": "0",
+				"defaultType": "float"
 			},
 			"pregnancyDurationMultiplier": {
 				"description": "A multiplier for the time it takes for a creature to give birth after becoming pregnant. A value of 100 will double the pregnancy duration, -100 will cause the creature to give birth instantly.",
@@ -2178,32 +2183,32 @@
 				"defaultType": "float"
 			},
 			"pregnancyChanceMultiplier": {
-				"description": "A multiplier for the chance of a creature gaining a love point ",
+				"description": "A multiplier for the chance of a creature gaining a love point. A value of 100 will double the chance of gaining a love point, -100 will prevent the creature from gaining a love point.",
 				"defaultValue": "0",
 				"defaultType": "float"
 			},
-			"partnerCheckRange": {
-				"description": "The range in meters that a creature will check for a partner.",
-				"defaultValue": "3",
+			"partnerCheckRangeMultiplier": {
+				"description": "A multiplier for the range that a creature can gain a love point from another creature in meters. A value of 100 will double the range, -100 will make them unable to procreate.",
+				"defaultValue": "0",
 				"defaultType": "float"
 			},
 			"ignoreHunger": {
-				"description": "Set to true to ignore hunger while breeding.",
+				"description": "Set to true to ignore hunger while breeding. Animals will not require food to initiate the breeding process.",
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
 			"ignoreAlerted": {
-				"description": "Set to true to ignore alerted status while breeding.",
+				"description": "Set to true to allow animals to breed even when they are alerted. For more information see https://valheim.fandom.com/wiki/Creature_senses",
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
-			"creatureLimit": {
-				"description": "The amount of offspring that can be nearby a creature before they will stop breeding.",
-				"defaultValue": "4",
-				"defaultType": "int"
+			"creatureLimitMultiplier": {
+				"description": "A multiplier for the amount of offspring that can be nearby a creature before they will stop breeding. A value of 100 will double the amount of offspring that can be nearby, -100 will make them unable to breed.",
+				"defaultValue": "0",
+				"defaultType": "float"
 			},
 			"maturityDurationMultiplier": {
-				"description": "The amount of time it takes for a creature to grow up after being born. Does not apply to eggs. A value of 100 will double the time it takes to grow into an adult, -100 will cause the offspring to immediately mature.",
+				"description": "A multiplier for the amount of time it takes for a creature to grow up after being born. Does not apply to eggs. A value of 100 will double the time it takes to grow into an adult, -100 will cause the offspring to immediately mature.",
 				"defaultValue": "0",
 				"defaultType": "float"
 			}

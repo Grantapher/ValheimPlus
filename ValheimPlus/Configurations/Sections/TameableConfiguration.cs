@@ -10,8 +10,8 @@ namespace ValheimPlus.Configurations.Sections
         public float stunRecoveryTime { get; internal set; } = 10f;
         public bool stunInformation { get; internal set; } = false;
         public float tameTimeMultiplier { get; internal set; } = 0f;
-        public float tameBoostRangeMultiplier { get; internal set; } = 0f;
         public float tameBoostMultiplier { get; internal set; } = 0f;
+        public float tameBoostRangeMultiplier { get; internal set; } = 0f;
         public bool ignoreHunger { get; internal set; } = false;
         public bool ignoreAlerted { get; internal set; } = false;
     }
