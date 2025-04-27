@@ -233,7 +233,7 @@
 		"entries": {
 			"enabled": {
 				"description": "Change false to true to enable this section",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"disableCookingStation": {
@@ -248,7 +248,7 @@
 			},
 			"range": {
 				"description": "The range of the chest detection (Maximum is 50)",
-				"defaultValue": "20",
+				"defaultValue": "50",
 				"defaultType": "float"
 			},
 			"lookupInterval": {
@@ -741,7 +741,7 @@
 		"entries": {
 			"enabled": {
 				"description": "Change false to true to enable this section",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"noTeleportPrevention": {
@@ -768,7 +768,7 @@
 			},
 			"itemsFloatInWater": {
 				"description": "Items dropped always float in water.",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			}
 		}
@@ -1127,12 +1127,12 @@
 		"entries": {
 			"enabled": {
 				"description": "Change false to true to enable this section",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"shareMapProgression": {
 				"description": "With this enabled you will receive the same exploration progression as other players on the server, this will also enable the option for the server to sync everyones exploration progression on connecting to the server.",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"exploreRadius": {
@@ -1152,7 +1152,7 @@
 			},
 			"showCartsAndBoats": {
 				"description": "Display carts and boats on the map",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			}
 		}
@@ -1164,12 +1164,12 @@
 		"entries": {
 			"enabled": {
 				"description": "Change false to true to enable this section",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"baseMaximumWeight": {
 				"description": "The base amount of carry weight of your character",
-				"defaultValue": "300",
+				"defaultValue": "350",
 				"defaultType": "float"
 			},
 			"baseMegingjordBuff": {
@@ -1199,7 +1199,7 @@
 			},
 			"restSecondsPerComfortLevel": {
 				"description": "How many seconds each comfort level contributes to the rested bonus.",
-				"defaultValue": "60",
+				"defaultValue": "120",
 				"defaultType": "float"
 			},
 			"deathPenaltyMultiplier": {
@@ -1215,7 +1215,7 @@
 			},
 			"guardianBuffDuration": {
 				"description": "Boss buff duration (seconds).",
-				"defaultValue": "300",
+				"defaultValue": "600",
 				"defaultType": "float"
 			},
 			"guardianBuffCooldown": {
@@ -1636,12 +1636,12 @@
 		"entries": {
 			"enabled": {
 				"description": "Change false to true to enable this section",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"workbenchRange": {
 				"description": "Set the workbench radius in meters",
-				"defaultValue": "20",
+				"defaultValue": "50",
 				"defaultType": "float"
 			},
 			"workbenchEnemySpawnRange": {
@@ -1651,12 +1651,12 @@
 			},
 			"workbenchAttachmentRange": {
 				"description": "Sets the workbench attachment (e.g. anvil) radius",
-				"defaultValue": "5",
+				"defaultValue": "10",
 				"defaultType": "float"
 			},
 			"disableRoofCheck": {
 				"description": "Disables the roof and exposure requirement to use a workbench",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			}
 		}
@@ -1690,12 +1690,12 @@
 		"entries": {
 			"enabled": {
 				"description": "Change false to true to enable this section",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"playerInventoryRows": {
 				"description": "Player inventory number of rows (inventory is resized up to 6 rows, higher values will add a scrollbar)",
-				"defaultValue": "4",
+				"defaultValue": "5",
 				"defaultType": "int"
 			},
 			"woodChestColumns": {
@@ -1745,12 +1745,12 @@
 			},
 			"cartInventoryRows": {
 				"description": "Cart (Wagon) inventory number of rows (more than 4 rows will add a scrollbar)",
-				"defaultValue": "2",
+				"defaultValue": "3",
 				"defaultType": "int"
 			},
 			"karveInventoryRows": {
 				"description": "Karve (small boat) inventory number of rows (more than 4 rows will add a scrollbar)",
-				"defaultValue": "2",
+				"defaultValue": "3",
 				"defaultType": "int"
 			},
 			"karveInventoryColumns": {
@@ -1765,7 +1765,7 @@
 			},
 			"longboatInventoryRows": {
 				"description": "Longboat (large boat) inventory number of rows (more than 4 rows will add a scrollbar)",
-				"defaultValue": "3",
+				"defaultValue": "4",
 				"defaultType": "int"
 			},
 			"inventoryFillTopToBottom": {
@@ -1787,7 +1787,7 @@
 		"entries": {
 			"enabled": {
 				"description": "Change false to true to enable this section, if you set this to false the mode will not be accesible",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"rotateY": {
@@ -2429,7 +2429,7 @@
 		"entries": {
 			"enabled": {
 				"description": "Change false to true to enable this section",
-				"defaultValue": "false",
+				"defaultValue": "true",
 				"defaultType": "bool"
 			},
 			"forcePartOfDay": {
@@ -2444,7 +2444,7 @@
 			},
 			"totalDayTimeInSeconds": {
 				"description": "Sets the duration of a whole day. This will affect the day count and may change time of day once after activation (new Worlds are not affected).",
-				"defaultValue": "1200",
+				"defaultValue": "1800",
 				"defaultType": "float"
 			},
 			"nightDurationModifier": {
