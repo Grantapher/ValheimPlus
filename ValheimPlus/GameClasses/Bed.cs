@@ -42,7 +42,7 @@ namespace ValheimPlus.GameClasses
 			{
 				if (Input.GetKey(KeyCode.LeftShift))
 				{
-					if (Input.GetKeyDown(KeyCode.E))
+					if (Input.GetKeyDown(Configuration.Current.ValheimPlus.baseUseKey))
 					{
 						bool flag = Traverse.Create(__instance).Method("IsCurrent", new object[0]).GetValue<bool>() || repeat || Configuration.Current.Bed.unclaimedBedsOnly && ___m_nview.GetZDO().GetLong("owner", 0L) != 0L;
 						if (!flag)
@@ -82,7 +82,7 @@ namespace ValheimPlus.GameClasses
 	{
 		private static bool Prefix(Bed __instance, Humanoid human)
 		{
-			if (Input.GetKey(KeyCode.E))
+			if (Input.GetKey(Configuration.Current.ValheimPlus.baseUseKey))
 			{
 				if (Input.GetKey(KeyCode.LeftShift))
 				{
