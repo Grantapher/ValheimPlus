@@ -172,6 +172,7 @@
     <Compile Include="Deconstruct.cs" />
     <Compile Include="FirstPerson\VPlusFirstPerson.cs" />
     <Compile Include="FreePlacementRotation.cs" />
+    <Compile Include="GameClasses\BaseAI.cs" />
     <Compile Include="GameClasses\Bed.cs" />
     <Compile Include="GameClasses\Beehive.cs" />
     <Compile Include="Configurations\BaseConfig.cs" />
@@ -215,6 +216,7 @@
     <Compile Include="GameClasses\LuredWisp.cs" />
     <Compile Include="GameClasses\PickableItem.cs" />
     <Compile Include="GameClasses\PlayerProfile.cs" />
+    <Compile Include="GameClasses\Projectile.cs" />
     <Compile Include="GameClasses\Recipe.cs" />
     <Compile Include="GameClasses\SapCollector.cs" />
     <Compile Include="GameClasses\SEMan.cs" />

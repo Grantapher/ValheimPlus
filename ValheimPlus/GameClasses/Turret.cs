@@ -1,13 +1,26 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using JetBrains.Annotations;
+using UnityEngine;
 using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
+    public static class TurretHelpers
+    {
+        public static Player GetPlayerCreator(Turret turret)
+        {
+            var piece = turret.GetComponent<Piece>();
+            if (piece == null) return null;
+            return Player.GetPlayer(piece.GetCreator());
+        }
+
+        public static bool IsCreatorPvP(Turret turret)
+            => GetPlayerCreator(turret)?.IsPVPEnabled() ?? false;
+    }
+
     [HarmonyPatch(typeof(Turret), nameof(Turret.Awake))]
     public static class Turret_Awake_Patch
     {
@@ -15,14 +28,25 @@ namespace ValheimPlus.GameClasses
         /// Configure the turret on wakeup
         /// </summary>
         [UsedImplicitly]
-        private static void Prefix(Turret __instance)
+        private static void Postfix(Turret __instance)
         {
             var config = Configuration.Current.Turret;
             if (!config.IsEnabled) return;
-            if (config.ignorePlayers) __instance.m_targetPlayers = false;
-            __instance.m_turnRate = Helper.applyModifierValue(__instance.m_turnRate, config.turnRate);
-            __instance.m_attackCooldown = Helper.applyModifierValue(__instance.m_attackCooldown, config.attackCooldown);
-            __instance.m_viewDistance = Helper.applyModifierValue(__instance.m_viewDistance, config.viewDistance);
+            __instance.m_targetPlayers = !config.disablePvP && TurretHelpers.IsCreatorPvP(__instance);
+            __instance.m_targetTamed = config.targetTamed;
+            __instance.m_horizontalAngle = Mathf.Min(config.horizontalAngle, 180f);
+            __instance.m_verticalAngle = Mathf.Min(config.verticalAngle, 90f);
+            __instance.m_attackCooldown = config.attackCooldown;
+            __instance.m_viewDistance = config.viewDistance;
+            __instance.m_turnRate = config.turnRate;
+
+            // Change de/acceleration proportional to turnRate
+            // to maintain the degrees/second and normal game accuracy
+            float accelCoeff = 1.2f / 22.5f;
+            __instance.m_lookAcceleration = Mathf.Max(1.2f, accelCoeff * config.turnRate);
+
+            float deaccelCoeff = 0.05f / 22.5f;
+            __instance.m_lookDeacceleration = Mathf.Max(0.05f, deaccelCoeff * config.turnRate);
         }
     }
 
@@ -32,83 +56,60 @@ namespace ValheimPlus.GameClasses
         private static readonly FieldInfo Field_Turret_M_MaxAmmo =
             AccessTools.Field(typeof(Turret), nameof(Turret.m_maxAmmo));
 
-        private static readonly FieldInfo Field_Attack_M_ProjectileVel =
-            AccessTools.Field(typeof(Attack), nameof(Attack.m_projectileVel));
-
-        private static readonly FieldInfo Field_Attack_M_ProjectileAccuracy =
-            AccessTools.Field(typeof(Attack), nameof(Attack.m_projectileAccuracy));
-
         [UsedImplicitly]
         [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
         {
             var config = Configuration.Current.Turret;
-            if (!config.IsEnabled) return instructions;
+            if (!config.IsEnabled || !config.unlimitedAmmo) return instructions;
 
-            var unlimitedAmmoEnabled = config.unlimitedAmmo;
-            var projectileVelocityEnabled = config.projectileVelocity != 0f;
-            var projectileAccuracyEnabled = config.projectileAccuracy != 0f;
-            if (!unlimitedAmmoEnabled && !projectileVelocityEnabled && !projectileAccuracyEnabled) return instructions;
+            return new CodeMatcher(instructions, ilGenerator)
+                .MatchEndForward(
+                    OpCodes.Ldarg_0,
+                    new CodeMatch(inst => inst.LoadsField(Field_Turret_M_MaxAmmo)),
+                    OpCodes.Ldc_I4_0)
+                .ThrowIfNotMatch("Couldn't transpile `Turret.ShootProjectile` for `Turret.unlimitedAmmo` config!")
+                .Set(OpCodes.Ldc_I4, int.MaxValue)
+                .InstructionEnumeration();
+        }
 
-            var il = instructions.ToList();
-            int maxAmmoInstructionIndex = -1;
-            int projectileVelocityInstructionIndex = -1;
-            int projectileAccuracyInstructionIndex = -1;
-            for (int i = 0; i < il.Count; ++i)
-            {
-                if (unlimitedAmmoEnabled &&
-                    i + 2 < il.Count &&
-                    il[i].LoadsField(Field_Turret_M_MaxAmmo) &&
-                    il[i + 1].opcode == OpCodes.Ldc_I4_0 &&
-                    il[i + 2].Branches(out _))
-                {
-                    // instead of if (maxAmmo > 0) then decrement ammo, we change the 0 to max int value so that the
-                    // condition is never satisfied.
-                    il[i + 1] = new CodeInstruction(OpCodes.Ldc_I4, int.MaxValue);
-                    maxAmmoInstructionIndex = i + 1;
-                }
+        private static void Postfix(Turret __instance)
+        {
+            var player = TurretHelpers.GetPlayerCreator(__instance);
+            if (player == null) return;
 
-                if (projectileVelocityEnabled && il[i].LoadsField(Field_Attack_M_ProjectileVel))
-                {
-                    // apply Turret.projectileVelocity when `Attack.m_projectileVel` is loaded
-                    var multiplier = Helper.applyModifierValue(1f, config.projectileVelocity);
-                    il.InsertRange(i + 1, new CodeInstruction[]
-                        {
-                            new(OpCodes.Ldc_R4, multiplier),
-                            new(OpCodes.Mul)
-                        }
-                    );
-                    projectileVelocityInstructionIndex = i;
-                }
+            var projectile = __instance.m_lastProjectile?.GetComponent<Projectile>();
+            if (projectile == null) return;
 
-                if (projectileAccuracyEnabled && il[i].LoadsField(Field_Attack_M_ProjectileAccuracy))
-                {
-                    // apply Turret.projectileVelocity when `Attack.m_projectileAccuracy` is loaded
-                    // we invert projectileVelocity so that bigger number is better accuracy.
-                    var multiplier = Helper.applyModifierValue(1f, -config.projectileAccuracy);
-                    il.InsertRange(i + 1, new CodeInstruction[]
-                        {
-                            new(OpCodes.Ldc_R4, multiplier),
-                            new(OpCodes.Mul)
-                        }
-                    );
-                    projectileAccuracyInstructionIndex = i;
-                }
-            }
+            // By giving ownership of the projectile we force it to perform all necessary pvp checks.
+            projectile.m_owner = TurretHelpers.GetPlayerCreator(__instance);
+            projectile.m_raiseSkillAmount = 0;
+        }
+    }
 
-            if (unlimitedAmmoEnabled && maxAmmoInstructionIndex == -1)
-                ValheimPlusPlugin.Logger.LogError(
-                    "Couldn't transpile `Turret.ShootProjectile` for `Turret.unlimitedAmmo` config!");
+    [HarmonyPatch(typeof(Turret), nameof(Turret.UpdateTarget))]
+    public static class Turret_UpdateTarget_Patch
+    {
+        private static void Postfix(Turret __instance)
+        {
+            var config = Configuration.Current.Turret;
+            if (!config.IsEnabled) return;
 
-            if (projectileVelocityEnabled && projectileVelocityInstructionIndex == -1)
-                ValheimPlusPlugin.Logger.LogError(
-                    "Couldn't transpile `Turret.ShootProjectile` for `Turret.projectileVelocity` config!");
+            __instance.m_targetPlayers = !config.disablePvP && TurretHelpers.IsCreatorPvP(__instance);
+        }
+    }
 
-            if (projectileAccuracyEnabled && projectileAccuracyInstructionIndex == -1)
-                ValheimPlusPlugin.Logger.LogError(
-                    "Couldn't transpile `Turret.ShootProjectile` for `Turret.projectileAccuracy` config!");
+    [HarmonyPatch(typeof(Turret), nameof(Turret.GetAmmoItem))]
+    public static class Turret_GetAmmoItem_Patch
+    {
+        private static void Postfix(Turret __instance, ref ItemDrop.ItemData __result)
+        {
+            if (!Configuration.Current.Turret.IsEnabled || __result == null) return;
 
-            return il.AsEnumerable();
+            // Under normal conditions the projectile velocity is set to the view distance.
+            // We maintain the game's normal accuracy coefficient by resetting the projectile velocity to the view distance.
+            // Patched here to maintain consistency in both UpdateTurretRotation and ShootProjectile
+            __result.m_shared.m_attack.m_projectileVel = __instance.m_viewDistance;
         }
     }
 }
