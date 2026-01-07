@@ -1,38 +1,38 @@
 services:
-  valheim:
-    image: lloesche/valheim-server
-    environment:
-      VALHEIM_PLUS: true
-      SERVER_PUBLIC: false
-      SERVER_PASS: aaaaa
-      SERVER_NAME: V+ Test Server
-    volumes:
-      - ./valheim/config:/config
-      - ./valheim/server:/opt/valheim
-      - ./ValheimPlus/bin/Debug/ValheimPlus.dll:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll
-      - ./ValheimPlus/bin/Debug/ValheimPlus.pdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.pdb
-      - ./ValheimPlus/bin/Debug/ValheimPlus.dll.mdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.mdb
-      - ./ValheimPlus/bin/Debug/ValheimPlus.dll.config:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.config
-    ports:
-      - 2456-2457:2456-2457/udp
-
   # valheim:
-  #   image: mbround18/valheim:3
-  #   stop_signal: SIGINT
+  #   image: lloesche/valheim-server
+  #   environment:
+  #     VALHEIM_PLUS: true
+  #     SERVER_PUBLIC: false
+  #     SERVER_PASS: aaaaa
+  #     SERVER_NAME: V+ Test Server
+  #   volumes:
+  #     - ./valheim/config:/config
+  #     - ./valheim/server:/opt/valheim
+  #     - ./ValheimPlus/bin/Debug/ValheimPlus.dll:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll
+  #     - ./ValheimPlus/bin/Debug/ValheimPlus.pdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.pdb
+  #     - ./ValheimPlus/bin/Debug/ValheimPlus.dll.mdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.mdb
+  #     - ./ValheimPlus/bin/Debug/ValheimPlus.dll.config:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.config
   #   ports:
   #     - 2456-2457:2456-2457/udp
-  #   environment:
-  #     PORT: 2456
-  #     NAME: "Created With Valheim Docker"
-  #     WORLD: "Dedicated"
-  #     PASSWORD: "Banana Phone"
-  #     TZ: "America/Chicago"
-  #     PUBLIC: 1
-  #     TYPE: BepInEx
-  #   volumes:
-  #     - ./valheim/saves:/home/steam/.config/unity3d/IronGate/Valheim
-  #     - ./valheim/server:/home/steam/valheim
-  #     - ./ValheimPlus/bin/Release/ValheimPlus.dll:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll
-  #     - ./ValheimPlus/bin/Release/ValheimPlus.pdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.pdb
-  #     - ./ValheimPlus/bin/Release/ValheimPlus.dll.mdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.mdb
-  #     - ./ValheimPlus/bin/Release/ValheimPlus.dll.config:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.config
+
+  valheim:
+    image: mbround18/valheim:3
+    stop_signal: SIGINT
+    ports:
+      - 2456-2457:2456-2457/udp
+    environment:
+      PORT: 2456
+      NAME: "Created With Valheim Docker"
+      WORLD: "Dedicated"
+      PASSWORD: "Banana Phone"
+      TZ: "America/Chicago"
+      PUBLIC: 1
+      TYPE: BepInEx
+    volumes:
+      - ./valheim/saves:/home/steam/.config/unity3d/IronGate/Valheim
+      - ./valheim/server:/home/steam/valheim
+      - ./ValheimPlus/bin/Release/ValheimPlus.dll:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll
+      - ./ValheimPlus/bin/Release/ValheimPlus.pdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.pdb
+      - ./ValheimPlus/bin/Release/ValheimPlus.dll.mdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.mdb
+      - ./ValheimPlus/bin/Release/ValheimPlus.dll.config:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.config
