@@ -3,8 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: "[BUG]"
 labels: bug
-assignees: ''
-
+assignees: ""
 ---
 
 - **OS:** [e.g. Windows Client, Windows Server, or Linux Server]
@@ -15,34 +14,29 @@ assignees: ''
 
 A clear and concise description of what the bug is and how you found it.
 
-
 **To Reproduce**
 
 Steps for the devs to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-
 **Expected behavior**
 
 A clear and concise description of what you expected to happen.
-
 
 **Troubleshooting**
 
 What steps have you taken to try to fix?
 
-
 **Screenshots**
 
 If applicable, add screenshots to help explain your problem.
 
-
 **Link to [pastebin](https://pastebin.com) containing .cfg configuration if applicable:**
-
 
 **Additional context**
 
-*Please list any other mods besides V+ that you have installed* here. Add any other context about the problem here.
+_Please list any other mods besides V+ that you have installed_ here. Add any other context about the problem here.

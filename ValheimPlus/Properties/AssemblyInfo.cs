@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using ValheimPlus;
 
 // General Information about an assembly is controlled through the following
@@ -34,3 +35,5 @@ using ValheimPlus;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion(ValheimPlusPlugin.NumericVersion)]
 [assembly: AssemblyFileVersion(ValheimPlusPlugin.NumericVersion)]
+// Expose internals to the test assembly for unit testing
+[assembly: InternalsVisibleTo("ValheimPlus.Tests")]

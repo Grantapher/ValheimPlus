@@ -96,12 +96,14 @@ A HarmonyX Mod aimed at improving the gameplay quality of Valheim. The mod inclu
 - A system to automatically pull wood on interaction with a fireplace from nearby chests.
 
 ### Game Difficulty
+
 - Modify the difficulty multipliers applied to health and damage of enemies based on the number of connected players.
 - Modify the range at which the game considers other players to be nearby.
 - Add a number of players to the player count for the purpose of difficulty calculation.
 - Set the difficulty calculation to a specific player count.
 
 ### Turret
+
 - Change the values and behavior of the in-game ballista / turret.
   - The ballista can ignore players
   - The ballista can have infinite ammo
@@ -462,4 +464,4 @@ Please see [CONTRIBUTING.md](/CONTRIBUTING.md) for details on compiling V+ for d
 - Radvo - https://github.com/Radvo
 - Shawn - https://github.com/shawnwallace
 - Bellian - https://github.com/Bellian
-- JF10R - https://github.com/JF10R 
+- JF10R - https://github.com/JF10R

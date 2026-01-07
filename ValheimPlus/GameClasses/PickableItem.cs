@@ -57,7 +57,22 @@ namespace ValheimPlus.GameClasses
                 ItemDrop.OnCreateNew(itemDrop);
             }
 
-            gameObject.GetComponent<Rigidbody>().velocity = Vector3.up * 4f;
+            var rb = gameObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                // Unity 6 uses linearVelocity; older builds still have velocity
+                var rbType = rb.GetType();
+                var linearVel = rbType.GetProperty("linearVelocity");
+                if (linearVel != null && linearVel.CanWrite)
+                {
+                    linearVel.SetValue(rb, Vector3.up * 4f, null);
+                }
+                else
+                {
+                    var velProp = rbType.GetProperty("velocity");
+                    velProp?.SetValue(rb, Vector3.up * 4f, null);
+                }
+            }
         }
     }
 }

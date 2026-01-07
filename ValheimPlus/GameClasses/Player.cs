@@ -11,6 +11,7 @@ using UnityEngine;
 using ValheimPlus.Configurations;
 using ValheimPlus.RPC;
 using ValheimPlus.Utility;
+using ValheimPlus;
 
 namespace ValheimPlus.GameClasses
 {
@@ -357,7 +358,8 @@ namespace ValheimPlus.GameClasses
                         if (loads_health)
                         {
                             il.Insert(++i, new CodeInstruction(OpCodes.Ldfld, field_SharedData_m_food));
-                        } else if (loads_stamina)
+                        }
+                        else if (loads_stamina)
                         {
                             il.Insert(++i, new CodeInstruction(OpCodes.Ldfld, field_SharedData_m_foodStamina));
                         }
@@ -438,7 +440,7 @@ namespace ValheimPlus.GameClasses
             {
                 // ABM controls the ghost/marker position, so undo any ghost/marker changes the patched method
                 // does by storing the transforms in the prefix and then applying them in the postfix.
-                if (__instance.m_placementGhost) 
+                if (__instance.m_placementGhost)
                 {
                     ghostPosition = __instance.m_placementGhost.transform.position + Vector3.zero;
                     ghostRotation = __instance.m_placementGhost.transform.rotation * Quaternion.identity;
@@ -459,12 +461,12 @@ namespace ValheimPlus.GameClasses
                 //  a better way may be to intercept all position/rotation assignments and ignore them.
                 //  I'm concerned that the build reject logic will use the transforms that we are undo-ing here.
                 //  Seems pretty likely.
-                __instance.m_placementGhost.transform.position = (Vector3) ghostPosition;
-                __instance.m_placementGhost.transform.rotation = (Quaternion) ghostRotation;
+                __instance.m_placementGhost.transform.position = (Vector3)ghostPosition;
+                __instance.m_placementGhost.transform.rotation = (Quaternion)ghostRotation;
                 ghostPosition = null;
                 ghostRotation = null;
-                __instance.m_placementMarkerInstance.transform.position = (Vector3) markerPosition;
-                __instance.m_placementMarkerInstance.transform.rotation = (Quaternion) markerRotation;
+                __instance.m_placementMarkerInstance.transform.position = (Vector3)markerPosition;
+                __instance.m_placementMarkerInstance.transform.rotation = (Quaternion)markerRotation;
                 markerPosition = null;
                 markerRotation = null;
 
@@ -628,8 +630,8 @@ namespace ValheimPlus.GameClasses
             // s_allPieces is also unused, so Valheim may remove it in the near future as well.
             private static void GetAllPiecesInRadius(Vector3 p, float radius, List<Piece> pieces)
             {
-                int ghostLayer = (int) s_ghostLayer_FieldInfo.GetValue(null);
-                var allPieces = (List<Piece>) s_allPieces_FieldInfo.GetValue(null);
+                int ghostLayer = (int)s_ghostLayer_FieldInfo.GetValue(null);
+                var allPieces = (List<Piece>)s_allPieces_FieldInfo.GetValue(null);
                 foreach (Piece piece in allPieces)
                 {
                     if (piece.gameObject.layer != ghostLayer && Vector3.Distance(p, piece.transform.position) < radius)

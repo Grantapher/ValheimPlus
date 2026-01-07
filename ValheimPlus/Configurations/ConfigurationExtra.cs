@@ -16,6 +16,10 @@ namespace ValheimPlus.Configurations
 {
     public class ConfigurationExtra
     {
+        // Test seams
+        public static Func<string> DownloadDefaultIniOverride;
+        public static Func<string> EmbeddedDefaultIniOverride;
+
         public static string GetServerHashFor(Configuration config)
         {
             var serialized = "";
@@ -39,18 +43,55 @@ namespace ValheimPlus.Configurations
 
         private static string GetCurrentWebIniFile()
         {
-            var client = new WebClient();
-            client.Headers.Add("User-Agent: V+ Server");
+            if (DownloadDefaultIniOverride != null)
+            {
+                return DownloadDefaultIniOverride();
+            }
+
             try
             {
                 ValheimPlusPlugin.Logger.LogInfo($"Downloading config from: '{ValheimPlusPlugin.IniFile}'");
-                return client.DownloadString(ValheimPlusPlugin.IniFile);
+                return Http.HttpHelper.DownloadString(ValheimPlusPlugin.IniFile, "V+ Server");
             }
             catch (Exception e)
             {
                 ValheimPlusPlugin.Logger.LogError($"Error downloading config from '{ValheimPlusPlugin.IniFile}': {e}");
                 return null;
             }
+        }
+
+        private static string GetEmbeddedDefaultIni()
+        {
+            if (EmbeddedDefaultIniOverride != null)
+            {
+                return EmbeddedDefaultIniOverride();
+            }
+
+            try
+            {
+                var asm = typeof(ConfigurationExtra).Assembly;
+                var names = asm.GetManifestResourceNames();
+                var target = names.FirstOrDefault(n => n.IndexOf("valheim_plus.cfg", StringComparison.OrdinalIgnoreCase) >= 0);
+                if (target == null)
+                {
+                    ValheimPlusPlugin.Logger.LogWarning("Embedded default config resource not found (looked for valheim_plus.cfg).");
+                    return null;
+                }
+
+                using (var stream = asm.GetManifestResourceStream(target))
+                {
+                    if (stream == null)
+                    {
+                        ValheimPlusPlugin.Logger.LogWarning($"Embedded default config resource '{target}' could not be opened.");
+                        return null;
+                    }
+                    using (var reader = new StreamReader(stream))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
+            catch { return null; }
         }
 
         public static bool LoadSettings()
@@ -72,11 +113,11 @@ namespace ValheimPlus.Configurations
                             // get the current versions ini data
                             compareIni = GetCurrentWebIniFile();
                         }
-                        catch (Exception) 
+                        catch (Exception)
                         {
                             ValheimPlusPlugin.Logger.LogWarning("Unable to download config file from the web.");
                         }
-                    } 
+                    }
                     else
                     {
                         ValheimPlusPlugin.Logger.LogWarning("Auto config file updates have been disabled!");
@@ -98,7 +139,18 @@ namespace ValheimPlus.Configurations
                 {
                     ValheimPlusPlugin.Logger.LogWarning($"Error: Configuration not found at: '{ConfigIniPath}'. Trying to download latest config.");
 
-                    // download latest ini if not present
+                    // Ensure target directory exists
+                    try
+                    {
+                        var dir = Path.GetDirectoryName(ConfigIniPath);
+                        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                    }
+                    catch (Exception dirEx)
+                    {
+                        ValheimPlusPlugin.Logger.LogError($"Failed to ensure config directory exists: {dirEx}");
+                        return false;
+                    }
+
                     bool status = false;
                     try
                     {
@@ -110,8 +162,27 @@ namespace ValheimPlus.Configurations
                             Configuration.Current = LoadFromIni(ConfigIniPath, verbose: false);
                             status = true;
                         }
+                        else
+                        {
+                            var embedded = GetEmbeddedDefaultIni();
+                            if (!string.IsNullOrEmpty(embedded))
+                            {
+                                File.WriteAllText(ConfigIniPath, embedded);
+                                ValheimPlusPlugin.Logger.LogWarning($"Default Configuration embedded fallback written to '{ConfigIniPath}'.");
+                                Configuration.Current = LoadFromIni(ConfigIniPath, verbose: false);
+                                status = true;
+                            }
+                            else
+                            {
+                                ValheimPlusPlugin.Logger.LogError("No configuration could be downloaded and no embedded default was found.");
+                            }
+                        }
                     }
-                    catch (Exception) { }
+                    catch (Exception writeEx)
+                    {
+                        ValheimPlusPlugin.Logger.LogError($"Failed to seed configuration file: {writeEx}");
+                        status = false;
+                    }
 
                     return status;
                 }

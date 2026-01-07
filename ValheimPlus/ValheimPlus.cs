@@ -91,6 +91,9 @@ namespace ValheimPlus
             Logger.LogInfo($"Valheim Plus full version: {FullVersion}");
             Logger.LogInfo($"Valheim Plus dll file location: '{GetType().Assembly.Location}'");
 
+            // Optional lightweight self-tests for HTTP helper (set env VPLUS_SELFTEST=1)
+            try { Http.SelfTests.RunIfEnabled(Logger); } catch { /* never fail startup */ }
+
             var tooOld = IsGameVersionTooOld();
             if (tooOld) LogTooOld();
 
@@ -160,13 +163,9 @@ namespace ValheimPlus
 
         private static bool IsNewVersionAvailable()
         {
-            var client = new WebClient();
-
-            client.Headers.Add("User-Agent: V+ Server");
-
             try
             {
-                var reply = client.DownloadString(ApiRepository);
+                var reply = Http.HttpHelper.DownloadString(ApiRepository, "V+ Server");
                 // newest version is the "latest" release in github
                 newestVersion = new Regex("\"tag_name\":\"([^\"]*)?\"").Match(reply).Groups[1].Value;
             }

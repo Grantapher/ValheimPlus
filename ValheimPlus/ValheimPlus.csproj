@@ -38,23 +38,43 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <!-- Detect Valheim data directory: client vs dedicated server -->
+  <PropertyGroup>
+    <ValheimDataDir>$(VALHEIM_INSTALL)\valheim_Data</ValheimDataDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="Exists('$(VALHEIM_INSTALL)\valheim_server_Data\Managed\UnityEngine.dll')">
+    <ValheimDataDir>$(VALHEIM_INSTALL)\valheim_server_Data</ValheimDataDir>
+  </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AdvancedEditingMode.cs" />
     <Reference Include="netstandard, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL" >
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\netstandard.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\netstandard.dll</HintPath>
     </Reference>
     
     <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.10.0\lib\net45\0Harmony.dll</HintPath>
     </Reference>
     
-    <Reference Include="assembly_guiutils_publicized">
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
+    <!-- Prefer publicized assemblies when available -->
+    <Reference Include="assembly_guiutils_publicized" Condition="Exists('$(ValheimDataDir)\Managed\publicized_assemblies\assembly_guiutils_publicized.dll')">
+      <HintPath>$(ValheimDataDir)\Managed\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
     </Reference>
-    <Reference Include="assembly_utils_publicized">
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
+    <Reference Include="assembly_utils_publicized" Condition="Exists('$(ValheimDataDir)\Managed\publicized_assemblies\assembly_utils_publicized.dll')">
+      <HintPath>$(ValheimDataDir)\Managed\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
     </Reference>
-    <Reference Include="assembly_valheim_publicized">
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
+    <Reference Include="assembly_valheim_publicized" Condition="Exists('$(ValheimDataDir)\Managed\publicized_assemblies\assembly_valheim_publicized.dll')">
+      <HintPath>$(ValheimDataDir)\Managed\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
+    </Reference>
+
+    <!-- Fallback to vanilla assemblies if publicized are missing -->
+    <Reference Include="assembly_guiutils" Condition="!Exists('$(ValheimDataDir)\Managed\publicized_assemblies\assembly_guiutils_publicized.dll')">
+      <HintPath>$(ValheimDataDir)\Managed\assembly_guiutils.dll</HintPath>
+    </Reference>
+    <Reference Include="assembly_utils" Condition="!Exists('$(ValheimDataDir)\Managed\publicized_assemblies\assembly_utils_publicized.dll')">
+      <HintPath>$(ValheimDataDir)\Managed\assembly_utils.dll</HintPath>
+    </Reference>
+    <Reference Include="assembly_valheim" Condition="!Exists('$(ValheimDataDir)\Managed\publicized_assemblies\assembly_valheim_publicized.dll')">
+      <HintPath>$(ValheimDataDir)\Managed\assembly_valheim.dll</HintPath>
     </Reference>
     
     <Reference Include="BepInEx, Version=5.4.5.0, Culture=neutral, processorArchitecture=MSIL">
@@ -67,11 +87,11 @@
     </Reference>
 
     <Reference Include="PlayFab, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\PlayFab.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\PlayFab.dll</HintPath>
     </Reference>
 
     <Reference Include="PlayFabParty, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\PlayFabParty.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\PlayFabParty.dll</HintPath>
     </Reference>
 
     <Reference Include="ServerSync, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -80,63 +100,77 @@
 
     <Reference Include="Splatform, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Splatform.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\Splatform.dll</HintPath>
     </Reference>
 
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.AudioModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(ValheimDataDir)\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Memory">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdvancedBuildingMode.cs" />
-    <Compile Include="AdvancedEditingMode.cs" />
     <Compile Include="Configurations\Sections\BedConfiguration.cs" />
     <Compile Include="Configurations\Sections\BrightnessConfiguration.cs" />
     <Compile Include="Configurations\Sections\ChatConfiguration.cs" />
@@ -272,6 +306,7 @@
     <Compile Include="GameClasses\Smelter.cs" />
     <Compile Include="UI\VPlusMainMenu.cs" />
     <Compile Include="Utility\EmbeddedAsset.cs" />
+    <Compile Include="Utility\SelfTests.cs" />
     <Compile Include="GameClasses\Version.cs" />
     <Compile Include="GameClasses\Vagon.cs" />
     <Compile Include="GameClasses\WearNTear.cs" />
@@ -285,13 +320,20 @@
     <Compile Include="GameClasses\Terminal.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Assets\logo.png" />
-    <Content Include="ILRepack.targets" />
+    <ProjectReference Include="..\ValheimPlus.Http\ValheimPlus.Http.csproj">
+      <Project>{6C0C0A1B-6C3D-4A0E-9F2C-6E2B8C9B8A10}</Project>
+      <Name>ValheimPlus.Http</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <EmbeddedResource Include="Assets\Bundles\map-pin-ui" />
     <EmbeddedResource Include="Assets\Bundles\settings-ui" />
+    <EmbeddedResource Include="Assets\logo.png" />
+    <!-- Embed default config fallback -->
+    <EmbeddedResource Include="..\valheim_plus.cfg">
+      <Link>Assets\defaults\valheim_plus.cfg</Link>
+    </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -306,8 +348,11 @@
     Mono 5 uses Roslyn compiler which produces portable PDBs only, these don't work with pdb2mdb.
     There doesn't seem to be a way to generate MDBs on Linux or OSX,
     so don't attempt to generate MDBs if build platform is not Windows. -->
-    <Exec Condition="$([MSBuild]::IsOSPlatform('Windows'))" Command="&quot;$(SolutionDir)resources\tools\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />
-    <Copy Condition="$([MSBuild]::IsOSPlatform('Windows'))" SourceFiles="$(TargetDir)ValheimPlus.dll.mdb" DestinationFolder="$(Dest)" />
+    <PropertyGroup>
+      <Pdb2MdbPath>$(MSBuildProjectDirectory)\..\resources\tools\pdb2mdb.exe</Pdb2MdbPath>
+    </PropertyGroup>
+    <Exec Condition="$([MSBuild]::IsOSPlatform('Windows')) and Exists('$(Pdb2MdbPath)')" Command="&quot;$(Pdb2MdbPath)&quot; &quot;$(TargetPath)&quot;" />
+    <Copy Condition="$([MSBuild]::IsOSPlatform('Windows')) and Exists('$(TargetDir)ValheimPlus.dll.mdb')" SourceFiles="$(TargetDir)ValheimPlus.dll.mdb" DestinationFolder="$(Dest)" />
   </Target>
   <Import Project="..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets" Condition="Exists('..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

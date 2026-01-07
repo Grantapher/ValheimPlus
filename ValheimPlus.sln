@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValheimPlus", "ValheimPlus\ValheimPlus.csproj", "{2A837100-A030-4D0C-BFFB-B38356118D9A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValheimPlus.Tests", "tests\ValheimPlus.Tests\ValheimPlus.Tests.csproj", "{8F9C8C5E-7A8E-4DA8-9E22-3D4E3C3C9B77}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{39F54A13-F762-43B8-A561-E42BB2468A75}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -35,6 +37,10 @@ Global
 		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A837100-A030-4D0C-BFFB-B38356118D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F9C8C5E-7A8E-4DA8-9E22-3D4E3C3C9B77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F9C8C5E-7A8E-4DA8-9E22-3D4E3C3C9B77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F9C8C5E-7A8E-4DA8-9E22-3D4E3C3C9B77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F9C8C5E-7A8E-4DA8-9E22-3D4E3C3C9B77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

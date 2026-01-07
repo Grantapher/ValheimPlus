@@ -5,8 +5,10 @@
             <InputAssemblies Include="$(TargetPath)" />
             <InputAssemblies Include="$(OutputPath)ServerSync.dll" />
             <InputAssemblies Include="$(OutputPath)INIFileParser.dll"/>
+            <InputAssemblies Include="$(OutputPath)ValheimPlus.Http.dll" />
             <LibraryPath Include="%(ReferencePathWithRefAssemblies.RelativeDir)" />
         </ItemGroup>
-        <ILRepack Parallel="true" DebugInfo="true" Internalize="true" InputAssemblies="@(InputAssemblies)" OutputFile="$(TargetPath)" TargetKind="SameAsPrimaryAssembly" LibraryPath="@(LibraryPath)" />
+        <!-- Keep merged assemblies public so helpers like HttpHelper remain accessible -->
+        <ILRepack Parallel="true" DebugInfo="true" Internalize="false" InputAssemblies="@(InputAssemblies)" OutputFile="$(TargetPath)" TargetKind="SameAsPrimaryAssembly" LibraryPath="@(LibraryPath)" />
     </Target>
 </Project>

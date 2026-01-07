@@ -12,10 +12,10 @@ namespace ValheimPlus
 {
     static class Helper
     {
-		public static Character getPlayerCharacter(Player __instance)
-		{
-			return (Character)__instance;
-		}
+        public static Character getPlayerCharacter(Player __instance)
+        {
+            return (Character)__instance;
+        }
 
         /// <summary>
         /// A function to get the current player by network sender id, even in singleplayer
@@ -58,7 +58,7 @@ namespace ValheimPlus
         // ReSharper disable once InconsistentNaming
         public static void applyModifierValueTo(ref float targetValue, float modifier)
         {
-             targetValue = modifier <= -100f ? 0f : targetValue + (targetValue / 100.0f * modifier);
+            targetValue = modifier <= -100f ? 0f : targetValue + (targetValue / 100.0f * modifier);
         }
 
         /// <summary>
@@ -68,7 +68,8 @@ namespace ValheimPlus
         /// <param name="targetValue">Value to be modified</param>
         /// <param name="value">Modification coefficient in percentage</param>
         /// <returns>New value with chance mechanics</returns>
-        public static int applyModifierValueWithChance(float targetValue, float value) {
+        public static int applyModifierValueWithChance(float targetValue, float value)
+        {
             float realValue = applyModifierValue(targetValue, value);
             if (realValue == 0f)
                 return 0;
@@ -89,7 +90,21 @@ namespace ValheimPlus
                     fileStream.CopyTo(memoryStream);
 
                     texture = new Texture2D(2, 2);
-                    texture.LoadImage(memoryStream.ToArray()); //This will auto-resize the texture dimensions.
+                    var data = memoryStream.ToArray();
+                    // Invoke ImageConversion.LoadImage via reflection to avoid ReadOnlySpan overload issues on net48
+                    var mi = typeof(UnityEngine.ImageConversion).GetMethod("LoadImage", new[] { typeof(Texture2D), typeof(byte[]) });
+                    if (mi != null)
+                    {
+                        mi.Invoke(null, new object[] { texture, data });
+                    }
+                    else
+                    {
+                        mi = typeof(UnityEngine.ImageConversion).GetMethod("LoadImage", new[] { typeof(Texture2D), typeof(byte[]), typeof(bool) });
+                        if (mi != null)
+                        {
+                            mi.Invoke(null, new object[] { texture, data, false });
+                        }
+                    }
                 }
             }
 
@@ -115,7 +130,7 @@ namespace ValheimPlus
             }
         }
 
-        
+
         /// <summary>
         /// Resize child EffectArea's collision that matches the specified type(s).
         /// </summary>

@@ -198,7 +198,7 @@ namespace ValheimPlus.GameClasses
                 Mathf.Clamp(config.autoStackAllRange, 1, 50),
                 !config.autoStackAllIgnorePrivateAreaCheck);
 
-            QueueStackAll(nearbyChests, fromInventory, __instance);
+            _ = QueueStackAll(nearbyChests, fromInventory, __instance);
         }
 
         private static readonly MethodInfo Method_Inventory_ContainsItemByName =
