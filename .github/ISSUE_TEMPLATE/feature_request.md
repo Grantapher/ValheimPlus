@@ -3,7 +3,8 @@ name: Feature request
 about: Suggest an idea for this project
 title: "[FEATURE REQUEST]"
 labels: feature request
-assignees: ""
+assignees: ''
+
 ---
 
 **Please review the feature requests already submitted to ensure that you are not submitting a duplicate**
