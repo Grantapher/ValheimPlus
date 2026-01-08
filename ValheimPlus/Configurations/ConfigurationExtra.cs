@@ -16,10 +16,6 @@ namespace ValheimPlus.Configurations
 {
     public class ConfigurationExtra
     {
-        // Test seams
-        public static Func<string> DownloadDefaultIniOverride;
-        public static Func<string> EmbeddedDefaultIniOverride;
-
         public static string GetServerHashFor(Configuration config)
         {
             var serialized = "";
@@ -43,15 +39,10 @@ namespace ValheimPlus.Configurations
 
         private static string GetCurrentWebIniFile()
         {
-            if (DownloadDefaultIniOverride != null)
-            {
-                return DownloadDefaultIniOverride();
-            }
-
             try
             {
                 ValheimPlusPlugin.Logger.LogInfo($"Downloading config from: '{ValheimPlusPlugin.IniFile}'");
-                return Http.HttpHelper.DownloadString(ValheimPlusPlugin.IniFile, "V+ Server");
+                return Http.HttpHelper.DownloadString(ValheimPlusPlugin.IniFile);
             }
             catch (Exception e)
             {
@@ -62,11 +53,6 @@ namespace ValheimPlus.Configurations
 
         private static string GetEmbeddedDefaultIni()
         {
-            if (EmbeddedDefaultIniOverride != null)
-            {
-                return EmbeddedDefaultIniOverride();
-            }
-
             try
             {
                 var asm = typeof(ConfigurationExtra).Assembly;

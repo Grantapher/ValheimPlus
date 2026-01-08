@@ -306,6 +306,7 @@
     <Compile Include="GameClasses\Smelter.cs" />
     <Compile Include="UI\VPlusMainMenu.cs" />
     <Compile Include="Utility\EmbeddedAsset.cs" />
+    <Compile Include="Utility\HttpHelper.cs" />
     <Compile Include="Utility\SelfTests.cs" />
     <Compile Include="GameClasses\Version.cs" />
     <Compile Include="GameClasses\Vagon.cs" />
@@ -319,12 +320,7 @@
     <Compile Include="VPlusDataObjects.cs" />
     <Compile Include="GameClasses\Terminal.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ValheimPlus.Http\ValheimPlus.Http.csproj">
-      <Project>{6C0C0A1B-6C3D-4A0E-9F2C-6E2B8C9B8A10}</Project>
-      <Name>ValheimPlus.Http</Name>
-    </ProjectReference>
-  </ItemGroup>
+  
   <ItemGroup>
     <None Include="app.config" />
     <EmbeddedResource Include="Assets\Bundles\map-pin-ui" />
