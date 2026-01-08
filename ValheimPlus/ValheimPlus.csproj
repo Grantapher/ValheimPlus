@@ -307,7 +307,6 @@
     <Compile Include="UI\VPlusMainMenu.cs" />
     <Compile Include="Utility\EmbeddedAsset.cs" />
     <Compile Include="Utility\HttpHelper.cs" />
-    <Compile Include="Utility\SelfTests.cs" />
     <Compile Include="GameClasses\Version.cs" />
     <Compile Include="GameClasses\Vagon.cs" />
     <Compile Include="GameClasses\WearNTear.cs" />

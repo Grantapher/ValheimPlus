@@ -91,8 +91,7 @@ namespace ValheimPlus
             Logger.LogInfo($"Valheim Plus full version: {FullVersion}");
             Logger.LogInfo($"Valheim Plus dll file location: '{GetType().Assembly.Location}'");
 
-            // Optional lightweight self-test for HTTP URL fetching (set env VPLUS_SELFTEST=1)
-            try { Http.HttpFetchSelfTest.RunIfEnabled(Logger); } catch { /* never fail startup */ }
+            // Self-test removed per PR trim (was optional HTTP fetch sanity check)
 
             var tooOld = IsGameVersionTooOld();
             if (tooOld) LogTooOld();
