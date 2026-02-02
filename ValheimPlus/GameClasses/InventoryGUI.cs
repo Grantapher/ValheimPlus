@@ -153,8 +153,6 @@ namespace ValheimPlus.GameClasses
             Image component = elementRoot.transform.Find("res_icon").GetComponent<Image>();
             TMP_Text component2 = elementRoot.transform.Find("res_name").GetComponent<TMP_Text>();
             TMP_Text component3 = elementRoot.transform.Find("res_amount").GetComponent<TMP_Text>();
-            UITooltip component4 = elementRoot.GetComponent<UITooltip>();
-
             if (req.m_resItem != null)
             {
                 component.gameObject.SetActive(true);
@@ -162,8 +160,7 @@ namespace ValheimPlus.GameClasses
                 component3.gameObject.SetActive(true);
                 component.sprite = req.m_resItem.m_itemData.GetIcon();
                 component.color = Color.white;
-                component4.m_text = Localization.instance.Localize(req.m_resItem.m_itemData.m_shared.m_name);
-                component2.text = Localization.instance.Localize(req.m_resItem.m_itemData.m_shared.m_name);
+                component2.text = ValheimPlus.LocalizationHelper.Localize(req.m_resItem.m_itemData.m_shared.m_name);
                 int num = player.GetInventory().CountItems(req.m_resItem.m_itemData.m_shared.m_name);
                 int amount = req.GetAmount(quality) * craftMultiplier;
 

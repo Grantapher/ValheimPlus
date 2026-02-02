@@ -81,7 +81,7 @@ namespace ValheimPlus.GameClasses
             if (!IsValidAnimalType(character.m_name))
                 return;
 
-            result = Localization.instance.Localize(character.m_name);
+            result = ValheimPlus.LocalizationHelper.Localize(character.m_name);
             var timeLeft = GrowupHelpers.GetGrowTimeLeft(growup);
 
             result += timeLeft switch

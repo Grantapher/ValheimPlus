@@ -40,13 +40,13 @@ namespace ValheimPlus.GameClasses
 
             if (!PrivateArea.CheckAccess(__instance.transform.position, 0f, false))
             {
-                __result = Localization.instance.Localize(__instance.m_name + "\n$piece_noaccess");
+                __result = ValheimPlus.LocalizationHelper.Localize(__instance.m_name + "\n$piece_noaccess");
                 return false;
             }
             int honeyLevel = __instance.GetHoneyLevel();
             if (honeyLevel > 0)
             {
-                __result = Localization.instance.Localize(string.Concat(new object[]
+                __result = ValheimPlus.LocalizationHelper.Localize(string.Concat(new object[]
                 {
                 __instance.m_name,
                 " ( ",
@@ -57,7 +57,7 @@ namespace ValheimPlus.GameClasses
                 }));
                 return false;
             }
-            __result = Localization.instance.Localize(__instance.m_name + " ( $piece_container_empty ) " + calculateTimeLeft(__instance) + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_beehive_check");
+            __result = ValheimPlus.LocalizationHelper.Localize(__instance.m_name + " ( $piece_container_empty ) " + calculateTimeLeft(__instance) + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_beehive_check");
             return false;
 
         }

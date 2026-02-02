@@ -94,7 +94,7 @@ namespace ValheimPlus
             if (currentCraftingStation == null) return;
 
             // set up crafting station requirements UI
-            __inventoryGui.m_craftingStationName.text = Localization.instance.Localize(currentCraftingStation.m_name);
+            __inventoryGui.m_craftingStationName.text = ValheimPlus.LocalizationHelper.Localize(currentCraftingStation.m_name);
             __inventoryGui.m_craftingStationIcon.gameObject.SetActive(true);
             __inventoryGui.m_craftingStationIcon.sprite = currentCraftingStation.m_icon;
             __inventoryGui.m_craftingStationLevel.text = currentCraftingStation.GetLevel().ToString();
@@ -116,7 +116,7 @@ namespace ValheimPlus
                     __inventoryGui.m_selectedRecipe.Key.m_item.m_itemData.m_shared.m_icons[itemData != null ? itemData.m_variant : __inventoryGui.m_craftVariant];
 
                 // get localized item name
-                string str = Localization.instance.Localize(__inventoryGui.m_selectedRecipe.Key.m_item.m_itemData.m_shared.m_name);
+                string str = ValheimPlus.LocalizationHelper.Localize(__inventoryGui.m_selectedRecipe.Key.m_item.m_itemData.m_shared.m_name);
 
                 // get recipe amount
                 if (__inventoryGui.m_selectedRecipe.Key.m_amount > 1)
@@ -128,7 +128,7 @@ namespace ValheimPlus
                 __inventoryGui.m_recipeName.text = str;
 
                 // set recipe description
-                __inventoryGui.m_recipeDecription.text = Localization.instance.Localize(Deconstruct_GetTooltip(__inventoryGui.m_selectedRecipe.Key.m_item.m_itemData, itemQuality)); // need to localize
+                __inventoryGui.m_recipeDecription.text = ValheimPlus.LocalizationHelper.Localize(Deconstruct_GetTooltip(__inventoryGui.m_selectedRecipe.Key.m_item.m_itemData, itemQuality)); // need to localize
 
                 if (itemData != null)
                 {
@@ -197,15 +197,15 @@ namespace ValheimPlus
 
                 if (!playerHasInventorySpace)
                 {
-                    component.m_text = Localization.instance.Localize("$inventory_full");
+                    component.m_text = ValheimPlus.LocalizationHelper.Localize("$inventory_full");
                 }
                 else if (!playerHasRequirements)
                 {
-                    component.m_text = Localization.instance.Localize("$msg_missingrequirement");
+                    component.m_text = ValheimPlus.LocalizationHelper.Localize("$msg_missingrequirement");
                 }
                 else if (!craftingStationIsValid)
                 {
-                    component.m_text = Localization.instance.Localize("$msg_missingstation");
+                    component.m_text = ValheimPlus.LocalizationHelper.Localize("$msg_missingstation");
                 }
                 else
                 {
@@ -251,7 +251,7 @@ namespace ValheimPlus
                 Deconstruct_Deconstruct(ref __localPlayer);
 
                 __inventoryGui.m_craftTimer = -1f;
-                __inventoryGui.m_craftProgressPanel.GetComponentInChildren<TMP_Text>().text = Localization.instance.Localize("$inventory_craftingprog");
+                __inventoryGui.m_craftProgressPanel.GetComponentInChildren<TMP_Text>().text = ValheimPlus.LocalizationHelper.Localize("$inventory_craftingprog");
             }
         }
 
@@ -295,7 +295,7 @@ namespace ValheimPlus
                 resourceIcon.color = Color.white;
 
                 // get resource name and text
-                string resourceText = Localization.instance.Localize(itemResourceRequirement.m_resItem.m_itemData.m_shared.m_name);
+                string resourceText = ValheimPlus.LocalizationHelper.Localize(itemResourceRequirement.m_resItem.m_itemData.m_shared.m_name);
                 resourceTooltip.m_text = resourceText;
                 resourceName.text = resourceText;
 

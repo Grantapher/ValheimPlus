@@ -1,4 +1,7 @@
 ﻿using HarmonyLib;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,9 +53,26 @@ namespace ValheimPlus.GameClasses
     /// <summary>
     /// Save out user preference for audio mute toggle
     /// </summary>
-    [HarmonyPatch(typeof(Settings), nameof(Settings.SaveTabSettings))]
+    [HarmonyPatch(typeof(Settings))]
     public static class Settings_SaveSettings_Patch
     {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            var saveTabSettings = typeof(Settings).GetMethod("SaveTabSettings",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (saveTabSettings != null)
+                return new[] { saveTabSettings };
+
+            var tabSaved = typeof(Settings).GetMethod("TabSaved",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (tabSaved != null)
+                return new[] { tabSaved };
+
+            ValheimPlusPlugin.Logger?.LogWarning(
+                "Settings save hook not found (SaveTabSettings/TabSaved). Skipping mute-in-background preference save.");
+            return Array.Empty<MethodBase>();
+        }
+
         private static void Postfix()
         {
             if (MuteGameInBackground.muteAudioToggle != null)
