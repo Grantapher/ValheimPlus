@@ -89,7 +89,9 @@ namespace ValheimPlus
                     fileStream.CopyTo(memoryStream);
 
                     texture = new Texture2D(2, 2);
-                    texture.LoadImage(memoryStream.ToArray()); //This will auto-resize the texture dimensions.
+
+                    if (!TryLoadImage(texture, memoryStream.ToArray()))
+                        return null;
                 }
             }
 
@@ -112,6 +114,32 @@ namespace ValheimPlus
                 }
 
                 return sb.ToString();
+            }
+        }
+
+        private static bool TryLoadImage(Texture2D texture, byte[] data)
+        {
+            var imageConversionType = AccessTools.TypeByName("UnityEngine.ImageConversion");
+            if (imageConversionType == null)
+                return false;
+
+            var loadImage = AccessTools.Method(imageConversionType, "LoadImage", new[] { typeof(Texture2D), typeof(byte[]) }) ??
+                            AccessTools.Method(imageConversionType, "LoadImage", new[] { typeof(Texture2D), typeof(byte[]), typeof(bool) });
+
+            if (loadImage == null)
+                return false;
+
+            try
+            {
+                object[] args = loadImage.GetParameters().Length == 3
+                    ? new object[] { texture, data, false }
+                    : new object[] { texture, data };
+
+                return (bool)loadImage.Invoke(null, args);
+            }
+            catch
+            {
+                return false;
             }
         }
 

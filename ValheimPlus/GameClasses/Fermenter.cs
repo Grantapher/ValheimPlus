@@ -60,13 +60,13 @@ namespace ValheimPlus.GameClasses
 
             if (!PrivateArea.CheckAccess(__instance.transform.position, 0f, false, true))
             {
-                __result = Localization.instance.Localize(__instance.m_name + "\n$piece_noaccess");
+                __result = ValheimPlus.LocalizationHelper.Localize(__instance.m_name + "\n$piece_noaccess");
                 return false;
             }
             switch (__instance.GetStatus())
             {
                 case Fermenter.Status.Empty:
-                    __result = Localization.instance.Localize(__instance.m_name + " ( $piece_container_empty )\n[<color=yellow><b>$KEY_Use</b></color>] $piece_fermenter_add");
+                    __result = ValheimPlus.LocalizationHelper.Localize(__instance.m_name + " ( $piece_container_empty )\n[<color=yellow><b>$KEY_Use</b></color>] $piece_fermenter_add");
                     return false;
                 case Fermenter.Status.Fermenting:
                     {
@@ -74,7 +74,7 @@ namespace ValheimPlus.GameClasses
 
                         if (__instance.m_exposed)
                         {
-                            __result = Localization.instance.Localize(__instance.m_name + " ( " + contentName + ", $piece_fermenter_exposed )");
+                            __result = ValheimPlus.LocalizationHelper.Localize(__instance.m_name + " ( " + contentName + ", $piece_fermenter_exposed )");
                             return false;
                         }
 
@@ -89,13 +89,13 @@ namespace ValheimPlus.GameClasses
                         else
                             info = (int)durationUntilDone + " seconds";
 
-                        __result = Localization.instance.Localize(__instance.m_name + " ( " + contentName + ", $piece_fermenter_fermenting )") + " (" + info + ")";
+                        __result = ValheimPlus.LocalizationHelper.Localize(__instance.m_name + " ( " + contentName + ", $piece_fermenter_fermenting )") + " (" + info + ")";
                         return false;
                     }
                 case Fermenter.Status.Ready:
                     {
                         string contentName2 = __instance.GetContentName();
-                        __result = Localization.instance.Localize(__instance.m_name + " ( " + contentName2 + ", $piece_fermenter_ready )\n[<color=yellow><b>$KEY_Use</b></color>] $piece_fermenter_tap");
+                        __result = ValheimPlus.LocalizationHelper.Localize(__instance.m_name + " ( " + contentName2 + ", $piece_fermenter_ready )\n[<color=yellow><b>$KEY_Use</b></color>] $piece_fermenter_tap");
                         return false;
                     }
             }

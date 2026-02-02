@@ -34,7 +34,7 @@ namespace ValheimPlus.GameClasses
 
             if (Configuration.Current.Game.IsEnabled && Configuration.Current.Game.bigPortalNames)
             {
-                __result = Localization.instance.Localize(string.Concat(new string[]
+                __result = ValheimPlus.LocalizationHelper.Localize(string.Concat(new string[]
                     {
                     "$piece_portal $piece_portal_tag:",
                     " ",

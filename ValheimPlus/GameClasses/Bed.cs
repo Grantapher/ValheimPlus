@@ -41,7 +41,7 @@ namespace ValheimPlus.GameClasses
         private static void Postfix(Bed __instance, ref string __result)
         {
             if (!__instance.CanSleepWithoutSpawn()) return;
-            __result += Localization.instance.Localize(AppendStr);
+            __result += ValheimPlus.LocalizationHelper.Localize(AppendStr);
         }
     }
 

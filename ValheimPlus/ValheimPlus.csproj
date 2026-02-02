@@ -85,6 +85,18 @@
 
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Buffers">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
@@ -109,9 +121,6 @@
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -279,6 +288,7 @@
     <Compile Include="GameClasses\Ward.cs" />
     <Compile Include="GameClasses\InventoryGUI.cs" />
     <Compile Include="GameClasses\CraftingStation.cs" />
+    <Compile Include="Utility\LocalizationHelper.cs" />
     <Compile Include="Utility\Helper.cs" />
     <Compile Include="Utility\ZNetExtensions.cs" />
     <Compile Include="VPlusDataObjects.cs" />
@@ -306,8 +316,8 @@
     Mono 5 uses Roslyn compiler which produces portable PDBs only, these don't work with pdb2mdb.
     There doesn't seem to be a way to generate MDBs on Linux or OSX,
     so don't attempt to generate MDBs if build platform is not Windows. -->
-    <Exec Condition="$([MSBuild]::IsOSPlatform('Windows'))" Command="&quot;$(SolutionDir)resources\tools\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />
-    <Copy Condition="$([MSBuild]::IsOSPlatform('Windows'))" SourceFiles="$(TargetDir)ValheimPlus.dll.mdb" DestinationFolder="$(Dest)" />
+    <Exec Condition="$([MSBuild]::IsOSPlatform('Windows')) And '$(SkipPdb2Mdb)' != 'true'" Command="&quot;$(SolutionDir)resources\tools\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />
+    <Copy Condition="$([MSBuild]::IsOSPlatform('Windows')) And '$(SkipPdb2Mdb)' != 'true'" SourceFiles="$(TargetDir)ValheimPlus.dll.mdb" DestinationFolder="$(Dest)" />
   </Target>
   <Import Project="..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets" Condition="Exists('..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

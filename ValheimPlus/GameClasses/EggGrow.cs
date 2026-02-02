@@ -156,7 +156,7 @@ namespace ValheimPlus.GameClasses
             if (num <= 0) return;
 
             var firstLine = __result.Substring(0, num);
-            if (!firstLine.Contains(Localization.instance.Localize("$item_chicken_egg_warm"))) return;
+            if (!firstLine.Contains(ValheimPlus.LocalizationHelper.Localize("$item_chicken_egg_warm"))) return;
 
             var growStart = __instance.m_nview.GetZDO().GetFloat(ZDOVars.s_growStart);
             var timeLeft = GetTimeLeft(growStart);
