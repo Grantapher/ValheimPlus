@@ -1,7 +1,4 @@
-﻿using System.Security.Policy;
-using UnityEngine;
-
-namespace ValheimPlus.Configurations.Sections
+﻿namespace ValheimPlus.Configurations.Sections
 {
     public class ServerConfiguration : BaseConfig<ServerConfiguration>
     {

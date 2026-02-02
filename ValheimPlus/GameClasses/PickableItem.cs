@@ -57,7 +57,7 @@ namespace ValheimPlus.GameClasses
                 ItemDrop.OnCreateNew(itemDrop);
             }
 
-            gameObject.GetComponent<Rigidbody>().velocity = Vector3.up * 4f;
+            gameObject.GetComponent<Rigidbody>().linearVelocity = Vector3.up * 4f;
         }
     }
 }

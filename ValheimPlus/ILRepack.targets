@@ -4,7 +4,7 @@
         <ItemGroup>
             <InputAssemblies Include="$(TargetPath)" />
             <InputAssemblies Include="$(OutputPath)ServerSync.dll" />
-            <InputAssemblies Include="$(OutputPath)INIFileParser.dll"/>
+            <InputAssemblies Include="$(NuGetPackageRoot)ini-parser-netstandard\2.5.3\lib\netstandard2.0\INIFileParser.dll"/>
             <LibraryPath Include="%(ReferencePathWithRefAssemblies.RelativeDir)" />
         </ItemGroup>
         <ILRepack Parallel="true" DebugInfo="true" Internalize="true" InputAssemblies="@(InputAssemblies)" OutputFile="$(TargetPath)" TargetKind="SameAsPrimaryAssembly" LibraryPath="@(LibraryPath)" />

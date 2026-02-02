@@ -1,319 +1,144 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2A837100-A030-4D0C-BFFB-B38356118D9A}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ValheimPlus</RootNamespace>
-    <AssemblyName>ValheimPlus</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>9</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
+    <AssemblyName>ValheimPlus</AssemblyName>
+    <RootNamespace>ValheimPlus</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <!-- 
+      System.Net.Http version conflict explanation:
+      - netstandard2.1 reference assemblies ship with System.Net.Http 4.1.2.0
+      - Unity 6 (Valheim 0.221.10) ships with System.Net.Http 4.2.0.0
+      - At runtime, Unity provides the 4.2.0.0 version which is backwards compatible
+      - This is a compile-time reference mismatch, not a runtime issue
+      - The MSB3277 warning cannot be resolved without excluding implicit references
+        which would break other System.* dependencies
+    -->
+    <AutoUnifyAssemblyReferences>true</AutoUnifyAssemblyReferences>
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="netstandard, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL" >
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\netstandard.dll</HintPath>
-    </Reference>
-    
-    <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HarmonyX.2.10.0\lib\net45\0Harmony.dll</HintPath>
-    </Reference>
-    
+    <!-- NuGet Packages -->
+    <PackageReference Include="HarmonyX" Version="2.10.0" />
+    <PackageReference Include="ini-parser-netstandard" Version="2.5.3" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.33" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Game References -->
     <Reference Include="assembly_guiutils_publicized">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="assembly_utils_publicized">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="assembly_valheim_publicized">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     
-    <Reference Include="BepInEx, Version=5.4.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <!-- BepInEx -->
+    <Reference Include="BepInEx">
       <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\BepInEx.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     
-    <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
-      <HintPath>..\packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
-    </Reference>
-
-    <Reference Include="PlayFab, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <!-- PlayFab -->
+    <Reference Include="PlayFab">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\PlayFab.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-
-    <Reference Include="PlayFabParty, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="PlayFabParty">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\PlayFabParty.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-
-    <Reference Include="ServerSync, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\libraries\ServerSync.dll</HintPath>
-    </Reference>
-
-    <Reference Include="Splatform, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Splatform.dll</HintPath>
-    </Reference>
-
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
     
+    <!-- ServerSync -->
+    <Reference Include="ServerSync">
+      <HintPath>..\libraries\ServerSync.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    
+    <!-- Splatform -->
+    <Reference Include="Splatform">
+      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Splatform.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    
+    <!-- Unity References -->
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.AnimationModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.AssetBundleModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.AudioModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.ParticleSystemModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.UI">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AdvancedBuildingMode.cs" />
-    <Compile Include="AdvancedEditingMode.cs" />
-    <Compile Include="Configurations\Sections\BedConfiguration.cs" />
-    <Compile Include="Configurations\Sections\BrightnessConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ChatConfiguration.cs" />
-    <Compile Include="Configurations\Sections\EggConfiguration.cs" />
-    <Compile Include="Configurations\Sections\EitrRefineryConfiguration.cs" />
-    <Compile Include="Configurations\Sections\HealthUsageConfiguration.cs" />
-    <Compile Include="Configurations\Sections\EitrUsageConfiguration.cs" />
-    <Compile Include="Configurations\Sections\GameClockConfiguration.cs" />
-    <Compile Include="Configurations\Sections\HotTubConfiguration.cs" />
-    <Compile Include="Configurations\Sections\LootDropConfiguration.cs" />
-    <Compile Include="Configurations\Sections\MonsterProjectileConfiguration.cs" />
-    <Compile Include="Configurations\Sections\DemisterConfiguration.cs" />
-    <Compile Include="Configurations\Sections\OvenConfiguration.cs" />
-    <Compile Include="Configurations\Sections\PlayerProjectileConfiguration.cs" />
-    <Compile Include="Configurations\Sections\CraftFromChestConfiguration.cs" />
-    <Compile Include="Configurations\Sections\FirstPersonConfiguration.cs" />
-    <Compile Include="Configurations\Sections\DeconstructConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ArmorConfiguration.cs" />
-    <Compile Include="Configurations\Sections\DurabilityConfiguration.cs" />
-    <Compile Include="Configurations\Sections\PickableConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ProcreationConfiguration.cs" />
-    <Compile Include="Configurations\Sections\SapCollectorConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ShieldGeneratorConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ShipConfiguration.cs" />
-    <Compile Include="Configurations\Sections\SmelterConfiguration.cs" />
-    <Compile Include="Configurations\Sections\FreePlacementRotationConfiguration.cs" />
-    <Compile Include="Configurations\Sections\GatherConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ShieldConfiguration.cs" />
-    <Compile Include="Configurations\Sections\SpinningWheelConfiguration.cs" />
-    <Compile Include="Configurations\Sections\TameableConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ValheimPlusConfiguration.cs" />
-    <Compile Include="Configurations\Sections\WindmillConfiguration.cs" />
-    <Compile Include="Configurations\Sections\WispSpawnerConfiguration.cs" />
-    <Compile Include="Deconstruct.cs" />
-    <Compile Include="FirstPerson\VPlusFirstPerson.cs" />
-    <Compile Include="FreePlacementRotation.cs" />
-    <Compile Include="GameClasses\Bed.cs" />
-    <Compile Include="GameClasses\Beehive.cs" />
-    <Compile Include="Configurations\BaseConfig.cs" />
-    <Compile Include="Configurations\Configuration.cs" />
-    <Compile Include="Configurations\ConfigurationExtra.cs" />
-    <Compile Include="Configurations\Sections\AdvancedBuildingModeConfiguration.cs" />
-    <Compile Include="Configurations\Sections\AdvancedEditingModeConfiguration.cs" />
-    <Compile Include="Configurations\Sections\BeehiveConfiguration.cs" />
-    <Compile Include="Configurations\Sections\BuildingConfiguration.cs" />
-    <Compile Include="Configurations\Sections\GridAlignmentConfiguration.cs" />
-    <Compile Include="Configurations\Sections\FermenterConfiguration.cs" />
-    <Compile Include="Configurations\Sections\FoodConfiguration.cs" />
-    <Compile Include="Configurations\Sections\FurnaceConfiguration.cs" />
-    <Compile Include="Configurations\Sections\GameConfiguration.cs" />
-    <Compile Include="Configurations\Sections\HotkeyConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ItemsConfiguration.cs" />
-    <Compile Include="Configurations\Sections\InventoryConfiguration.cs" />
-    <Compile Include="Configurations\Sections\KilnConfiguration.cs" />
-    <Compile Include="Configurations\Sections\MapConfiguration.cs" />
-    <Compile Include="Configurations\Sections\PlayerConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ServerConfiguration.cs" />
-    <Compile Include="Configurations\Sections\FireSourceConfiguration.cs" />
-    <Compile Include="Configurations\Sections\TimeConfiguration.cs" />
-    <Compile Include="Configurations\Sections\WagonConfiguration.cs" />
-    <Compile Include="Configurations\Sections\WardConfiguration.cs" />
-    <Compile Include="Configurations\Sections\StructuralIntegrityConfiguration.cs" />
-    <Compile Include="Configurations\Sections\HudConfiguration.cs" />
-    <Compile Include="Configurations\Sections\ExperienceConfiguration.cs" />
-    <Compile Include="Configurations\Sections\CameraConfiguration.cs" />
-    <Compile Include="Configurations\Sections\WorkbenchConfiguration.cs" />
-    <Compile Include="Configurations\Sections\StaminaUsageConfiguration.cs" />
-    <Compile Include="Configurations\Sections\StaminaConfiguration.cs" />
-    <Compile Include="Configurations\Sections\TurretConfiguration.cs" />
-    <Compile Include="Configurations\Sections\AutoStackConfiguration.cs" />
-    <Compile Include="GameClasses\Character.cs" />
-    <Compile Include="GameClasses\CharacterDrop.cs" />
-    <Compile Include="GameClasses\Demister.cs" />
-    <Compile Include="GameClasses\EggGrow.cs" />
-    <Compile Include="GameClasses\Growup.cs" />
-    <Compile Include="GameClasses\InventoryGrid.cs" />
-    <Compile Include="GameClasses\LuredWisp.cs" />
-    <Compile Include="GameClasses\PickableItem.cs" />
-    <Compile Include="GameClasses\PlayerProfile.cs" />
-    <Compile Include="GameClasses\Procreation.cs" />
-    <Compile Include="GameClasses\Recipe.cs" />
-    <Compile Include="GameClasses\SapCollector.cs" />
-    <Compile Include="GameClasses\SEMan.cs" />
-    <Compile Include="GameClasses\ShieldGenerator.cs" />
-    <Compile Include="GameClasses\Ship.cs" />
-    <Compile Include="GameClasses\Talker.cs" />
-    <Compile Include="GameClasses\Trader.cs" />
-    <Compile Include="GameClasses\Turret.cs" />
-    <Compile Include="GameClasses\Container.cs" />
-    <Compile Include="GameClasses\CookingStation.cs" />
-    <Compile Include="GameClasses\DropTable.cs" />
-    <Compile Include="GameClasses\FejdStartup.cs" />
-    <Compile Include="GameClasses\Fireplace.cs" />
-    <Compile Include="GameClasses\GameCamera.cs" />
-    <Compile Include="GameClasses\Chat.cs" />
-    <Compile Include="GameClasses\ZPlayFabMatchmaking.cs" />
-    <Compile Include="GameClasses\WispSpawner.cs" />
-    <Compile Include="RPC\VPlusMapPinSync.cs" />
-    <Compile Include="UI\HotkeyBar.cs" />
-    <Compile Include="GameClasses\Hud.cs" />
-    <Compile Include="GameClasses\EventSystem.cs" />
-    <Compile Include="GameClasses\MonsterAI.cs" />
-    <Compile Include="GameClasses\Pickable.cs" />
-    <Compile Include="GameClasses\Settings.cs" />
-    <Compile Include="GameClasses\SE_Rested.cs" />
-    <Compile Include="GameClasses\Piece.cs" />
-    <Compile Include="GameClasses\StationExtension.cs" />
-    <Compile Include="GameClasses\Attack.cs" />
-    <Compile Include="GameClasses\Tameable.cs" />
-    <Compile Include="GameClasses\TeleportWorld.cs" />
-    <Compile Include="GameClasses\Humanoid.cs" />
-    <Compile Include="RPC\VPlusAck.cs" />
-    <Compile Include="UI\VPlusSettings.cs" />
-    <Compile Include="Utility\GameObjectAssistant.cs" />
-    <Compile Include="Utility\InventoryAssistant.cs" />
-    <Compile Include="Utility\ListExtensions.cs" />
-    <Compile Include="Utility\RPCQueue.cs" />
-    <Compile Include="Utility\ZPackageExtensions.cs" />
-    <Compile Include="ValheimPlus.cs" />
-    <Compile Include="GameClasses\Fermenter.cs" />
-    <Compile Include="GameClasses\Inventory.cs" />
-    <Compile Include="GameClasses\Console.cs" />
-    <Compile Include="GameClasses\ZNet.cs" />
-    <Compile Include="GameClasses\Skills.cs" />
-    <Compile Include="GameClasses\ItemDrop.cs" />
-    <Compile Include="GameClasses\Player.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GameClasses\Game.cs" />
-    <Compile Include="RPC\VPlusConfigSync.cs" />
-    <Compile Include="GameClasses\SteamGameServer.cs" />
-    <Compile Include="RPC\VPlusMapSync.cs" />
-    <Compile Include="GameClasses\Minimap.cs" />
-    <Compile Include="GameClasses\Smelter.cs" />
-    <Compile Include="UI\VPlusMainMenu.cs" />
-    <Compile Include="Utility\EmbeddedAsset.cs" />
-    <Compile Include="GameClasses\Version.cs" />
-    <Compile Include="GameClasses\Vagon.cs" />
-    <Compile Include="GameClasses\WearNTear.cs" />
-    <Compile Include="GameClasses\EnvMan.cs" />
-    <Compile Include="GameClasses\Ward.cs" />
-    <Compile Include="GameClasses\InventoryGUI.cs" />
-    <Compile Include="GameClasses\CraftingStation.cs" />
-    <Compile Include="Utility\Helper.cs" />
-    <Compile Include="Utility\ZNetExtensions.cs" />
-    <Compile Include="VPlusDataObjects.cs" />
-    <Compile Include="GameClasses\Terminal.cs" />
-  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Assets\logo.png" />
-    <Content Include="ILRepack.targets" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
     <EmbeddedResource Include="Assets\Bundles\map-pin-ui" />
     <EmbeddedResource Include="Assets\Bundles\settings-ui" />
-    <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
+
+  <!-- Copy to game folder after build -->
+  <Target Name="CopyToGame" AfterTargets="Build" Condition="'$(VALHEIM_INSTALL)' != ''">
     <PropertyGroup>
-      <Dest>$(VALHEIM_INSTALL)/BepInEx/plugins</Dest>
+      <Dest>$(VALHEIM_INSTALL)\BepInEx\plugins</Dest>
     </PropertyGroup>
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Dest)" />
-    <Copy SourceFiles="$(TargetDir)ValheimPlus.pdb" DestinationFolder="$(Dest)" />
-    <Copy SourceFiles="$(TargetDir)ValheimPlus.dll.config" DestinationFolder="$(Dest)" />
-    <!-- Even with an updated version of pdb2mdb that runs under the Mono runtime, 
-    Mono 5 uses Roslyn compiler which produces portable PDBs only, these don't work with pdb2mdb.
-    There doesn't seem to be a way to generate MDBs on Linux or OSX,
-    so don't attempt to generate MDBs if build platform is not Windows. -->
-    <Exec Condition="$([MSBuild]::IsOSPlatform('Windows'))" Command="&quot;$(SolutionDir)resources\tools\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />
-    <Copy Condition="$([MSBuild]::IsOSPlatform('Windows'))" SourceFiles="$(TargetDir)ValheimPlus.dll.mdb" DestinationFolder="$(Dest)" />
+    <Copy SourceFiles="$(TargetDir)ValheimPlus.pdb" DestinationFolder="$(Dest)" Condition="Exists('$(TargetDir)ValheimPlus.pdb')" />
   </Target>
-  <Import Project="..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets" Condition="Exists('..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ILRepack.Lib.MSBuild.Task.2.0.33\build\ILRepack.Lib.MSBuild.Task.targets'))" />
-  </Target>
+
 </Project>

@@ -49,11 +49,13 @@ namespace ValheimPlus.GameClasses
 
     /// <summary>
     /// Save out user preference for audio mute toggle
+    /// NOTE: Settings.SaveTabSettings was removed in Valheim 0.221.10
+    /// Using OnDestroy as alternative to save the setting when settings window closes
     /// </summary>
-    [HarmonyPatch(typeof(Settings), nameof(Settings.SaveTabSettings))]
-    public static class Settings_SaveSettings_Patch
+    [HarmonyPatch(typeof(Settings), nameof(Settings.OnDestroy))]
+    public static class Settings_OnDestroy_Patch
     {
-        private static void Postfix()
+        private static void Prefix()
         {
             if (MuteGameInBackground.muteAudioToggle != null)
                 PlayerPrefs.SetInt("MuteGameInBackground", MuteGameInBackground.muteAudioToggle.isOn ? 1 : 0);

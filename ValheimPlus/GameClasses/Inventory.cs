@@ -198,7 +198,9 @@ namespace ValheimPlus.GameClasses
                 Mathf.Clamp(config.autoStackAllRange, 1, 50),
                 !config.autoStackAllIgnorePrivateAreaCheck);
 
-            QueueStackAll(nearbyChests, fromInventory, __instance);
+            // Fire-and-forget is intentional: this async operation runs in background
+            // and communicates completion via IsProcessing flag
+            _ = QueueStackAll(nearbyChests, fromInventory, __instance);
         }
 
         private static readonly MethodInfo Method_Inventory_ContainsItemByName =
