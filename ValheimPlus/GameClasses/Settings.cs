@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,21 +39,23 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Settings), nameof(Settings.Awake))]
     public static class Settings_LoadSettings_Patch
     {
+        [UsedImplicitly]
         private static void Postfix()
         {
            if (MuteGameInBackground.muteAudioToggle == null && !MuteGameInBackground.CreateToggle())
                 return;
 
-           MuteGameInBackground.muteAudioToggle.isOn = (PlayerPrefs.GetInt("MuteGameInBackground", 0) == 1); ;
+           MuteGameInBackground.muteAudioToggle.isOn = (PlayerPrefs.GetInt("MuteGameInBackground", 0) == 1);
         }
     }
 
     /// <summary>
     /// Save out user preference for audio mute toggle
     /// </summary>
-    [HarmonyPatch(typeof(Settings), nameof(Settings.SaveTabSettings))]
-    public static class Settings_SaveSettings_Patch
+    [HarmonyPatch(typeof(Settings), nameof(Settings.OnOk))]
+    public static class Settings_OnOk_Patch
     {
+        [UsedImplicitly]
         private static void Postfix()
         {
             if (MuteGameInBackground.muteAudioToggle != null)
