@@ -47,13 +47,13 @@ The title screen and logs will *mostly* verify that the mod is working before yo
 ### Current Version Information
 
 In the current mod release, you should have the following versions:
-* Valheim version `0.220.3 (n-33)`
-* BepInEx version `5.4.22.0`
+* Valheim version `0.221.10 (n-36)`
+* BepInEx version `5.4.23.3`
   * `BepInExPack_Valheim` version `5.4.2333`
     * This can be verified via logs only.
     * All the GitHub releases come with this version bundled.
     * Thunderstore supports having this dependency and installing it for you via a mod manager.
-* ValheimPlus version `0.9.16.2`
+* ValheimPlus version `0.9.17.0`
   * `(Grantapher)` will be appended to the title screen (not the log) to signify that it is not the official mod.
 
 For more info on compatibility of various V+ and Valheim versions, check out [COMPATIBILITY.md](COMPATIBILITY.md).
