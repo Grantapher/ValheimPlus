@@ -85,30 +85,42 @@ namespace ValheimPlus.GameClasses
         [UsedImplicitly]
         private static void Prefix(ref Inventory __instance, ref Inventory fromInventory)
         {
+            ValheimPlusPlugin.Logger.LogInfo($"[DEBUG] MoveAll Prefix: __instance={__instance.m_name} size={__instance.m_width}x{__instance.m_height} items={__instance.CountItems(null)}, fromInventory={fromInventory.m_name} size={fromInventory.m_width}x{fromInventory.m_height} items={fromInventory.CountItems(null)}");
+            
             var config = Configuration.Current.Inventory;
             if (!config.IsEnabled || !config.mergeWithExistingStacks) return;
 
             var otherInventoryItems = new List<ItemDrop.ItemData>(fromInventory.GetAllItems());
+            // Create a safe copy of destination inventory to avoid iteration issues
+            var destinationItems = new List<ItemDrop.ItemData>(__instance.m_inventory);
+            
             foreach (var otherItem in otherInventoryItems)
             {
                 if (otherItem.m_shared.m_maxStackSize <= 1) continue;
 
-                foreach (var myItem in __instance.m_inventory)
+                foreach (var myItem in destinationItems)
                 {
                     if (myItem.m_shared.m_name != otherItem.m_shared.m_name || myItem.m_quality != otherItem.m_quality)
                         continue;
 
                     int itemsToMove = Math.Min(myItem.m_shared.m_maxStackSize - myItem.m_stack, otherItem.m_stack);
                     myItem.m_stack += itemsToMove;
-                    if (otherItem.m_stack == itemsToMove)
+                    otherItem.m_stack -= itemsToMove;
+                    
+                    // If otherItem is completely moved, remove it from the source inventory
+                    if (otherItem.m_stack <= 0)
                     {
                         fromInventory.RemoveItem(otherItem);
-                        break;
                     }
-
-                    otherItem.m_stack -= itemsToMove;
+                    break;
                 }
             }
+        }
+
+        [UsedImplicitly]
+        private static void Postfix(ref Inventory __instance, ref Inventory fromInventory)
+        {
+            ValheimPlusPlugin.Logger.LogInfo($"[DEBUG] MoveAll Postfix: __instance={__instance.m_name} size={__instance.m_width}x{__instance.m_height} items={__instance.CountItems(null)}, fromInventory={fromInventory.m_name} items={fromInventory.CountItems(null)}");
         }
     }
 
@@ -134,6 +146,7 @@ namespace ValheimPlus.GameClasses
 
         private static async Task QueueStackAll(List<Container> chests, Inventory fromInventory, Inventory instance)
         {
+            ValheimPlusPlugin.Logger.LogInfo($"[DEBUG] QueueStackAll START: fromInventory={fromInventory.m_name} items={fromInventory.CountItems(null)} instance={instance.m_name} chests={chests.Count}");
             IsProcessing = true;
             var containerCount = 0;
             foreach (var container in chests)
@@ -174,6 +187,8 @@ namespace ValheimPlus.GameClasses
             var config = Configuration.Current.AutoStack;
             if (!config.IsEnabled) return;
 
+            ValheimPlusPlugin.Logger.LogInfo($"[DEBUG] StackAll Prefix: fromInventory={fromInventory.m_name} size={fromInventory.m_width}x{fromInventory.m_height} items={fromInventory.CountItems(null)} IsProcessing={IsProcessing}");
+
             if (!IsProcessing)
             {
                 ShouldMessage = message;
@@ -191,6 +206,7 @@ namespace ValheimPlus.GameClasses
         private static void Postfix(Inventory fromInventory, Inventory __instance, ref int __result)
         {
             var config = Configuration.Current.AutoStack;
+            ValheimPlusPlugin.Logger.LogInfo($"[DEBUG] StackAll Postfix: fromInventory={fromInventory.m_name} items={fromInventory.CountItems(null)} __instance={__instance.m_name} __result={__result} IsProcessing={IsProcessing}");
             if (!config.IsEnabled || IsProcessing) return;
 
             // get chests in range
