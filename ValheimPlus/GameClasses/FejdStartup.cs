@@ -30,13 +30,6 @@ namespace ValheimPlus.GameClasses
     {
         private static void Postfix(ref FejdStartup __instance)
         {
-            // logo
-            if (Configuration.Current.ValheimPlus.IsEnabled && Configuration.Current.ValheimPlus.mainMenuLogo)
-            {
-                GameObject logo = GameObject.Find("LOGO");
-                logo.GetComponent<Image>().sprite = VPlusMainMenu.VPlusLogoSprite;
-            }
-
             __instance.m_moddedText.transform.localPosition += new Vector3(0, 50);
 
             // version text for bottom right of startup

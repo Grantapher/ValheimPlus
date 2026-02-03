@@ -128,12 +128,6 @@ namespace ValheimPlus
                 // Create VPlus dir if it does not exist.
                 if (!Directory.Exists(VPlusDataDirectoryPath)) Directory.CreateDirectory(VPlusDataDirectoryPath);
 
-                // Logo
-                // if (Configuration.Current.ValheimPlus.IsEnabled && Configuration.Current.ValheimPlus.mainMenuLogo)
-                // No need to exclude with IF, this only loads the images,
-                // causes issues if this config setting is changed
-                VPlusMainMenu.Load();
-
                 VPlusSettings.Load();
 
                 //Map Sync Save Timer

@@ -42,7 +42,6 @@
     <Reference Include="netstandard, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL" >
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\netstandard.dll</HintPath>
     </Reference>
-    
     <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.10.0\lib\net45\0Harmony.dll</HintPath>
     </Reference>
@@ -270,7 +269,6 @@
     <Compile Include="RPC\VPlusMapSync.cs" />
     <Compile Include="GameClasses\Minimap.cs" />
     <Compile Include="GameClasses\Smelter.cs" />
-    <Compile Include="UI\VPlusMainMenu.cs" />
     <Compile Include="Utility\EmbeddedAsset.cs" />
     <Compile Include="GameClasses\Version.cs" />
     <Compile Include="GameClasses\Vagon.cs" />

@@ -1,21 +1,16 @@
 using System;
-using UnityEngine;
-using System.Linq;
-using System.Text;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using System.Reflection.Emit;
-using HarmonyLib;
+using System.Security.Cryptography;
+using System.Text;
+using UnityEngine;
+using Random = System.Random;
 
 namespace ValheimPlus
 {
     static class Helper
     {
-		public static Character getPlayerCharacter(Player __instance)
-		{
-			return (Character)__instance;
-		}
+        public static Character getPlayerCharacter(Player __instance) => __instance;
 
         /// <summary>
         /// A function to get the current player by network sender id, even in singleplayer
@@ -27,13 +22,14 @@ namespace ValheimPlus
             List<Player> allPlayers = Player.GetAllPlayers();
             foreach (Player player in allPlayers)
             {
-                ZDOID zdoInfo = Helper.getPlayerCharacter(player).GetZDOID();
+                ZDOID zdoInfo = getPlayerCharacter(player).GetZDOID();
                 if (zdoInfo != new ZDOID(0L, 0U))
                 {
                     if (zdoInfo.UserID == id)
                         return player;
                 }
             }
+
             return null;
         }
 
@@ -58,7 +54,7 @@ namespace ValheimPlus
         // ReSharper disable once InconsistentNaming
         public static void applyModifierValueTo(ref float targetValue, float modifier)
         {
-             targetValue = modifier <= -100f ? 0f : targetValue + (targetValue / 100.0f * modifier);
+            targetValue = modifier <= -100f ? 0f : targetValue + (targetValue / 100.0f * modifier);
         }
 
         /// <summary>
@@ -68,40 +64,23 @@ namespace ValheimPlus
         /// <param name="targetValue">Value to be modified</param>
         /// <param name="value">Modification coefficient in percentage</param>
         /// <returns>New value with chance mechanics</returns>
-        public static int applyModifierValueWithChance(float targetValue, float value) {
+        public static int applyModifierValueWithChance(float targetValue, float value)
+        {
             float realValue = applyModifierValue(targetValue, value);
             if (realValue == 0f)
                 return 0;
             int guaranteedValue = (int)Math.Floor(realValue);
 
             // 1 - [0; 1) => (0; 1] -- to prevent additional drop on (realValue - guaranteedValue) being zero
-            return guaranteedValue + ((realValue - guaranteedValue) > (1 - new System.Random().NextDouble()) ? 1 : 0);
-        }
-
-        public static Texture2D LoadPng(Stream fileStream)
-        {
-            Texture2D texture = null;
-
-            if (fileStream != null)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    fileStream.CopyTo(memoryStream);
-
-                    texture = new Texture2D(2, 2);
-                    texture.LoadImage(memoryStream.ToArray()); //This will auto-resize the texture dimensions.
-                }
-            }
-
-            return texture;
+            return guaranteedValue + ((realValue - guaranteedValue) > (1 - new Random().NextDouble()) ? 1 : 0);
         }
 
         public static string CreateMD5(string input)
         {
             // Use input string to calculate MD5 hash
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            using (MD5 md5 = MD5.Create())
             {
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] inputBytes = Encoding.ASCII.GetBytes(input);
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
 
                 // Convert the byte array to hexadecimal string
@@ -114,7 +93,6 @@ namespace ValheimPlus
                 return sb.ToString();
             }
         }
-
         
         /// <summary>
         /// Resize child EffectArea's collision that matches the specified type(s).
