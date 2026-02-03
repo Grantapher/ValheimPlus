@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using BepInEx;
 using BepInEx.Logging;
@@ -154,13 +153,9 @@ namespace ValheimPlus
 
         private static bool IsNewVersionAvailable()
         {
-            var client = new WebClient();
-
-            client.Headers.Add("User-Agent: V+ Server");
-
             try
             {
-                var reply = client.DownloadString(ApiRepository);
+                var reply = Http.HttpHelper.DownloadString(ApiRepository);
                 // newest version is the "latest" release in github
                 newestVersion = new Regex("\"tag_name\":\"([^\"]*)?\"").Match(reply).Groups[1].Value;
             }

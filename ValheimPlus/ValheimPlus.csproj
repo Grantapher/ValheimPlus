@@ -84,6 +84,7 @@
 
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
@@ -270,6 +271,7 @@
     <Compile Include="GameClasses\Minimap.cs" />
     <Compile Include="GameClasses\Smelter.cs" />
     <Compile Include="Utility\EmbeddedAsset.cs" />
+    <Compile Include="Utility\HttpHelper.cs" />
     <Compile Include="GameClasses\Version.cs" />
     <Compile Include="GameClasses\Vagon.cs" />
     <Compile Include="GameClasses\WearNTear.cs" />
@@ -290,6 +292,10 @@
     <None Include="app.config" />
     <EmbeddedResource Include="Assets\Bundles\map-pin-ui" />
     <EmbeddedResource Include="Assets\Bundles\settings-ui" />
+    <!-- Embed default config fallback -->
+    <EmbeddedResource Include="..\valheim_plus.cfg">
+      <Link>Assets\defaults\valheim_plus.cfg</Link>
+    </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
