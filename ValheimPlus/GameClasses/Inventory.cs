@@ -89,24 +89,28 @@ namespace ValheimPlus.GameClasses
             if (!config.IsEnabled || !config.mergeWithExistingStacks) return;
 
             var otherInventoryItems = new List<ItemDrop.ItemData>(fromInventory.GetAllItems());
+            // Create a safe copy of destination inventory to avoid iteration issues
+            var destinationItems = new List<ItemDrop.ItemData>(__instance.m_inventory);
+
             foreach (var otherItem in otherInventoryItems)
             {
                 if (otherItem.m_shared.m_maxStackSize <= 1) continue;
 
-                foreach (var myItem in __instance.m_inventory)
+                foreach (var myItem in destinationItems)
                 {
                     if (myItem.m_shared.m_name != otherItem.m_shared.m_name || myItem.m_quality != otherItem.m_quality)
                         continue;
 
                     int itemsToMove = Math.Min(myItem.m_shared.m_maxStackSize - myItem.m_stack, otherItem.m_stack);
                     myItem.m_stack += itemsToMove;
-                    if (otherItem.m_stack == itemsToMove)
+                    otherItem.m_stack -= itemsToMove;
+
+                    // If otherItem is completely moved, remove it from the source inventory
+                    if (otherItem.m_stack <= 0)
                     {
                         fromInventory.RemoveItem(otherItem);
-                        break;
                     }
-
-                    otherItem.m_stack -= itemsToMove;
+                    break;
                 }
             }
         }
