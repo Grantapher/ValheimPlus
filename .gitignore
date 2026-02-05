@@ -403,3 +403,7 @@ out/
 *.csproj.DotSettings
 
 .data
+
+# Other
+.claude
+valheim/
