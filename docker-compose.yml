@@ -1,20 +1,18 @@
-# Use root/example as user/password credentials
-version: "3.1"
-
 services:
   valheim:
-    image: lloesche/valheim-server
-    environment:
-      VALHEIM_PLUS: true
-      SERVER_PUBLIC: false
-      SERVER_PASS: aaaaa
-      SERVER_NAME: V+ Test Server
-    volumes:
-      - ./.data/valheim-server/config:/config
-      - ./.data/valheim-server/data:/opt/valheim
-      - ./ValheimPlus/bin/Debug/ValheimPlus.dll:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll
-      - ./ValheimPlus/bin/Debug/ValheimPlus.pdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.pdb
-      - ./ValheimPlus/bin/Debug/ValheimPlus.dll.mdb:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.mdb
-      - ./ValheimPlus/bin/Debug/ValheimPlus.dll.config:/opt/valheim/plus/BepInEx/plugins/ValheimPlus.dll.config
+    image: mbround18/valheim:3
+    stop_signal: SIGINT
     ports:
       - 2456-2457:2456-2457/udp
+    environment:
+      PORT: 2456
+      NAME: "Created With Valheim Docker"
+      WORLD: "Dedicated"
+      PASSWORD: "password"
+      TZ: "America/Chicago"
+      PUBLIC: 1s
+      TYPE: BepInEx
+      MODS: "JereKuusela-Server_devcommands-*"
+    volumes:
+      - ./valheim/saves:/home/steam/.config/unity3d/IronGate/Valheim
+      - ./valheim/server:/home/steam/valheim
