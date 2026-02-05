@@ -59,7 +59,7 @@ namespace ValheimPlus.GameClasses
             if (!Configuration.Current.Inventory.IsEnabled) return;
 
             // Player inventory
-            if (name is "Grave" or "Inventory")
+            if (name is "Grave" or "Inventory" or "$piece_tombstone_container")
             {
                 h = Helper.Clamp(value: Configuration.Current.Inventory.playerInventoryRows,
                     min: PlayerInventoryMinRows,
