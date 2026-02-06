@@ -53,7 +53,7 @@ In the current mod release, you should have the following versions:
     * This can be verified via logs only.
     * All the GitHub releases come with this version bundled.
     * Thunderstore supports having this dependency and installing it for you via a mod manager.
-* ValheimPlus version `0.9.17.0`
+* ValheimPlus version `0.9.17.1`
   * `(Grantapher)` will be appended to the title screen (not the log) to signify that it is not the official mod.
 
 For more info on compatibility of various V+ and Valheim versions, check out [COMPATIBILITY.md](COMPATIBILITY.md).
