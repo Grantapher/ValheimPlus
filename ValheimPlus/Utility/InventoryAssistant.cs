@@ -35,6 +35,14 @@ namespace ValheimPlus
 
                     if (!foundContainer)
                         continue;
+                    
+                    // Verify the container has loaded its inventory from the ZDO at least once.
+                    // Without this, we could perform operations on a container that has not yet loaded its inventory,
+                    // which could result in overwriting the container's saved contents with an empty inventory.
+                    // Value starts at uint.MaxValue, the first revision is set to 0 and monotonically increases by 1.
+                    if (foundContainer.m_lastRevision == uint.MaxValue)
+                        continue;
+                    
                     if (validContainers.Contains(foundContainer))
                         continue;
 

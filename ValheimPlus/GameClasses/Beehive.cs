@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using JetBrains.Annotations;
 using UnityEngine;
 using ValheimPlus.Configurations;
 
@@ -23,6 +24,54 @@ namespace ValheimPlus.GameClasses
             }
 
             return true;
+        }
+    }
+
+    /// <summary>
+    /// Adjusts the InvokeRepeating("UpdateBees") timing:
+    /// - Delays the first call by 1 second to allow containers to load their inventory from ZDO.
+    ///   This prevents a race condition where auto-deposit could overwrite a container's saved contents
+    ///   by mistaking a freshly init-ed inventory for an empty one.
+    /// - Adjusts the repeat interval to match honey production speed so auto-deposit triggers promptly.
+    /// </summary>
+    [HarmonyPatch(typeof(Beehive), nameof(Beehive.Awake))]
+    public static class Beehive_Awake_Transpiler
+    {
+        [UsedImplicitly]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            var config = Configuration.Current.Beehive;
+            if (!config.IsEnabled || !config.autoDeposit)
+                return instructions;
+
+            var il = instructions.ToList();
+            float timeToFill = config.honeyProductionSpeed * config.maximumHoneyPerBeehive;
+            float repeatInterval = Mathf.Clamp(timeToFill, 3f, 10f);
+            var invokeRepeatingMethod = AccessTools.Method(typeof(MonoBehaviour), nameof(MonoBehaviour.InvokeRepeating));
+
+            try
+            {
+                return new CodeMatcher(il, generator)
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldstr, "UpdateBees"),
+                        new CodeMatch(OpCodes.Ldc_R4),
+                        new CodeMatch(OpCodes.Ldc_R4),
+                        new CodeMatch(OpCodes.Call, invokeRepeatingMethod)
+                    )
+                    .ThrowIfNotMatch("No match for InvokeRepeating(\"UpdateBees\", float, float).")
+                    .Advance(1)
+                    .SetOperandAndAdvance(1f)
+                    .SetOperandAndAdvance(repeatInterval)
+                    .InstructionEnumeration();
+            }
+            catch (System.Exception e)
+            {
+                ValheimPlusPlugin.Logger.LogError(
+                    "Failed to apply `Beehive_Awake_Transpiler`." +
+                    $" This may cause the beehive auto-deposit timing fix to not function correctly. Exception is:\n{e}");
+                return il;
+            }
         }
     }
 
