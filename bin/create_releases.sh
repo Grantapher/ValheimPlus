@@ -103,9 +103,9 @@ cp "$OUTPUT_DIR/WindowsServer.tar.gz" "$OUTPUT_DIR/WindowsClient.tar.gz"
 
 # Vortex zip
 VORTEX="$TEMP_DIR/Vortex/"
-VORTEX_PLUGINS="$VORTEX/plugins"
-mkdir -p "$VORTEX_PLUGINS"
-cp "$VALHEIM_PLUS_DLL" "$VORTEX_PLUGINS"
+VORTEX_MOD_DIR="$VORTEX/plugins/ValheimPlus"
+mkdir -p "$VORTEX_MOD_DIR"
+cp "$VALHEIM_PLUS_DLL" "$VORTEX_MOD_DIR"
 (cd "$VORTEX" && zip -qr "$OUTPUT_DIR/Vortex.zip" .)
 
 # Thunderstore zip
