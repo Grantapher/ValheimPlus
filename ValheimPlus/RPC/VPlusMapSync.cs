@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace ValheimPlus.RPC
 {
     public class VPlusMapSync
     {
-        public static bool[] ServerMapData;
+        public static BitArray ServerMapData;
 
         public static bool ShouldSyncOnSpawn = true;
 
@@ -111,7 +112,6 @@ namespace ValheimPlus.RPC
 
         public static void SendMapToServer()
         {
-
             //Convert exploration data to ranges
             List<MapRange> exploredAreas = ExplorationDataToMapRanges(Minimap.instance.m_explored);
 
@@ -215,7 +215,7 @@ namespace ValheimPlus.RPC
             }
         }
 
-        private static List<MapRange> ExplorationDataToMapRanges(bool[] explorationData)
+        private static List<MapRange> ExplorationDataToMapRanges(BitArray explorationData)
         {
             //Iterate the explored map and convert to ranges
             List<MapRange> exploredAreas = new List<MapRange>();

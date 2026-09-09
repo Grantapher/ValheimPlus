@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -69,7 +70,7 @@ namespace ValheimPlus.GameClasses
             if (ZNet.m_isServer && Configuration.Current.Map.IsEnabled && Configuration.Current.Map.shareMapProgression)
             {
                 //Init map array
-                VPlusMapSync.ServerMapData = new bool[Minimap.instance.m_textureSize * Minimap.instance.m_textureSize];
+                VPlusMapSync.ServerMapData = new BitArray(Minimap.instance.m_textureSize * Minimap.instance.m_textureSize);
 
                 //Load map data from disk
                 VPlusMapSync.LoadMapDataFromDisk();
