@@ -901,11 +901,13 @@ namespace ValheimPlus.GameClasses
         typeof(int))]
     public static class Player_HaveRequirementItems_Transpiler
     {
-        private static readonly MethodInfo Method_Inventory_CountItems =
-            AccessTools.Method(typeof(Inventory), nameof(Inventory.CountItems));
+        private static readonly MethodInfo Method_CountItemsFromInventoryAndNearbyChests_Int =
+            AccessTools.Method(typeof(Player_HaveRequirementItems_Transpiler),
+                nameof(CountItemsFromInventoryAndNearbyChests_Int));
 
-        private static readonly MethodInfo Method_ComputeItemQuantity =
-            AccessTools.Method(typeof(Player_HaveRequirementItems_Transpiler), nameof(ComputeItemQuantity));
+        private static readonly MethodInfo Method_CountItemsFromInventoryAndNearbyChests_IntBool =
+            AccessTools.Method(typeof(Player_HaveRequirementItems_Transpiler),
+                nameof(CountItemsFromInventoryAndNearbyChests_IntBool));
 
         /// <summary>
         /// Patches out the code that checks if there is enough material to craft a specific object.
@@ -919,30 +921,71 @@ namespace ValheimPlus.GameClasses
 
             List<CodeInstruction> il = instructions.ToList();
 
+            int replaceCount = 0;
             for (int i = 0; i < il.Count; ++i)
             {
-                // replace 
-                // `int num3 = this.m_inventory.CountItems(item.m_resItem.m_itemData.m_shared.m_name, quality);`
-                // with
-                // ```
-                // int num3 = ComputeItemQuantity(
-                //     this.m_inventory.CountItems(item.m_resItem.m_itemData.m_shared.m_name, quality),
-                //     item, quality, this);
-                // ```
-                if (il[i].Calls(Method_Inventory_CountItems))
+                var calledMethod = il[i].operand as MethodInfo;
+                if (calledMethod == null || calledMethod.Name != nameof(Inventory.CountItems) ||
+                    !typeof(Inventory).IsAssignableFrom(calledMethod.DeclaringType))
                 {
-                    il.Insert(++i, new CodeInstruction(OpCodes.Ldloc_2));
-                    il.Insert(++i, new CodeInstruction(OpCodes.Ldloc_S, 5));
-                    il.Insert(++i, new CodeInstruction(OpCodes.Ldarg_0));
-                    il.Insert(++i, new CodeInstruction(OpCodes.Call, Method_ComputeItemQuantity));
+                    continue;
                 }
+
+                var parameters = calledMethod.GetParameters();
+                if (parameters.Length == 2 &&
+                    parameters[0].ParameterType == typeof(string) &&
+                    parameters[1].ParameterType == typeof(int))
+                {
+                    // Replace Inventory.CountItems(name, quality) with
+                    // CountItemsFromInventoryAndNearbyChests_Int(inventory, name, quality, this).
+                    il.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+                    ++i;
+                    il[i].opcode = OpCodes.Call;
+                    il[i].operand = Method_CountItemsFromInventoryAndNearbyChests_Int;
+                    ++replaceCount;
+                }
+                else if (parameters.Length == 3 &&
+                         parameters[0].ParameterType == typeof(string) &&
+                         parameters[1].ParameterType == typeof(int) &&
+                         parameters[2].ParameterType == typeof(bool))
+                {
+                    // Replace Inventory.CountItems(name, quality, worldLevelBased) with
+                    // CountItemsFromInventoryAndNearbyChests_IntBool(inventory, name, quality, worldLevelBased, this).
+                    il.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+                    ++i;
+                    il[i].opcode = OpCodes.Call;
+                    il[i].operand = Method_CountItemsFromInventoryAndNearbyChests_IntBool;
+                    ++replaceCount;
+                }
+            }
+
+            if (replaceCount == 0)
+            {
+                PatchLog.Failed(
+                    nameof(Player_HaveRequirementItems_Transpiler),
+                    "Crafting will not account for resources in nearby chests.");
             }
 
             return il;
         }
 
-        private static int ComputeItemQuantity(int fromInventory, Piece.Requirement item, int quality, Player player)
+        private static int CountItemsFromInventoryAndNearbyChests_Int(
+            Inventory inventory, string itemName, int quality, Player player)
         {
+            return CountItemsFromInventoryAndNearbyChests_Core(inventory, itemName, quality, true, player);
+        }
+
+        private static int CountItemsFromInventoryAndNearbyChests_IntBool(
+            Inventory inventory, string itemName, int quality, bool worldLevelBased, Player player)
+        {
+            return CountItemsFromInventoryAndNearbyChests_Core(inventory, itemName, quality, worldLevelBased, player);
+        }
+
+        private static int CountItemsFromInventoryAndNearbyChests_Core(
+            Inventory inventory, string itemName, int quality, bool worldLevelBased, Player player)
+        {
+            int fromInventory = InventoryAssistant.GetItemAmountInItemList(inventory.GetAllItems(), itemName, quality, worldLevelBased);
+
             Stopwatch delta;
             var gameObject = player.GetCurrentCraftingStation()?.gameObject;
             if (!gameObject || !Configuration.Current.CraftFromChest.checkFromWorkbench)
@@ -964,8 +1007,9 @@ namespace ValheimPlus.GameClasses
 
             return fromInventory + InventoryAssistant.GetItemAmountInItemList(
                 InventoryAssistant.GetNearbyChestItemsByContainerList(Inventory_NearbyChests_Cache.chests),
-                item.m_resItem.m_itemData,
-                quality);
+                itemName,
+                quality,
+                worldLevelBased);
         }
     }
 
@@ -1027,13 +1071,13 @@ namespace ValheimPlus.GameClasses
         typeof(int), typeof(int))]
     public static class Player_ConsumeResources_Transpiler
     {
-        private static readonly MethodInfo Method_Inventory_RemoveItem =
-            AccessTools.Method(typeof(Inventory), nameof(Inventory.RemoveItem),
-                new[] { typeof(string), typeof(int), typeof(int), typeof(bool) });
-
-        private static readonly MethodInfo Method_RemoveItemsFromInventoryAndNearbyChests =
+        private static readonly MethodInfo Method_RemoveItemsFromInventoryAndNearbyChests_IntBool =
             AccessTools.Method(typeof(Player_ConsumeResources_Transpiler),
-                nameof(RemoveItemsFromInventoryAndNearbyChests));
+                nameof(RemoveItemsFromInventoryAndNearbyChests_IntBool));
+
+        private static readonly MethodInfo Method_RemoveItemsFromInventoryAndNearbyChests_Int =
+            AccessTools.Method(typeof(Player_ConsumeResources_Transpiler),
+                nameof(RemoveItemsFromInventoryAndNearbyChests_Int));
 
         /// <summary>
         /// Patches out the code that consumes the material required to craft something.
@@ -1047,65 +1091,104 @@ namespace ValheimPlus.GameClasses
 
             var il = instructions.ToList();
 
-            int thisIdx = -1;
-            int callIdx = -1;
-
+            int replaceCount = 0;
             for (int i = 0; i < il.Count; ++i)
             {
-                if (il[i].opcode == OpCodes.Ldarg_0)
+                var calledMethod = il[i].operand as MethodInfo;
+                if (calledMethod == null || calledMethod.Name != nameof(Inventory.RemoveItem) ||
+                    !typeof(Inventory).IsAssignableFrom(calledMethod.DeclaringType))
+                    continue;
+
+                var parameters = calledMethod.GetParameters();
+
+                if (parameters.Length == 4 &&
+                    parameters[0].ParameterType == typeof(string) &&
+                    parameters[1].ParameterType == typeof(int) &&
+                    parameters[2].ParameterType == typeof(int) &&
+                    parameters[3].ParameterType == typeof(bool))
                 {
-                    thisIdx = i;
+                    // Replace Inventory.RemoveItem(name, amount, quality, worldLevelBased) with
+                    // RemoveItemsFromInventoryAndNearbyChests_IntBool(inventory, name, amount, quality, worldLevelBased, this).
+                    il.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+                    ++i;
+                    il[i].opcode = OpCodes.Call;
+                    il[i].operand = Method_RemoveItemsFromInventoryAndNearbyChests_IntBool;
+                    ++replaceCount;
                 }
-                else if (il[i].Calls(Method_Inventory_RemoveItem))
+                else if (parameters.Length == 3 &&
+                         parameters[0].ParameterType == typeof(string) &&
+                         parameters[1].ParameterType == typeof(int) &&
+                         parameters[2].ParameterType == typeof(int))
                 {
-                    callIdx = i;
-                    break;
+                    // Replace Inventory.RemoveItem(name, amount, quality) with
+                    // RemoveItemsFromInventoryAndNearbyChests_Int(inventory, name, amount, quality, this).
+                    il.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+                    ++i;
+                    il[i].opcode = OpCodes.Call;
+                    il[i].operand = Method_RemoveItemsFromInventoryAndNearbyChests_Int;
+                    ++replaceCount;
                 }
             }
 
-            if (thisIdx == -1 || callIdx == -1)
+            if (replaceCount == 0)
             {
                 PatchLog.Failed(
                     nameof(Player_ConsumeResources_Transpiler),
                     "Crafting will not take resources from nearby chests.");
             }
-            else
-            {
-                // Replaces 
-                // ```
-                // this.m_inventory.RemoveItem(requirement.m_resItem.m_itemData.m_shared.m_name, amount, itemQuality);
-                // ```
-                // with
-                // ```
-                // RemoveItemsFromInventoryAndNearbyChests(this, requirement, amount, itemQuality)
-                // ```
-                il.RemoveRange(thisIdx + 1, callIdx - thisIdx);
-
-                il.Insert(++thisIdx, new CodeInstruction(OpCodes.Ldloc_2));
-                il.Insert(++thisIdx, new CodeInstruction(OpCodes.Ldloc_3));
-                il.Insert(++thisIdx, new CodeInstruction(OpCodes.Ldarg_3));
-                il.Insert(++thisIdx, new CodeInstruction(OpCodes.Call, Method_RemoveItemsFromInventoryAndNearbyChests));
-            }
 
             return il;
         }
 
-        private static void RemoveItemsFromInventoryAndNearbyChests(
-            Player player, Piece.Requirement item, int amount, int itemQuality)
+        private static void RemoveItemsFromInventoryAndNearbyChests_IntBool(
+            Inventory inventory, string itemName, int amount, int itemQuality, bool worldLevelBased, Player player)
+        {
+            RemoveItemsFromInventoryAndNearbyChests_Core(inventory, itemName, amount, itemQuality, worldLevelBased,
+                player);
+        }
+
+        private static void RemoveItemsFromInventoryAndNearbyChests_Int(
+            Inventory inventory, string itemName, int amount, int itemQuality, Player player)
+        {
+            RemoveItemsFromInventoryAndNearbyChests_Core(inventory, itemName, amount, itemQuality, true, player);
+        }
+
+        private static void RemoveItemsFromInventoryAndNearbyChests_Core(
+            Inventory inventory, string itemName, int amount, int itemQuality, bool worldLevelBased, Player player)
         {
             var config = Configuration.Current.CraftFromChest;
             var gameObject = config.checkFromWorkbench
                 ? player.GetCurrentCraftingStation()?.gameObject ?? player.gameObject
                 : player.gameObject;
 
-            int inventoryAmount = player.m_inventory.CountItems(item.m_resItem.m_itemData.m_shared.m_name);
-            player.m_inventory.RemoveItem(item.m_resItem.m_itemData.m_shared.m_name, amount, itemQuality);
-            amount -= inventoryAmount;
+            int inventoryAmount = InventoryAssistant.GetItemAmountInItemList(inventory.GetAllItems(), itemName,
+                itemQuality, worldLevelBased);
+
+            int removedFromInventory = 0;
+            MethodInfo removeWithBool = inventory.GetType().GetMethod(nameof(Inventory.RemoveItem),
+                new[] { typeof(string), typeof(int), typeof(int), typeof(bool) });
+            if (removeWithBool != null)
+            {
+                removeWithBool.Invoke(inventory, new object[] { itemName, amount, itemQuality, worldLevelBased });
+                removedFromInventory = Math.Min(amount, inventoryAmount);
+            }
+            else
+            {
+                MethodInfo removeWithoutBool = inventory.GetType().GetMethod(nameof(Inventory.RemoveItem),
+                    new[] { typeof(string), typeof(int), typeof(int) });
+                if (removeWithoutBool != null)
+                {
+                    removeWithoutBool.Invoke(inventory, new object[] { itemName, amount, itemQuality });
+                    removedFromInventory = Math.Min(amount, inventoryAmount);
+                }
+            }
+
+            amount -= removedFromInventory;
             if (amount <= 0) return;
 
             InventoryAssistant.RemoveItemInAmountFromAllNearbyChests(gameObject,
                 Helper.Clamp(config.range, 1, 50),
-                item.m_resItem.m_itemData, amount,
+                itemName, amount,
                 !config.ignorePrivateAreaCheck);
         }
     }
