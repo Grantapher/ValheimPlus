@@ -44,7 +44,7 @@ namespace ValheimPlus.GameClasses
         }
     }
 
-    [HarmonyPatch(typeof(Attack), nameof(Attack.GetAttackEitr))]
+    [HarmonyPatch(typeof(Attack), nameof(Attack.GetAttackEitr), typeof(Character), typeof(ItemDrop.ItemData))]
     public static class Attack_GetAttackEitr_Patch
     {
         [UsedImplicitly]
