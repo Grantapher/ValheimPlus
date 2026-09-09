@@ -17,6 +17,7 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.Show))]
     public class InventoryGui_Show_Patch
     {
+        private const int maxVisibleRows = 9;
         private const float oneRowSize = 70.5f;
         private const float containerOriginalY = -90.0f;
         private const float containerHeight = -340.0f;
@@ -31,13 +32,9 @@ namespace ValheimPlus.GameClasses
                 GameObject playerGrid = InventoryGui.instance.m_playerGrid.gameObject;
 
                 // Player inventory background size, only enlarge it up to 6x8 rows, after that use the scroll bar
-                int playerInventoryBackgroundSize = Math.Min(6, Math.Max(4, Configuration.Current.Inventory.playerInventoryRows));
-                float containerNewY = containerOriginalY - oneRowSize * playerInventoryBackgroundSize;
+                int playerInventoryBackgroundSize = Math.Min(maxVisibleRows, Math.Max(4, Configuration.Current.Inventory.playerInventoryRows));
                 // Resize player inventory
                 player.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, playerInventoryBackgroundSize * oneRowSize);
-                // Move chest inventory based on new player invetory size
-                container.offsetMax = new Vector2(610, containerNewY);
-                container.offsetMin = new Vector2(40, containerNewY + containerHeight);
 
                 // Add player inventory scroll bar if it does not exist
                 if (!playerGrid.GetComponent<InventoryGrid>().m_scrollbar)
@@ -49,13 +46,17 @@ namespace ValheimPlus.GameClasses
                     playerGrid.GetComponent<RectTransform>().offsetMax = new Vector2(800f, playerGrid.GetComponent<RectTransform>().offsetMax.y);
                     playerGrid.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 1f);
                     playerScrollRect.content = playerGrid.GetComponent<InventoryGrid>().m_gridRoot;
-                    playerScrollRect.viewport = __instance.m_player.GetComponentInChildren<RectTransform>();
+                    playerScrollRect.viewport = __instance.m_player.GetComponentInChildren<RectTransform>(); // $cinematics_intro
                     playerScrollRect.verticalScrollbar = playerGridScroll.GetComponent<Scrollbar>();
+
                     playerGrid.GetComponent<InventoryGrid>().m_scrollbar = playerGridScroll.GetComponent<Scrollbar>();
+
+                    playerGrid.GetComponent<InventoryGrid>().m_scrollbar.transform.position = playerGrid.GetComponent<InventoryGrid>().m_scrollbar.transform.position + new Vector3(14, 25, 0);
+                    playerGrid.GetComponent<InventoryGrid>().m_scrollbar.transform.localScale = playerGrid.GetComponent<InventoryGrid>().m_scrollbar.transform.localScale + new Vector3(0, (playerInventoryBackgroundSize / 4f) - 1, 0);
 
                     playerScrollRect.horizontal = false;
                     playerScrollRect.movementType = ScrollRect.MovementType.Clamped;
-                    playerScrollRect.scrollSensitivity = oneRowSize;
+                    playerScrollRect.scrollSensitivity = 1400f;
                     playerScrollRect.inertia = false;
                     playerScrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
                     Scrollbar playerScrollbar = playerGridScroll.GetComponent<Scrollbar>();

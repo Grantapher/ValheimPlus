@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using JetBrains.Annotations;
+using System;
 using System.Threading.Tasks;
 using ValheimPlus.Configurations;
 
@@ -46,7 +47,7 @@ namespace ValheimPlus.GameClasses
         /// <summary>
         /// Configure inventory size for chests, boats, cart
         /// </summary>
-        static void Postfix(Container __instance, ref Inventory ___m_inventory)
+        public static void Postfix(Container __instance, ref Inventory ___m_inventory)
         {
 
             if (!Configuration.Current.Inventory.IsEnabled) return;
@@ -132,5 +133,18 @@ namespace ValheimPlus.GameClasses
         [UsedImplicitly]
         private static void Postfix(long uid, bool granted)
             => ResponseReceived.TrySetResult(granted);
+    }
+
+    [HarmonyPatch(typeof(Container), nameof(Container.UpdateRows))]
+    public static class Container_UpdateRows_Patch
+    {
+        /// <summary>
+        /// Reconfigure Configure inventory size for chests, boats, cart
+        /// </summary>
+        [UsedImplicitly]
+        private static void Postfix(Container __instance, ref Inventory ___m_inventory) {
+            Container_Awake_Patch.Postfix(__instance, ref ___m_inventory);
+            ___m_inventory.SetHeight(___m_inventory.m_height);
+        }
     }
 }

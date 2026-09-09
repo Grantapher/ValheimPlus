@@ -51,8 +51,8 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Inventory), MethodType.Constructor, typeof(string), typeof(Sprite), typeof(int), typeof(int))]
     public static class Inventory_Constructor_Patch
     {
-        private const int PlayerInventoryMaxRows = 20;
-        private const int PlayerInventoryMinRows = 4;
+        public static int PlayerInventoryMaxRows = 20;
+        public static int PlayerInventoryMinRows = 4;
 
         [UsedImplicitly]
         public static void Prefix(string name, ref int w, ref int h)
@@ -63,8 +63,30 @@ namespace ValheimPlus.GameClasses
             if (name is "Grave" or "Inventory" or "$piece_tombstone_container")
             {
                 h = Helper.Clamp(value: Configuration.Current.Inventory.playerInventoryRows,
-                    min: PlayerInventoryMinRows,
-                    max: PlayerInventoryMaxRows);
+                    min: Inventory_Constructor_Patch.PlayerInventoryMinRows,
+                    max: Inventory_Constructor_Patch.PlayerInventoryMaxRows);
+            }
+
+        }
+    }
+
+    /// <summary>
+    /// Makes all items fill inventories top to bottom instead of just tools and weapons
+    /// </summary>
+    [HarmonyPatch(typeof(Inventory), nameof(Inventory.SetHeight))]
+    public static class Inventory_SetHeight_Patch
+    {
+        [UsedImplicitly]
+        public static void Prefix(ref Inventory __instance, ref int height)
+        {
+            ValheimPlus.ValheimPlusPlugin.Logger.LogWarning($"Inventoy set height {height}");
+
+            // Player inventory
+            if (__instance.m_name is "Grave" or "Inventory" or "$piece_tombstone_container")
+            {
+                height = Helper.Clamp(value: Configuration.Current.Inventory.playerInventoryRows,
+                    min: Inventory_Constructor_Patch.PlayerInventoryMinRows,
+                    max: Inventory_Constructor_Patch.PlayerInventoryMaxRows);
             }
         }
     }
