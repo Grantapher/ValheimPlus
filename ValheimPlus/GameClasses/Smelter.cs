@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -111,7 +112,7 @@ namespace ValheimPlus.GameClasses
 
                 // Also replication of original code, really have no idead what it is for, didn't bother look
                 ZNetView.m_forceDisableInit = true;
-                GameObject spawnedOre = Object.Instantiate<GameObject>(itemPrefab);
+                GameObject spawnedOre = UnityEngine.Object.Instantiate<GameObject>(itemPrefab);
                 ZNetView.m_forceDisableInit = false;
 
                 // assign stack size, nobody wants a 0/20 stack of metals (its not very usefull)
@@ -119,7 +120,7 @@ namespace ValheimPlus.GameClasses
                 comp.m_itemData.m_stack = stack;
 
                 bool result = spawnNearbyChest(true);
-                Object.Destroy(spawnedOre);
+                UnityEngine.Object.Destroy(spawnedOre);
 
                 bool spawnNearbyChest(bool mustHaveItem)
                 {
@@ -276,7 +277,7 @@ namespace ValheimPlus.GameClasses
 
                             for (int i = 0; i < addedOres; i++)
                             {
-                                smelter.m_nview.InvokeRPC("RPC_AddOre", new object[] { orePrefab.name });
+                                smelter.m_nview.InvokeRPC("RPC_AddOre", new object[] { orePrefab.name, false });
                             }
                             toMaxOre -= addedOres;
                             if (addedOres > 0)
