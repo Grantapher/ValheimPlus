@@ -13,6 +13,7 @@ services:
       PUBLIC: 1s
       TYPE: BepInEx
       MODS: "JereKuusela-Server_devcommands-*"
+      UPDATE_ON_STARTUP: 1 # change to 0 if you need to change bepinex config so it doesn't get clobbered.
     volumes:
       - ./valheim/saves:/home/steam/.config/unity3d/IronGate/Valheim
       - ./valheim/server:/home/steam/valheim
