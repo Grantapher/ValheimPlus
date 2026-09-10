@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -47,16 +48,51 @@ namespace ValheimPlus.GameClasses
 
     /// <summary>
     /// Configure player inventory size as a minimum, since the game owns rows itself.
+    /// Only the two calls that size the inventory and the GUI are raised, so the game
+    /// still saves its own real row count.
     /// </summary>
     [HarmonyPatch(typeof(Player), nameof(Player.SetInventorySize))]
     public static class Player_SetInventorySize_Patch
     {
-        [UsedImplicitly]
-        public static void Prefix(ref int rows)
-        {
-            if (!Configuration.Current.Inventory.IsEnabled) return;
+        private static readonly MethodInfo Method_Inventory_SetHeight =
+            AccessTools.Method(typeof(Inventory), nameof(Inventory.SetHeight));
 
-            rows = Math.Max(rows, Configuration.Current.Inventory.playerInventoryRows);
+        private static readonly MethodInfo Method_InventoryGui_SetInventorySize =
+            AccessTools.Method(typeof(InventoryGui), nameof(InventoryGui.SetInventorySize));
+
+        private static readonly MethodInfo Method_AtLeastConfigured =
+            AccessTools.Method(typeof(Player_SetInventorySize_Patch), nameof(AtLeastConfigured));
+
+        [UsedImplicitly]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            if (!Configuration.Current.Inventory.IsEnabled) return instructions;
+
+            var il = instructions.ToList();
+            try
+            {
+                // Raise the row count on the stack at each sizing call. The save between them,
+                // AddUniqueKeyValue("invrows", rows.ToString()), is deliberately left alone.
+                return new CodeMatcher(il)
+                    .MatchStartForward(new CodeMatch(i => i.Calls(Method_Inventory_SetHeight)))
+                    .ThrowIfNotMatch("No match for this.m_inventory.SetHeight(rows).")
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Call, Method_AtLeastConfigured))
+                    .MatchStartForward(new CodeMatch(i => i.Calls(Method_InventoryGui_SetInventorySize)))
+                    .ThrowIfNotMatch("No match for InventoryGui.instance.SetInventorySize(rows).")
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Call, Method_AtLeastConfigured))
+                    .InstructionEnumeration();
+            }
+            catch (Exception e)
+            {
+                PatchLog.Failed(nameof(Player_SetInventorySize_Patch), "playerInventoryRows will have no effect.", e);
+                return il;
+            }
+        }
+
+        /// <summary>The configured rows, or the game's own count when that is larger.</summary>
+        public static int AtLeastConfigured(int rows)
+        {
+            return Math.Max(rows, Configuration.Current.Inventory.playerInventoryRows);
         }
     }
 
@@ -73,7 +109,12 @@ namespace ValheimPlus.GameClasses
             if (__instance == null || __instance != Player.m_localPlayer) return;
 
             int rows = Configuration.Current.Inventory.playerInventoryRows;
-            if (__instance.GetInventory().GetHeight() < rows) __instance.SetInventorySize(rows);
+            if (__instance.GetInventory().GetHeight() >= rows) return;
+
+            // Size directly, since SetInventorySize would save the config value as the character's own.
+            // Basically call Player SetInventorySize but just what we need.
+            __instance.GetInventory().SetHeight(rows);
+            InventoryGui.instance.SetInventorySize(rows);
         }
     }
 
