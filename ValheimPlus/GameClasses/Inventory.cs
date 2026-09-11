@@ -1,10 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -13,8 +13,6 @@ using ValheimPlus.Utility;
 
 namespace ValheimPlus.GameClasses
 {
-    using StackResponse = Container_RPC_StackResponse_Patch;
-
     /// <summary>
     /// Alters teleportation prevention
     /// </summary>
@@ -185,92 +183,406 @@ namespace ValheimPlus.GameClasses
     }
 
     /// <summary>
-    /// StackAll will have one setup step when Inventory.StackAll() is called in Inventory_StackAll_Patch#Prefix.
-    /// At the end of the prefix, we start the loop of dequeuing containers that we are stacking to.
-    /// The loop will consist of:
-    ///   Dequeue containers from the queue, skipping those that are the current inventory or all already in use.
-    ///   Call StackAll on the container, which will fire off an RPC (RPC_RequestStack).
-    ///   We eventually will receive an RPC_StackResponse result. If valid it will call
-    ///     Inventory.StackAll(Inventory fromInventory, bool message) which actually does the stacking logic.
-    ///   At the end of Container.RPC_StackResponse we apply a Postfix (Container_RPC_StackResponse_Patch#Postfix)
-    ///     that will deque the next container. (now go back to the beginning of the loop)
-    /// At the end of the loop, we will display a message of what we stacked and then reset the variables. 
+    /// Auto Stack's sweep: asks every nearby chest holding a matching item at once, waits for the ones that
+    /// answered to hand ownership over, then stacks into them nearest first. Chests that never answer or never
+    /// arrive are dropped when the sweep cuts off.
+    ///
+    /// Ownership is the part that matters: Container only saves a chest it owns, so stacking into one we have
+    /// been granted but do not own yet throws those items away.
     /// </summary>
+    public static class AutoStackSweep
+    {
+        private static readonly List<Container> Candidates = new();
+        private static readonly HashSet<Container> Pending = new();
+        private static readonly HashSet<Container> Granted = new();
+        private static readonly HashSet<Container> CutOff = new();
+        private static int sweep;
+        private static bool running;
+        private static bool stacking;
+        private static float deadline;
+        private static float timeout;
+        private static float startTime;
+        private static int itemsMoved;
+        private static int chestsStacked;
+        private static int chestsMissed;
+        private static bool effectPlayed;
+        private static int skippedInUse;
+        private static int skippedNoMatch;
+        private static int skippedUnreadable;
 
+        /// <summary>True while a sweep is still waiting on replies.</summary>
+        public static bool IsRunning => running && Time.time < deadline;
+
+        /// <summary>True while the sweep is stacking into its chests.</summary>
+        public static bool IsStacking => stacking;
+
+        /// <summary>Ask every candidate chest around the player for a stack.</summary>
+        public static void Start(Player player, Container openChest, int movedIntoOpenChest)
+        {
+            var config = Configuration.Current.AutoStack;
+            var id = ++sweep;
+            running = true;
+            timeout = config.replyTimeout;
+            startTime = Time.time;
+            deadline = Time.time + timeout;
+            itemsMoved = movedIntoOpenChest;
+            chestsStacked = movedIntoOpenChest > 0 ? 1 : 0;
+            chestsMissed = 0;
+            effectPlayed = false;
+            skippedInUse = 0;
+            skippedNoMatch = 0;
+            skippedUnreadable = 0;
+            Candidates.Clear();
+            Pending.Clear();
+            Granted.Clear();
+            CutOff.Clear();
+
+            var range = Mathf.Clamp(config.autoStackAllRange, 1, 50);
+
+            // GetNearbyChests returns nearest first, which is the order we stack in.
+            var nearby = InventoryAssistant.GetNearbyChests(player.gameObject, range,
+                !config.autoStackAllIgnorePrivateAreaCheck, includeVehicles: false);
+            Candidates.AddRange(nearby.Where(chest => chest != openChest && IsCandidate(chest, player)));
+
+            // The open chest is counted separately, since it is filtered out before the candidate check.
+            var openInRange = openChest && nearby.Contains(openChest) ? 1 : 0;
+            Log(id, $"as session {ZDOMan.GetSessionID()}, range {range}, reply timeout {timeout}s: " +
+                    $"{nearby.Count} chest(s) in range, {Candidates.Count} to ask, {openInRange} already open " +
+                    $"holding {movedIntoOpenChest} item(s) of ours, {skippedInUse} in use, " +
+                    $"{skippedNoMatch} with nothing to match, {skippedUnreadable} unreadable.");
+
+            // Chests we own answer before StackAll returns, so every chest must be pending first.
+            Pending.UnionWith(Candidates);
+            foreach (var chest in Candidates)
+            {
+                try
+                {
+                    chest.StackAll();
+                }
+                catch (Exception e)
+                {
+                    Pending.Remove(chest);
+                    chestsMissed++;
+                    ValheimPlusPlugin.Logger.LogWarning($"Auto Stack could not ask '{NameOf(chest)}': {e}");
+                }
+            }
+
+            // Runs through to the end here when every chest is ours, which is the single player case.
+            player.StartCoroutine(Run(id, player));
+        }
+
+        /// <summary>Record a reply from one of the sweep's chests. False for anyone else's reply.</summary>
+        public static bool HandleResponse(Container chest, bool granted)
+        {
+            // A reply after the cut-off changes nothing, but the game must not act on it either.
+            if (CutOff.Remove(chest))
+            {
+                Log(sweep, $"ignored a late {(granted ? "grant" : "refusal")} from {Describe(chest)}.");
+                return true;
+            }
+
+            if (!Pending.Remove(chest)) return false;
+
+            if (granted)
+            {
+                Granted.Add(chest);
+            }
+            else
+            {
+                chestsMissed++;
+                Log(sweep, $"was refused by {Describe(chest)}, which is in use or not ours to use.");
+            }
+
+            return true;
+        }
+
+        private static void StackInto(Container chest, Player player)
+        {
+            try
+            {
+                // The chest can change hands again between the grant and here, and a chest we do not own
+                // discards what we put in it instead of saving it.
+                if (!IsOwned(chest))
+                {
+                    chestsMissed++;
+                    ValheimPlusPlugin.Logger.LogWarning(
+                        $"Auto Stack put nothing into a chest it does not own: {Describe(chest)}");
+                    return;
+                }
+
+                // Our copy can be a second old, and stacking saves the whole chest.
+                chest.Load();
+
+                var inventory = player.GetInventory();
+                var revisionBefore = chest.m_nview.GetZDO().DataRevision;
+                var beforeTotal = inventory.CountItems(null);
+
+                chest.GetInventory().StackAll(inventory);
+
+                var moved = beforeTotal - inventory.CountItems(null);
+                var revisionAfter = chest.m_nview.GetZDO().DataRevision;
+                Log(sweep, $"moved {moved} item(s) into {Describe(chest)}, rev {revisionBefore} -> {revisionAfter}.");
+
+                // A chest only writes its contents when it is saved, and it only saves when we own it.
+                // The ownership checks above should make this impossible, so say so loudly if it happens.
+                if (moved > 0 && revisionAfter == revisionBefore)
+                {
+                    ValheimPlusPlugin.Logger.LogError(
+                        $"Auto Stack moved {moved} item(s) into a chest that did not save them, so they are " +
+                        $"lost: {Describe(chest)}");
+                }
+
+                if (moved <= 0) return;
+
+                itemsMoved += moved;
+                chestsStacked++;
+
+                // One effect per sweep, instead of one per chest.
+                if (effectPlayed || !InventoryGui.instance) return;
+                InventoryGui.instance.m_moveItemEffects.Create(chest.transform.position, Quaternion.identity);
+                effectPlayed = true;
+            }
+            catch (Exception e)
+            {
+                chestsMissed++;
+                ValheimPlusPlugin.Logger.LogWarning($"Auto Stack failed on '{NameOf(chest)}': {e}");
+            }
+        }
+
+        /// <summary>A loaded chest nobody has open, holding something the player would stack.</summary>
+        private static bool IsCandidate(Container chest, Player player)
+        {
+            var view = chest.m_nview;
+            if (!view || !view.IsValid())
+            {
+                skippedUnreadable++;
+                return false;
+            }
+
+            // IsInUse is only set on the owner, so check what the owner shares with everyone else too.
+            if (chest.IsInUse() || view.GetZDO().GetInt(ZDOVars.s_inUse) == 1)
+            {
+                skippedInUse++;
+                return false;
+            }
+
+            // The game parses a chest's contents once a second, so refresh before matching against them.
+            try
+            {
+                chest.Load();
+            }
+            catch (Exception e)
+            {
+                skippedUnreadable++;
+                ValheimPlusPlugin.Logger.LogWarning($"Auto Stack could not read '{NameOf(chest)}': {e}");
+                return false;
+            }
+
+            // Asking only matching chests avoids taking ownership of every chest in range.
+            var chestInventory = chest.GetInventory();
+            foreach (var item in player.GetInventory().GetAllItems())
+            {
+                if (!player.IsItemEquiped(item) &&
+                    Inventory_StackAll_Patch.ContainsItemByName(chestInventory, item.m_shared.m_name))
+                    return true;
+            }
+
+            skippedNoMatch++;
+            return false;
+        }
+
+        /// <summary>True while the chest is ours to write to.</summary>
+        private static bool IsOwned(Container chest) =>
+            chest && chest.m_nview && chest.m_nview.IsValid() && chest.m_nview.IsOwner();
+
+        /// <summary>
+        /// Wait for the replies, then for the chests that granted one to actually become ours, then stack.
+        /// Each wait gets its own replyTimeout.
+        /// </summary>
+        private static IEnumerator Run(int id, Player player)
+        {
+            var until = Time.time + timeout;
+            while (Pending.Count > 0 && Time.time < until) yield return null;
+            if (!running || id != sweep)
+            {
+                Log(id, "abandoned while waiting for replies, superseded by a newer sweep.");
+                yield break;
+            }
+
+            if (Pending.Count > 0)
+            {
+                chestsMissed += Pending.Count;
+                ValheimPlusPlugin.Logger.LogWarning(
+                    $"Auto Stack gave up on {Pending.Count} chest(s) after {timeout}s: " +
+                    string.Join(", ", Pending.Select(Describe).ToArray()));
+
+                // Swallow their replies if they turn up, so nothing moves after the sweep has reported.
+                CutOff.UnionWith(Pending);
+                Pending.Clear();
+            }
+            else
+            {
+                Log(id, $"every reply in after {Ms}ms, {Granted.Count} granted.");
+            }
+
+            // A chest we already owned is granted on the spot, so this only waits on other players' chests.
+            // Their owner hands the chest over in a separate ZDO update, which trails the reply it sent us.
+            deadline = Time.time + timeout;
+            while (Time.time < deadline && Granted.Any(chest => !IsOwned(chest))) yield return null;
+
+            if (!running || id != sweep)
+            {
+                Log(id, "abandoned while waiting for ownership, superseded by a newer sweep.");
+                yield break;
+            }
+
+            var stranded = Granted.Where(chest => !IsOwned(chest)).ToList();
+            if (stranded.Count > 0)
+            {
+                ValheimPlusPlugin.Logger.LogWarning(
+                    $"Auto Stack was granted {stranded.Count} chest(s) that never became ours within {timeout}s, " +
+                    $"so nothing goes into them: {string.Join(", ", stranded.Select(Describe).ToArray())}");
+            }
+            else if (Granted.Count > 0)
+            {
+                Log(id, $"owns all {Granted.Count} granted chest(s) at {Ms}ms.");
+            }
+
+            Finish(id);
+        }
+
+        /// <summary>Stack into every chest the sweep owns, nearest first, then report.</summary>
+        private static void Finish(int id)
+        {
+            if (!running || id != sweep) return;
+            running = false;
+
+            var player = Player.m_localPlayer;
+            if (!player)
+            {
+                Granted.Clear();
+                return;
+            }
+
+            stacking = true;
+            try
+            {
+                foreach (var chest in Candidates)
+                {
+                    if (Granted.Contains(chest)) StackInto(chest, player);
+                }
+            }
+            finally
+            {
+                stacking = false;
+                Granted.Clear();
+            }
+
+            var message = itemsMoved > 0
+                ? $"$msg_stackall {itemsMoved} in {chestsStacked} Chests"
+                : "$msg_stackall_none";
+            if (chestsMissed > 0) message += $", {chestsMissed} unavailable";
+            player.Message(MessageHud.MessageType.Center, message);
+
+            Log(id, $"done in {Ms}ms: {itemsMoved} item(s) into {chestsStacked} chest(s), " +
+                    $"{chestsMissed} unavailable.");
+        }
+
+        private static string NameOf(Container chest) => chest ? chest.name : "a missing chest";
+
+        /// <summary>Milliseconds since the sweep started.</summary>
+        private static int Ms => Mathf.RoundToInt((Time.time - startTime) * 1000f);
+
+        private static void Log(int id, string what) =>
+            ValheimPlusPlugin.Logger.LogDebug($"Auto Stack sweep #{id} {what}");
+
+        /// <summary>A chest with everything a sweep can go wrong over: who owns it, and how stale our copy is.</summary>
+        public static string Describe(Container chest)
+        {
+            try
+            {
+                if (!chest) return "a missing chest";
+
+                var view = chest.m_nview;
+                if (!view || !view.IsValid()) return $"'{chest.name}' [no zdo]";
+
+                var zdo = view.GetZDO();
+                var owner = zdo.GetOwner();
+                var whose = owner == 0L ? "nobody" : owner == ZDOMan.GetSessionID() ? "us" : "them";
+                var inventory = chest.GetInventory();
+                return $"'{chest.name}' [zdo {zdo.m_uid}, owner {owner} ({whose}), rev {zdo.DataRevision}, " +
+                       $"inUse {zdo.GetInt(ZDOVars.s_inUse)}, " +
+                       $"{(inventory == null ? "no" : inventory.NrOfItems().ToString())} items]";
+            }
+            catch (Exception e)
+            {
+                return $"a chest that could not be described: {e.Message}";
+            }
+        }
+    }
+
+    /// <summary>
+    /// Starts an Auto Stack sweep from a Stack All into the open chest, and filters which items Stack All moves.
+    /// </summary>
     [HarmonyPatch(typeof(Inventory), nameof(Inventory.StackAll))]
     public static class Inventory_StackAll_Patch
     {
-        private static bool ShouldMessage = false;
-        private static bool IsProcessing = false;
-        private static int ItemsBefore = 0;
-
-        private static async Task QueueStackAll(List<Container> chests, Inventory fromInventory, Inventory instance)
+        /// <summary>What the prefix saw, for a call that starts a sweep.</summary>
+        public struct SweepStart
         {
-            IsProcessing = true;
-            var containerCount = 0;
-            foreach (var container in chests)
-            {
-                if (container.IsInUse()) continue;
-
-                var inventory = container.GetInventory();
-                if (inventory == null || inventory == instance)
-                    continue;
-
-                StackResponse.ResponseReceived = new();
-
-                // Will call Inventory.StackAll but force-exit because IsProcessing is true
-                container.StackAll();
-                containerCount += 1;
-
-                // Container.StackAll requests ownership, wait for response
-                await StackResponse.ResponseReceived.Task;
-            }
-
-            if (ShouldMessage)
-            {
-                // Show stack message
-                var itemsAfter = fromInventory.CountItems(null);
-                var count = ItemsBefore - itemsAfter;
-
-                string message = count > 0
-                    ? $"$msg_stackall {count} in {containerCount} Chests"
-                    : $"$msg_stackall_none in {containerCount} Chests";
-                Player.m_localPlayer.Message(MessageHud.MessageType.Center, message);
-            }
-
-            IsProcessing = false;
+            public bool Starts;
+            public bool Message;
+            public int ItemsBefore;
         }
 
-        private static void Prefix(Inventory fromInventory, ref bool message)
-        {
-            var config = Configuration.Current.AutoStack;
-            if (!config.IsEnabled) return;
-
-            if (!IsProcessing)
-            {
-                ShouldMessage = message;
-                ItemsBefore = fromInventory.CountItems(null);
-            }
-
-            // disable message
-            message = false;
-        }
-
-        /// <summary>
-        /// Start the auto stack all loop and suppress stack feedback message
-        /// </summary>
+        /// <summary>Hold back the game's message for a call that starts a sweep, which shows a summary instead.</summary>
         [UsedImplicitly]
-        private static void Postfix(Inventory fromInventory, Inventory __instance, ref int __result)
+        private static bool Prefix(Inventory __instance, Inventory fromInventory, ref bool message,
+            out SweepStart __state)
         {
-            var config = Configuration.Current.AutoStack;
-            if (!config.IsEnabled || IsProcessing) return;
+            __state = default;
+            if (!IsStackAllIntoOpenChest(__instance, fromInventory)) return true;
 
-            // get chests in range
-            var nearbyChests = InventoryAssistant.GetNearbyChests(Player.m_localPlayer.gameObject,
-                Mathf.Clamp(config.autoStackAllRange, 1, 50),
-                !config.autoStackAllIgnorePrivateAreaCheck);
+            // The sweep stacking into a chest the player opened while it runs.
+            if (AutoStackSweep.IsStacking) return true;
 
-            QueueStackAll(nearbyChests, fromInventory, __instance);
+            // A sweep is still running, so do nothing rather than stack again.
+            if (AutoStackSweep.IsRunning) return false;
+
+            __state = new SweepStart
+            {
+                Starts = true,
+                Message = message,
+                ItemsBefore = fromInventory.CountItems(null)
+            };
+            message = false;
+            return true;
+        }
+
+        /// <summary>Start the sweep over nearby chests.</summary>
+        [UsedImplicitly]
+        private static void Postfix(Inventory fromInventory, ref int __result, SweepStart __state)
+        {
+            if (!__state.Starts) return;
+
+            var moved = __state.ItemsBefore - fromInventory.CountItems(null);
+
+            // Without its message the game returns the chest's total, so give the caller what actually moved.
+            if (__state.Message) __result = moved;
+
+            AutoStackSweep.Start(Player.m_localPlayer, InventoryGui.instance.m_currentContainer, moved);
+        }
+
+        /// <summary>True for a Stack All from the player into the chest they have open.</summary>
+        private static bool IsStackAllIntoOpenChest(Inventory chest, Inventory fromInventory)
+        {
+            if (!Configuration.Current.AutoStack.IsEnabled) return false;
+
+            var player = Player.m_localPlayer;
+            var gui = InventoryGui.instance;
+            if (!player || !gui || !gui.m_currentContainer) return false;
+
+            return fromInventory == player.GetInventory() && chest == gui.m_currentContainer.GetInventory();
         }
 
         private static readonly MethodInfo Method_Inventory_ContainsItemByName =

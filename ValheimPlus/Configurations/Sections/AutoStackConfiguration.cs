@@ -12,6 +12,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<bool> ignoreAmmoEntry;
         private ConfigEntry<bool> ignoreFoodEntry;
         private ConfigEntry<bool> ignoreMeadEntry;
+        private ConfigEntry<float> replyTimeoutEntry;
 
         public float autoStackAllRange => autoStackAllRangeEntry.Value;
         public bool autoStackAllIgnorePrivateAreaCheck => autoStackAllIgnorePrivateAreaCheckEntry.Value;
@@ -19,6 +20,7 @@ namespace ValheimPlus.Configurations.Sections
         public bool ignoreAmmo => ignoreAmmoEntry.Value;
         public bool ignoreFood => ignoreFoodEntry.Value;
         public bool ignoreMead => ignoreMeadEntry.Value;
+        public float replyTimeout => replyTimeoutEntry.Value;
 
         public override void Bind(ConfigFile config)
         {
@@ -36,6 +38,8 @@ namespace ValheimPlus.Configurations.Sections
                 "Set to true to prevent food items to be stored automatically.");
             ignoreMeadEntry = Bind(config, Section, "ignoreMead", false,
                 "Set to true to prevent mead to be stored automatically.");
+            replyTimeoutEntry = Bind(config, Section, "replyTimeout", 1f, 0.25f, 5f,
+                "Seconds to wait for nearby chests to answer a \"Stack All\", and then again for another player's chests to be handed over, before giving up on the ones that have not. Raise it on a high latency server.");
         }
     }
 }

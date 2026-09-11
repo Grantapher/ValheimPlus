@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using JetBrains.Annotations;
-using System.Threading.Tasks;
 using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
@@ -137,13 +136,22 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Container), nameof(Container.RPC_StackResponse))]
     public static class Container_RPC_StackResponse_Patch
     {
-        public static TaskCompletionSource<bool> ResponseReceived = new();
-
         /// <summary>
-        /// Once the previous container is stacked we arrive here and begin stacking the next one.
+        /// Auto Stack handles replies from its own chests, skipping the game's per-chest message and effect.
         /// </summary>
         [UsedImplicitly]
-        private static void Postfix(long uid, bool granted)
-            => ResponseReceived.TrySetResult(granted);
+        private static bool Prefix(Container __instance, bool granted)
+        {
+            if (AutoStackSweep.HandleResponse(__instance, granted)) return false;
+
+            // The game answers this one. Either the open chest, whose stack goes on to start a sweep, or a
+            // chest no sweep asked about, which has the same ownership problem with no message when it bites.
+            var isOpenChest = InventoryGui.instance && InventoryGui.instance.m_currentContainer == __instance;
+            ValheimPlusPlugin.Logger.LogDebug(
+                $"Stack All {(granted ? "granted" : "refused")} for the game to handle" +
+                $"{(isOpenChest ? " on the open chest, which starts a sweep next" : ", outside any sweep")}: " +
+                $"{AutoStackSweep.Describe(__instance)}");
+            return true;
+        }
     }
 }

@@ -10,9 +10,10 @@ namespace ValheimPlus
     {
 
         /// <summary>
-        /// Get all valid nearby chests
+        /// Get all valid nearby chests. Carts and ships are left out when includeVehicles is false.
         /// </summary>
-        public static List<Container> GetNearbyChests(GameObject target, float range, bool checkWard = true)
+        public static List<Container> GetNearbyChests(GameObject target, float range, bool checkWard = true,
+            bool includeVehicles = true)
         {
             // Every container is filtered by what the local player may access, so without one there
             // is nothing to return. Null between worlds and always on a dedicated server.
@@ -23,7 +24,8 @@ namespace ValheimPlus
 
             string[] layerMask = { "piece" };
 
-            if (Configuration.Current.CraftFromChest.allowCraftingFromCarts || Configuration.Current.CraftFromChest.allowCraftingFromShips)
+            if (includeVehicles &&
+                (Configuration.Current.CraftFromChest.allowCraftingFromCarts || Configuration.Current.CraftFromChest.allowCraftingFromShips))
                 layerMask = new string[] { "piece", "item", "vehicle" };
 
             Collider[] hitColliders = Physics.OverlapSphere(target.transform.position, range, LayerMask.GetMask(layerMask));
@@ -63,9 +65,9 @@ namespace ValheimPlus
                         && foundContainer.GetInventory() != null)
                     {
 
-                        if (isVagon && !Configuration.Current.CraftFromChest.allowCraftingFromCarts)
+                        if (isVagon && (!includeVehicles || !Configuration.Current.CraftFromChest.allowCraftingFromCarts))
                             continue;
-                        if (isShip && !Configuration.Current.CraftFromChest.allowCraftingFromShips)
+                        if (isShip && (!includeVehicles || !Configuration.Current.CraftFromChest.allowCraftingFromShips))
                             continue;
 
                         if (piece.IsPlacedByPlayer() || (isShip && Configuration.Current.CraftFromChest.allowCraftingFromShips))
