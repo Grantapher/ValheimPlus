@@ -154,10 +154,7 @@ namespace ValheimPlus.Configurations
                 return;
             }
 
-            dirty = false;
-            ValheimPlusPlugin.Logger.LogDebug("Configuration changed, re-applying patches.");
-            ValheimPlusPlugin.UnpatchSelf();
-            ValheimPlusPlugin.PatchAll();
+            BepInExConfig.ReapplyPatches("Configuration changed");
         }
     }
 }

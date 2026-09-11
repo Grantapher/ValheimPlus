@@ -25,6 +25,9 @@ namespace ValheimPlus.Configurations
         /// <summary>Every bound section, as declared on <see cref="Configuration"/>.</summary>
         private static readonly List<BaseConfig> Sections = new();
 
+        /// <summary>Each setting's value when patches were last built. Empty at boot, so defaults stand in.</summary>
+        private static readonly Dictionary<ConfigDefinition, object> AppliedValues = new();
+
         private static bool serverSyncRegistered;
 
         /// <summary>Whether a config package has already been taken this connection.</summary>
@@ -65,7 +68,7 @@ namespace ValheimPlus.Configurations
                 config.SaveOnConfigSet = true;
             }
 
-            LogNonDefaultSettings(config);
+            LogChangedSettings("differ from their default");
 
             if (mode == LegacyMode.Migrate) RetireLegacyIni(config);
             else if (mode == LegacyMode.Override) WarnLegacyOverride(config);
@@ -109,9 +112,11 @@ namespace ValheimPlus.Configurations
                 nameof(Configuration.Server), nameof(ServerConfiguration.serverSyncsConfig)]);
         }
 
-        private static void ReapplyPatches(string reason)
+        /// <summary>Rebuilds the patches from the current config values.</summary>
+        internal static void ReapplyPatches(string reason)
         {
             ValheimPlusPlugin.Logger.LogDebug($"{reason}, re-applying patches.");
+            LogChangedSettings("changed since patches were last applied");
             ValheimPlusPlugin.UnpatchSelf();
             ValheimPlusPlugin.PatchAll();
 
@@ -178,20 +183,22 @@ namespace ValheimPlus.Configurations
             }
         }
 
-        /// <summary>Logs the settings that differ from their default, to help read a user's log.</summary>
-        private static void LogNonDefaultSettings(ConfigFile config)
+        /// <summary>Logs the settings changed since patches were last built, to help read a user's log.</summary>
+        private static void LogChangedSettings(string description)
         {
-            var changed = config.Keys
-                .Select(definition => new { definition, entry = config[definition] })
-                .Where(x => !Equals(x.entry.BoxedValue, x.entry.DefaultValue))
-                .ToList();
-
-            ValheimPlusPlugin.Logger.LogDebug($"{changed.Count} settings differ from their default:");
-            foreach (var x in changed)
+            var changed = new List<string>();
+            foreach (var definition in Config.Keys)
             {
-                ValheimPlusPlugin.Logger.LogDebug(
-                    $"  [{x.definition.Section}] {x.definition.Key} = {x.entry.BoxedValue}");
+                var entry = Config[definition];
+                var previous = AppliedValues.TryGetValue(definition, out var value) ? value : entry.DefaultValue;
+                AppliedValues[definition] = entry.BoxedValue;
+
+                if (!Equals(entry.BoxedValue, previous))
+                    changed.Add($"  [{definition.Section}] {definition.Key}: {previous} -> {entry.BoxedValue}");
             }
+
+            ValheimPlusPlugin.Logger.LogDebug($"{changed.Count} settings {description}:");
+            foreach (var line in changed) ValheimPlusPlugin.Logger.LogDebug(line);
         }
 
         private static Configuration BindSections(ConfigFile config)
