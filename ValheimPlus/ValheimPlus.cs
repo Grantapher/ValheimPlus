@@ -20,6 +20,8 @@ namespace ValheimPlus
     // registered when ConfigurationManagerWatcher looks for it. Optional; V+ runs fine without it.
     [BepInDependency(ConfigurationManagerWatcher.ConfigurationManagerGuid,
         BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(ConfigurationManagerWatcher.ShudnalConfigurationManagerGuid,
+        BepInDependency.DependencyFlags.SoftDependency)]
     public class ValheimPlusPlugin : BaseUnityPlugin
     {
         internal const string ValheimPlusGuid = "org.bepinex.plugins.valheim_plus";

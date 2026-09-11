@@ -15,6 +15,9 @@ namespace ValheimPlus.Configurations
     {
         internal const string ConfigurationManagerGuid = "com.bepis.bepinex.configurationmanager";
 
+        // Shudnal's Valheim fork, same API. The two refuse to load together.
+        internal const string ShudnalConfigurationManagerGuid = "_shudnal.ConfigurationManager";
+
         private static readonly List<BaseConfig> Sections = new();
 
         private static object plugin;
@@ -46,8 +49,8 @@ namespace ValheimPlus.Configurations
 
             // BepInDependency on ValheimPlusPlugin makes BepInEx load Configuration Manager first when
             // it is present, so it is already registered by the time this runs.
-            if (!Chainloader.PluginInfos.TryGetValue(ConfigurationManagerGuid, out var info) ||
-                info?.Instance == null)
+            var info = FindPlugin(ConfigurationManagerGuid) ?? FindPlugin(ShudnalConfigurationManagerGuid);
+            if (info == null)
             {
                 ValheimPlusPlugin.Logger.LogDebug(
                     "Configuration Manager is not installed. Settings can still be changed by editing " +
@@ -87,6 +90,9 @@ namespace ValheimPlus.Configurations
                 ValheimPlusPlugin.Logger.LogWarning($"Could not hook into Configuration Manager: {e.Message}");
             }
         }
+
+        private static BepInEx.PluginInfo FindPlugin(string guid) =>
+            Chainloader.PluginInfos.TryGetValue(guid, out var info) && info?.Instance != null ? info : null;
 
         /// <summary>Called when a world is entered or left.</summary>
         public static void SetInWorld(bool inWorld)
