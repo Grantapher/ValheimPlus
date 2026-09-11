@@ -98,7 +98,7 @@ namespace ValheimPlus.Configurations
             {
                 if (syncedOnce)
                 {
-                    ValheimPlusPlugin.Logger.LogDebug(
+                    ValheimPlusPlugin.Logger.LogInfo(
                         "Config arrived while in a world, so patches were left alone.");
                     return;
                 }
@@ -115,7 +115,7 @@ namespace ValheimPlus.Configurations
         /// <summary>Rebuilds the patches from the current config values.</summary>
         internal static void ReapplyPatches(string reason)
         {
-            ValheimPlusPlugin.Logger.LogDebug($"{reason}, re-applying patches.");
+            ValheimPlusPlugin.Logger.LogInfo($"{reason}, re-applying patches.");
             LogChangedSettings("changed since patches were last applied");
             ValheimPlusPlugin.UnpatchSelf();
             ValheimPlusPlugin.PatchAll();
@@ -149,7 +149,7 @@ namespace ValheimPlus.Configurations
 
             foreach (var section in Sections) registered += section.RegisterForServerSync();
 
-            ValheimPlusPlugin.Logger.LogDebug($"Registered {registered} settings for server sync.");
+            ValheimPlusPlugin.Logger.LogInfo($"Registered {registered} settings for server sync.");
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace ValheimPlus.Configurations
             {
                 if (mode == LegacyMode.Migrate)
                 {
-                    ValheimPlusPlugin.Logger.LogDebug(
+                    ValheimPlusPlugin.Logger.LogInfo(
                         $"Found a legacy config at '{ConfigurationExtra.ConfigIniPath}', importing its values.");
                 }
 
@@ -197,8 +197,8 @@ namespace ValheimPlus.Configurations
                     changed.Add($"  [{definition.Section}] {definition.Key}: {previous} -> {entry.BoxedValue}");
             }
 
-            ValheimPlusPlugin.Logger.LogDebug($"{changed.Count} settings {description}:");
-            foreach (var line in changed) ValheimPlusPlugin.Logger.LogDebug(line);
+            ValheimPlusPlugin.Logger.LogInfo($"{changed.Count} settings {description}:");
+            foreach (var line in changed) ValheimPlusPlugin.Logger.LogInfo(line);
         }
 
         private static Configuration BindSections(ConfigFile config)
@@ -242,7 +242,7 @@ namespace ValheimPlus.Configurations
                 imported++;
             }
 
-            ValheimPlusPlugin.Logger.LogDebug($"Imported {imported} settings from the legacy config.");
+            ValheimPlusPlugin.Logger.LogInfo($"Imported {imported} settings from the legacy config.");
             if (failed.Count > 0)
             {
                 ValheimPlusPlugin.Logger.LogWarning(

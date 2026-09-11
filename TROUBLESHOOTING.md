@@ -1,17 +1,24 @@
 # Troubleshooting
 
-## Getting a detailed log
+## Sharing your log
 
-Valheim Plus keeps its noisier logging at `Debug`, which BepInEx leaves out of
-the log file by default. To include it:
+When reporting a problem, send `BepInEx/LogOutput.log` from a session where it
+happened. It is rewritten on every launch, so grab it before starting the game
+again. It lists your game and Valheim Plus versions and every setting you have
+changed from its default, which is usually what a support question needs.
+
+The log includes file paths, which may contain your Windows username.
+
+### Getting a detailed log
+
+If asked for more detail, Valheim Plus keeps its noisier logging at `Debug`,
+which BepInEx leaves out of the log file by default. To include it:
 
 * With [Configuration Manager](https://github.com/BepInEx/BepInEx.ConfigurationManager),
   press F1 at the main menu, find `BepInEx` -> `Logging.Disk` -> `Log levels`, and tick `Debug`.
 * Or edit `BepInEx/config/BepInEx.cfg` and set `LogLevels = All` under `[Logging.Disk]`.
 
-Restart the game, reproduce the problem, then send `BepInEx/LogOutput.log`. The
-detailed log lists every setting you have changed from its default, which is
-usually what a support question needs.
+Restart the game, reproduce the problem, then send the log again.
 
 ## My server host won't let me use anything but the official release
 
