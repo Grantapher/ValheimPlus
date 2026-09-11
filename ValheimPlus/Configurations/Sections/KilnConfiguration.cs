@@ -46,7 +46,7 @@ namespace ValheimPlus.Configurations.Sections
                 "Stops autoFuel (looking for fuel) when there is at leasts this quantity of Coal in nearby chests\n(ignored if set to 0)");
             ignorePrivateAreaCheckEntry = Bind(config, Section, "ignorePrivateAreaCheck", true,
                 "This option prevents the Kiln to pull items from warded areas if it isn't placed inside of it.\nFor convenience, we recommend this to be set to true.");
-            autoRangeEntry = Bind(config, Section, "autoRange", 10f,
+            autoRangeEntry = Bind(config, Section, "autoRange", 10f, 1f, 50f,
                 "The range of the chest detection for the auto deposit and fuel features.\nMaximum is 50");
         }
     }

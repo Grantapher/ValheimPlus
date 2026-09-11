@@ -38,7 +38,7 @@ namespace ValheimPlus.Configurations.Sections
                 "The Windmill will pull barley from nearby chests to be automatically added to it when its empty.");
             ignorePrivateAreaCheckEntry = Bind(config, Section, "ignorePrivateAreaCheck", true,
                 "This option prevents the Windmill to pull items from warded areas if it isn't placed inside of it.\nFor convenience, we recommend this to be set to true.");
-            autoRangeEntry = Bind(config, Section, "autoRange", 10f,
+            autoRangeEntry = Bind(config, Section, "autoRange", 10f, 1f, 50f,
                 "The range of the chest detection for the auto deposit and auto fuel features.\nMaximum is 50");
         }
     }

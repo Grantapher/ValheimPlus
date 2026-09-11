@@ -26,7 +26,7 @@ namespace ValheimPlus.Configurations.Sections
                 "The hot tub will fuel itself from nearby chests.");
             ignorePrivateAreaCheckEntry = Bind(config, Section, "ignorePrivateAreaCheck", true,
                 "This option allows the hot tub to fuel itself from chests that it doesn't share a warded area with.\nFor convenience, we recommend this to be set to true.");
-            autoRangeEntry = Bind(config, Section, "autoRange", 10f,
+            autoRangeEntry = Bind(config, Section, "autoRange", 10f, 1f, 50f,
                 "The range of the chest detection for the auto fuel feature.\nMaximum is 50");
         }
     }

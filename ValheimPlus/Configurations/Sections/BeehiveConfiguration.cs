@@ -28,7 +28,7 @@ namespace ValheimPlus.Configurations.Sections
                 "Configure the maximum amount of honey in beehives.");
             autoDepositEntry = Bind(config, Section, "autoDeposit", false,
                 "Instead of dropping the items, they will be placed inside the nearest nearby chests.");
-            autoDepositRangeEntry = Bind(config, Section, "autoDepositRange", 10f,
+            autoDepositRangeEntry = Bind(config, Section, "autoDepositRange", 10f, 1f, 50f,
                 "The range of the chest detection for the auto deposit feature.\nMaximum is 50");
             showDurationEntry = Bind(config, Section, "showDuration", false,
                 "Display the minutes and seconds until the beehive produces honey on crosshair hover.");

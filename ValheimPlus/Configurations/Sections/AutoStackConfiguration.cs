@@ -24,7 +24,7 @@ namespace ValheimPlus.Configurations.Sections
         {
             BindEnabled(config, Section, false,
                 "Set to true to automatically perform the \"Stack All\" action on all chests in range.");
-            autoStackAllRangeEntry = Bind(config, Section, "autoStackAllRange", 10f,
+            autoStackAllRangeEntry = Bind(config, Section, "autoStackAllRange", 10f, 1f, 50f,
                 "Defines the range to search chests for the \"Stack All\" action.");
             autoStackAllIgnorePrivateAreaCheckEntry = Bind(config, Section, "autoStackAllIgnorePrivateAreaCheck", false,
                 "This option prevents to \"Stack All\" into chests from warded areas if the player doesnt have access to it.");

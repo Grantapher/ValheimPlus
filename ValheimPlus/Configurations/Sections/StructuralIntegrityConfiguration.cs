@@ -42,23 +42,23 @@ namespace ValheimPlus.Configurations.Sections
         {
             BindEnabled(config, Section, false,
                 "Change false to true to enable this section.");
-            woodEntry = Bind(config, Section, "wood", 0f,
+            woodEntry = Bind(config, Section, "wood", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
-            stoneEntry = Bind(config, Section, "stone", 0f,
+            stoneEntry = Bind(config, Section, "stone", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
-            ironEntry = Bind(config, Section, "iron", 0f,
+            ironEntry = Bind(config, Section, "iron", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
-            hardWoodEntry = Bind(config, Section, "hardWood", 0f,
+            hardWoodEntry = Bind(config, Section, "hardWood", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
-            marbleEntry = Bind(config, Section, "marble", 0f,
+            marbleEntry = Bind(config, Section, "marble", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
-            ashstoneEntry = Bind(config, Section, "ashstone", 0f,
+            ashstoneEntry = Bind(config, Section, "ashstone", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
-            ancientEntry = Bind(config, Section, "ancient", 0f,
+            ancientEntry = Bind(config, Section, "ancient", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
-            iceEntry = Bind(config, Section, "ice", 0f,
+            iceEntry = Bind(config, Section, "ice", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
-            timberwoodEntry = Bind(config, Section, "timberwood", 0f,
+            timberwoodEntry = Bind(config, Section, "timberwood", 0f, 0f, 100f,
                 "Each of these values reduce the loss of structural integrity by distance by % less.\nThe value 100 would result in disabled structural integrity over distance, does not allow for placement in free air without disableStructuralIntegrity.");
             disableStructuralIntegrityEntry = Bind(config, Section, "disableStructuralIntegrity", false,
                 "Disables the entire structural integrity system and allows for placement in free air, does not prevent building damage.");

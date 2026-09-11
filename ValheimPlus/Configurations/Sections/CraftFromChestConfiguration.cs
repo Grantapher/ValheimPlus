@@ -26,7 +26,7 @@ namespace ValheimPlus.Configurations.Sections
         {
             BindEnabled(config, Section, false,
                 "Change false to true to enable this section.\nThis feature allows you to craft from nearby chests when in range.");
-            rangeEntry = Bind(config, Section, "range", 20f,
+            rangeEntry = Bind(config, Section, "range", 20f, 1f, 50f,
                 "The range of the chest detection in meters.");
             disableCookingStationEntry = Bind(config, Section, "disableCookingStation", false,
                 "Change false to true to disable this feature when using a Cooking Station.");
@@ -34,7 +34,7 @@ namespace ValheimPlus.Configurations.Sections
                 "If in a workbench area, uses it as reference point when scanning for chests.");
             ignorePrivateAreaCheckEntry = Bind(config, Section, "ignorePrivateAreaCheck", false,
                 "This option prevents crafting to pull items from warded areas if the player doesnt have access to it.");
-            lookupIntervalEntry = Bind(config, Section, "lookupInterval", 3,
+            lookupIntervalEntry = Bind(config, Section, "lookupInterval", 3, 1, 10,
                 "The interval in seconds that the feature scans your nearby chests.\nWe recommend not going below 3 seconds.");
             allowCraftingFromCartsEntry = Bind(config, Section, "allowCraftingFromCarts", false,
                 "Allows the system to use and see contents of carts for crafting. Might also allow use of other modded containers or vehicles not accessible otherwise.");

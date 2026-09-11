@@ -38,7 +38,7 @@ namespace ValheimPlus.Configurations.Sections
                 "Removes the weather damage from rain and water erosion.");
             maximumPlacementDistanceEntry = Bind(config, Section, "maximumPlacementDistance", 8f,
                 "The maximum range in meters that you can place build objects at inside the hammer build mode.");
-            pieceComfortRadiusEntry = Bind(config, Section, "pieceComfortRadius", 10f,
+            pieceComfortRadiusEntry = Bind(config, Section, "pieceComfortRadius", 10f, 1f, 300f,
                 "The radius, in meters, in which a piece must be to contribute to the comfort level.");
             alwaysDropResourcesEntry = Bind(config, Section, "alwaysDropResources", false,
                 "When destroying a building piece, setting this to true will ensure it always drops full resources.\nWe recommend to enable this if you use this section.");

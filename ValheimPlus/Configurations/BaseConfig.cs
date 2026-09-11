@@ -44,22 +44,30 @@ namespace ValheimPlus.Configurations
         protected ConfigEntry<T> Bind<T>(
             ConfigFile config, string section, string key, T defaultValue, string description)
         {
-            return Bind(config, section, key, defaultValue, description, local: false);
+            return Bind(config, section, key, defaultValue, description, local: false, range: null);
+        }
+
+        /// <summary>Binds a pushed setting limited to min..max, shown as a slider in Configuration Manager.</summary>
+        protected ConfigEntry<T> Bind<T>(ConfigFile config, string section, string key, T defaultValue,
+            T min, T max, string description) where T : IComparable
+        {
+            return Bind(config, section, key, defaultValue, description, local: false,
+                range: new AcceptableValueRange<T>(min, max));
         }
 
         /// <summary>Binds a setting that stays on the machine it is set on.</summary>
         protected ConfigEntry<T> BindLocal<T>(
             ConfigFile config, string section, string key, T defaultValue, string description)
         {
-            return Bind(config, section, key, defaultValue, description, local: true);
+            return Bind(config, section, key, defaultValue, description, local: true, range: null);
         }
 
         private ConfigEntry<T> Bind<T>(ConfigFile config, string section, string key, T defaultValue,
-            string description, bool local)
+            string description, bool local, AcceptableValueBase range)
         {
             sectionName = section;
             var entry = config.Bind(section, key, defaultValue,
-                new ConfigDescription(description, null, attributes));
+                new ConfigDescription(description, range, attributes));
 
             // Keybinds, and anything else personal, never cross the network.
             if (!local && !ClientSide && typeof(T) != typeof(KeyCode))

@@ -28,13 +28,13 @@ namespace ValheimPlus.Configurations.Sections
                 "Change time formatting from 24hr to AM-PM.");
             textFontSizeEntry = Bind(config, Section, "textFontSize", 34,
                 "Change font size of time text.");
-            textRedChannelEntry = Bind(config, Section, "textRedChannel", 248,
+            textRedChannelEntry = Bind(config, Section, "textRedChannel", 248, 0, 255,
                 "Change how red the time text is (51/255).");
-            textGreenChannelEntry = Bind(config, Section, "textGreenChannel", 105,
+            textGreenChannelEntry = Bind(config, Section, "textGreenChannel", 105, 0, 255,
                 "Change how green the time text is (51/255).");
-            textBlueChannelEntry = Bind(config, Section, "textBlueChannel", 0,
+            textBlueChannelEntry = Bind(config, Section, "textBlueChannel", 0, 0, 255,
                 "Change how blue the time text is (51/255).");
-            textTransparencyChannelEntry = Bind(config, Section, "textTransparencyChannel", 255,
+            textTransparencyChannelEntry = Bind(config, Section, "textTransparencyChannel", 255, 0, 255,
                 "Change how transparent the time text is (255 is solid with no transparency).");
         }
     }

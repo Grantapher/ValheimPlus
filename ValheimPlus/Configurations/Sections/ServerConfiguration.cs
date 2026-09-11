@@ -20,7 +20,7 @@ namespace ValheimPlus.Configurations.Sections
         {
             BindEnabled(config, Section, true,
                 "Change false to true to enable this section.");
-            maxPlayersEntry = Bind(config, Section, "maxPlayers", 10,
+            maxPlayersEntry = Bind(config, Section, "maxPlayers", 10, 1, 32,
                 "Modify the maximum amount of players on your Server.");
             disableServerPasswordEntry = Bind(config, Section, "disableServerPassword", false,
                 "Removes the requirement to have a server password.");

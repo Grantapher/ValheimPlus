@@ -35,7 +35,7 @@ namespace ValheimPlus.Configurations.Sections
                 "Change false to true to enable this section.");
             animalTypesEntry = Bind(config, Section, "animalTypes", AnimalType.All,
                 "A comma-separated list of animals that can be tamed.\nValid types are: boar, hen, wolf, lox, asksvin, all, none");
-            mortalityEntry = Bind(config, Section, "mortality", 0,
+            mortalityEntry = Bind(config, Section, "mortality", 0, 0, 2,
                 "Modify what happens when a tamed creature is attacked.\n0 = normal, 1 = essential(deadly attacks stun instead of kill, tamed creatures can still die rarely), 2 = immortal.");
             ownerDamageOverrideEntry = Bind(config, Section, "ownerDamageOverride", true,
                 "This will circumvent the mortality setting, so even if tamed creatures are immortal, players can still kill them with a butcher knife.\nFor this option to work you need to have mortality to set to either essential or immortal.");
