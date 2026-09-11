@@ -176,7 +176,7 @@ namespace ValheimPlus.GameClasses
             Stopwatch delta = GameObjectAssistant.GetStopwatch(__instance.gameObject);
             if (!delta.IsRunning || delta.ElapsedMilliseconds > 1000)
             {
-                List<Container> nearbyChests = InventoryAssistant.GetNearbyChests(__instance.gameObject, Configuration.Current.Fermenter.autoRange, !Configuration.Current.Fermenter.ignorePrivateAreaCheck);
+                List<Container> nearbyChests = InventoryAssistant.GetNearbyChests(__instance.gameObject, Helper.Clamp(Configuration.Current.Fermenter.autoRange, 1, 50),!Configuration.Current.Fermenter.ignorePrivateAreaCheck);
                 foreach (Container c in nearbyChests)
                 {
                     ItemDrop.ItemData item = __instance.FindCookableItem(c.GetInventory());
@@ -237,7 +237,7 @@ namespace ValheimPlus.GameClasses
 
         private static bool DropItemToNearbyChest(Fermenter __instance, ref Fermenter.ItemConversion itemConversion)
         {
-            List<Container> nearbyChests = InventoryAssistant.GetNearbyChests(__instance.gameObject, Configuration.Current.Fermenter.autoRange, !Configuration.Current.Fermenter.ignorePrivateAreaCheck);
+            List<Container> nearbyChests = InventoryAssistant.GetNearbyChests(__instance.gameObject, Helper.Clamp(Configuration.Current.Fermenter.autoRange, 1, 50),!Configuration.Current.Fermenter.ignorePrivateAreaCheck);
 
             int spawnedInChests = 0;
             for (int i = 0; i < itemConversion.m_producedItems; i++)
