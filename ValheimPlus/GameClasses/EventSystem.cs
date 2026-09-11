@@ -1,27 +1,22 @@
 ﻿using HarmonyLib;
+using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace ValheimPlus.GameClasses
 {
     /// <summary>
     /// Mute all sound when the application loses focus
-    /// 
-    /// TODO: find a way to apply a similar change while the settings dialog is still open, 
-    /// to improve user feel of the toggle, and during the loading screen(s)
-    /// 
     /// </summary>
-    [HarmonyPatch(typeof(UnityEngine.EventSystems.EventSystem), "OnApplicationFocus")]
+    [HarmonyPatch(typeof(EventSystem), "OnApplicationFocus")]
     public static class EventSystem_OnApplicationFocus_Patch
     {
+        [UsedImplicitly]
         private static void Postfix(bool hasFocus)
         {
             if (PlayerPrefs.GetInt("MuteGameInBackground", 0) == 1)
             {
-                if (hasFocus)
-                    AudioListener.volume = PlayerPrefs.GetFloat("MasterVolume", 1f);
-                else
-                    AudioListener.volume = 0f;
+                AudioListener.volume = hasFocus ? 1f : 0f;
             }
         }
     }
