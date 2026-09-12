@@ -15,9 +15,26 @@ namespace ValheimPlus
         public static List<Container> GetNearbyChests(GameObject target, float range, bool checkWard = true,
             bool includeVehicles = true)
         {
-            // Every container is filtered by what the local player may access, so without one there
-            // is nothing to return. Null between worlds and always on a dedicated server.
-            if (!Player.m_localPlayer) return new List<Container>();
+            // On clients, container/ward permissions are checked against the local player.
+            // Dedicated servers never have Player.m_localPlayer, but can own production pieces.
+            // In that case use the creator of the machine/piece as the acting player so
+            // server-owned auto-deposit and auto-fuel can still find permitted containers.
+            Player localPlayer = Player.m_localPlayer;
+            long accessPlayerId;
+            if (localPlayer)
+            {
+                accessPlayerId = localPlayer.GetPlayerID();
+            }
+            else
+            {
+                Piece sourcePiece = target ? target.GetComponentInParent<Piece>() : null;
+                if (!sourcePiece)
+                    return new List<Container>();
+
+                accessPlayerId = sourcePiece.GetCreator();
+                if (accessPlayerId == 0L)
+                    return new List<Container>();
+            }
 
             // item == cart layermask
             // vehicle == cart&ship layermask
@@ -53,8 +70,13 @@ namespace ValheimPlus
                     if (validContainers.Contains(foundContainer))
                         continue;
 
-                    bool hasAccess = foundContainer.CheckAccess(Player.m_localPlayer.GetPlayerID());
-                    if (checkWard) hasAccess = hasAccess && PrivateArea.CheckAccess(hitCollider.gameObject.transform.position, 0f, false, true);
+                    bool hasAccess = foundContainer.CheckAccess(accessPlayerId);
+                    if (checkWard)
+                    {
+                        hasAccess = hasAccess && (localPlayer
+                            ? PrivateArea.CheckAccess(hitCollider.gameObject.transform.position, 0f, false, true)
+                            : CheckWardAccessForPlayer(hitCollider.gameObject.transform.position, 0f, accessPlayerId));
+                    }
                     var piece = foundContainer.GetComponentInParent<Piece>();
                     var isVagon = foundContainer.GetComponentInParent<Vagon>() != null;
                     var isShip = foundContainer.GetComponentInParent<Ship>() != null;
@@ -83,6 +105,23 @@ namespace ValheimPlus
             }
 
             return validContainers;
+        }
+
+        private static bool CheckWardAccessForPlayer(Vector3 position, float radius, long playerId)
+        {
+            // Mirrors PrivateArea.CheckAccess(..., wardCheck: true), but does not depend on
+            // Player.m_localPlayer. Every enabled ward covering the container must permit
+            // the creator of the machine performing the automatic transfer.
+            foreach (PrivateArea area in PrivateArea.m_allAreas)
+            {
+                if (!area || !area.IsEnabled() || !area.IsInside(position, radius))
+                    continue;
+
+                if (!area.IsPermitted(playerId))
+                    return false;
+            }
+
+            return true;
         }
 
         /// <summary>
