@@ -97,7 +97,29 @@ namespace ValheimPlus.GameClasses
     }
 
     /// <summary>
-    /// Size a fresh character, which has no saved rows for the game to size from.
+    /// Size the inventory before its items load, since the game only applies rows on spawn.
+    /// A character last saved before 1.0 stores its items in the old format, which drops
+    /// anything below the current bottom row instead of loading it.
+    /// </summary>
+    [HarmonyPatch(typeof(Player), nameof(Player.Load))]
+    public static class Player_Load_InventorySize_Patch
+    {
+        [UsedImplicitly]
+        public static void Prefix(Player __instance)
+        {
+            if (!Configuration.Current.Inventory.IsEnabled) return;
+            if (__instance == null) return;
+
+            // Height only, and no GUI, which is sized on spawn once InventoryGui exists.
+            var inventory = __instance.GetInventory();
+            int rows = Configuration.Current.Inventory.playerInventoryRows;
+            if (inventory.GetHeight() < rows) inventory.SetHeight(rows);
+        }
+    }
+
+    /// <summary>
+    /// Size a fresh character, which has no saved rows for the game to size from, and match the
+    /// GUI to whatever the inventory ended up at.
     /// </summary>
     [HarmonyPatch(typeof(Player), nameof(Player.OnSpawned))]
     public static class Player_OnSpawned_InventorySize_Patch
@@ -108,12 +130,13 @@ namespace ValheimPlus.GameClasses
             if (!Configuration.Current.Inventory.IsEnabled) return;
             if (__instance == null || __instance != Player.m_localPlayer) return;
 
-            int rows = Configuration.Current.Inventory.playerInventoryRows;
-            if (__instance.GetInventory().GetHeight() >= rows) return;
-
             // Size directly, since SetInventorySize would save the config value as the character's own.
             // Basically call Player SetInventorySize but just what we need.
-            __instance.GetInventory().SetHeight(rows);
+            var inventory = __instance.GetInventory();
+            int rows = Math.Max(inventory.GetHeight(), Configuration.Current.Inventory.playerInventoryRows);
+            inventory.SetHeight(rows);
+
+            // Always, since the game leaves the GUI alone for a character it did not size itself.
             InventoryGui.instance.SetInventorySize(rows);
         }
     }
