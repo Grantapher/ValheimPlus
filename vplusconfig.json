@@ -173,7 +173,22 @@
 				"defaultType": "bool"
 			},
 			"noWeatherDamage": {
-				"description": "Removes the weather damage from rain",
+				"description": "Removes the weather damage from rain and water erosion.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"noHeavySnowDamage": {
+				"description": "Prevents heavy-snow wear damage while preserving snow buildup, saved snow state, and visual effects.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"noAshDamage": {
+				"description": "Prevents ash wear damage to structures in Ashlands while preserving Ashlands state and visual effects.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"noLavaDamage": {
+				"description": "Prevents lava wear damage to structures while preserving lava detection and related state.",
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
