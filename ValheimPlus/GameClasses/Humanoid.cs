@@ -10,22 +10,27 @@ using ValheimPlus.Utility;
 
 namespace ValheimPlus.GameClasses
 {
+    /// <summary>Scales unarmed (fist) damage by a +/- % modifier.</summary>
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.GetCurrentWeapon))]
     public static class ModifyCurrentWeapon
     {
+        /// <summary>Unmodified blunt damage of the shared Unarmed item, read once before we overwrite it.</summary>
+        private static float? vanillaBluntDamage;
+
         [UsedImplicitly]
         private static void Postfix(ref ItemDrop.ItemData __result, ref Humanoid __instance)
         {
-            if (__instance is not Player playerInstance
+            if (__instance is not Player
                 || !Configuration.Current.Player.IsEnabled
                 || __result?.m_shared?.m_name != "Unarmed")
             {
                 return;
             }
 
-            float unarmedSkillFactor = playerInstance.GetSkillFactor(Skills.SkillType.Unarmed);
-            float newDamage = unarmedSkillFactor * Configuration.Current.Player.baseUnarmedDamage;
-            __result.m_shared.m_damages.m_blunt = Math.Max(2f, newDamage);
+            // m_shared is the prefab's, so cache the original rather than compounding on our own writes.
+            vanillaBluntDamage ??= __result.m_shared.m_damages.m_blunt;
+            __result.m_shared.m_damages.m_blunt = Helper.applyModifierValue(
+                vanillaBluntDamage.Value, Configuration.Current.Player.unarmedDamageScale);
         }
     }
 

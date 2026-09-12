@@ -10,7 +10,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<float> baseMegingjordBuffEntry;
         private ConfigEntry<float> baseAutoPickUpRangeEntry;
         private ConfigEntry<bool> disableCameraShakeEntry;
-        private ConfigEntry<float> baseUnarmedDamageEntry;
+        private ConfigEntry<float> unarmedDamageScaleEntry;
         private ConfigEntry<bool> cropNotifierEntry;
         private ConfigEntry<float> restSecondsPerComfortLevelEntry;
         private ConfigEntry<float> deathPenaltyMultiplierEntry;
@@ -36,7 +36,7 @@ namespace ValheimPlus.Configurations.Sections
         public float baseMegingjordBuff => baseMegingjordBuffEntry.Value;
         public float baseAutoPickUpRange => baseAutoPickUpRangeEntry.Value;
         public bool disableCameraShake => disableCameraShakeEntry.Value;
-        public float baseUnarmedDamage => baseUnarmedDamageEntry.Value;
+        public float unarmedDamageScale => unarmedDamageScaleEntry.Value;
         public bool cropNotifier => cropNotifierEntry.Value;
         public float restSecondsPerComfortLevel => restSecondsPerComfortLevelEntry.Value;
         public float deathPenaltyMultiplier => deathPenaltyMultiplierEntry.Value;
@@ -70,8 +70,8 @@ namespace ValheimPlus.Configurations.Sections
                 "Increase auto pickup range of all items.");
             disableCameraShakeEntry = Bind(config, Section, "disableCameraShake", false,
                 "Disable all types of camera shake.");
-            baseUnarmedDamageEntry = Bind(config, Section, "baseUnarmedDamage", 70f,
-                "The base unarmed damage multiplied by your skill level. 120 will result in a maximum of up to 12 damage when you have a skill level of 10.");
+            unarmedDamageScaleEntry = Bind(config, Section, "unarmedDamageScale", 0f,
+                "This value represents how much unarmed (fist) damage should be scaled in +/- %. This is a modifier value.\nThe value 50 would result in 50% increased unarmed damage. The value -50 would result in 50% reduced unarmed damage.");
             cropNotifierEntry = Bind(config, Section, "cropNotifier", false,
                 "When changed to true, you will not be permitted to place a crop within the grow radius of another crop.");
             restSecondsPerComfortLevelEntry = Bind(config, Section, "restSecondsPerComfortLevel", 60f,
