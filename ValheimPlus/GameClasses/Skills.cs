@@ -41,6 +41,7 @@ namespace ValheimPlus.GameClasses
                 SkillType.Cooking => config.cooking,
                 SkillType.Farming => config.farming,
                 SkillType.Crafting => config.crafting,
+                SkillType.Dodge => config.dodge,
                 SkillType.Ride => config.ride,
                 _ => 0f
             };

@@ -28,6 +28,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<float> cookingEntry;
         private ConfigEntry<float> farmingEntry;
         private ConfigEntry<float> craftingEntry;
+        private ConfigEntry<float> dodgeEntry;
         private ConfigEntry<float> rideEntry;
 
         public float swords => swordsEntry.Value;
@@ -52,6 +53,7 @@ namespace ValheimPlus.Configurations.Sections
         public float cooking => cookingEntry.Value;
         public float farming => farmingEntry.Value;
         public float crafting => craftingEntry.Value;
+        public float dodge => dodgeEntry.Value;
         public float ride => rideEntry.Value;
 
         public override void Bind(ConfigFile config)
@@ -102,6 +104,8 @@ namespace ValheimPlus.Configurations.Sections
                 "The modifier value for the experience gained of farming.");
             craftingEntry = Bind(config, Section, "crafting", 0f,
                 "The modifier value for the experience gained of crafting.");
+            dodgeEntry = Bind(config, Section, "dodge", 0f,
+                "The modifier value for the experience gained of dodging.");
             rideEntry = Bind(config, Section, "ride", 0f,
                 "The modifier value for the experience gained of riding.");
         }
