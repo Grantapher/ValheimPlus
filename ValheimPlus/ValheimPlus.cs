@@ -15,7 +15,7 @@ namespace ValheimPlus
     // COPYRIGHT 2021 KEVIN "nx#8830" J. // http://n-x.xyz
     // GITHUB REPOSITORY https://github.com/valheimPlus/ValheimPlus
 
-    [BepInPlugin(ValheimPlusGuid, ValheimPlusName, NumericVersion)]
+    [BepInPlugin(ValheimPlusGuid, ValheimPlusName, FullVersion)]
     // Makes BepInEx load Configuration Manager before us when it is installed, so it is already
     // registered when ConfigurationManagerWatcher looks for it. Optional; V+ runs fine without it.
     [BepInDependency(ConfigurationManagerWatcher.ConfigurationManagerGuid,
@@ -27,13 +27,14 @@ namespace ValheimPlus
         internal const string ValheimPlusGuid = "org.bepinex.plugins.valheim_plus";
         private const string ValheimPlusName = "Valheim Plus";
 
-        // Version used when numeric is required (assembly info, bepinex, System.Version parsing).
+        // Version used when numeric is required (assembly info, System.Version parsing).
         public const string NumericVersion = "0.10.2.0";
 
         // Extra version, like alpha/beta/rc/stable. Can leave blank if a stable release.
+        // Must start with `-` or be blank.
         private const string VersionExtra = "";
 
-        // Version used when numeric is NOT required (Logging, config file lookup)
+        // Version used when numeric is NOT required (bepinex, Logging, config file lookup)
         public const string FullVersion = NumericVersion + VersionExtra;
 
         // Minimum required version for full compatibility.
