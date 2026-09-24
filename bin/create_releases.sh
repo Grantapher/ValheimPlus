@@ -31,6 +31,13 @@ if ! grep -q "^## $VERSION\b" "CHANGELOG.md"; then
     echo -e "${RED}Thunderstore will show the changelog without this release.${NC}" 1>&2
 fi
 
+# Catch a stale build before packaging it.
+DLL_VERSION=$(powershell.exe -NoProfile -Command "(Get-Item '$VALHEIM_PLUS_DLL').VersionInfo.ProductVersion" | tr -d '\r')
+if [ "$DLL_VERSION" != "$VERSION" ]; then
+    echo -e "${RED}ValheimPlus.dll is version '$DLL_VERSION', expected '$VERSION'. Rebuild first.${NC}" 1>&2
+    exit 1
+fi
+
 while true; do
     read -p "Proceed? [y/n] " yn
     case $yn in

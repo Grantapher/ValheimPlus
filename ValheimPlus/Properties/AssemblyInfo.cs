@@ -34,3 +34,4 @@ using ValheimPlus;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion(ValheimPlusPlugin.NumericVersion)]
 [assembly: AssemblyFileVersion(ValheimPlusPlugin.NumericVersion)]
+[assembly: AssemblyInformationalVersion(ValheimPlusPlugin.FullVersion)]
