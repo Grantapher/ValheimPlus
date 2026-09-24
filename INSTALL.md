@@ -49,7 +49,7 @@ The title screen and logs will *mostly* verify that the mod is working before yo
 In the current mod release, you should have the following versions:
 * Valheim version `1.0.15 (n-40)`
 * BepInEx version `5.4.23.5`
-  * `BepInExPack_Valheim` version `5.4.2350`
+  * `BepInExPack_Valheim` version `5.4.2351`
     * This can be verified via logs only.
     * All the GitHub releases come with this version bundled.
     * Thunderstore supports having this dependency and installing it for you via a mod manager.
