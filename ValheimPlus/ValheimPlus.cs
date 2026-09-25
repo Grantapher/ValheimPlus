@@ -81,11 +81,6 @@ namespace ValheimPlus
         private void Awake()
         {
             Logger = base.Logger;
-            Logger.LogInfo($"Valheim game version: {Version.GetVersionString()}");
-            // BepInEx already logs the numeric version, so this only earns its place
-            // when there is a suffix it does not carry.
-            Logger.Log(VersionExtra.Length > 0 ? LogLevel.Info : LogLevel.Debug,
-                $"Valheim Plus full version: {FullVersion}");
             Logger.LogInfo($"Valheim Plus dll file location: '{GetType().Assembly.Location}'");
 
             var tooOld = IsGameVersionTooOld();
@@ -111,10 +106,6 @@ namespace ValheimPlus
                 if (!isUpToDate)
                 {
                     Logger.LogWarning($"There is a newer version available of ValheimPlus. Please visit {Repository}.");
-                }
-                else
-                {
-                    Logger.LogInfo($"ValheimPlus [{FullVersion}] is up to date.");
                 }
 
                 // Create VPlus dir if it does not exist.
