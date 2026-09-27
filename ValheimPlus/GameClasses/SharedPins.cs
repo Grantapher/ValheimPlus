@@ -39,6 +39,7 @@ namespace ValheimPlus.GameClasses
         private static void Postfix(Minimap __instance)
         {
             Pending = VPlusSharedPins.Enabled && !ZInput.GetKey(Configuration.Current.Map.privatePinKey)
+                && !(ZInput.IsExclusiveGamepadActive() && SharedPinController.PrivatePlacement)
                 ? __instance.m_namePin : null;
         }
     }

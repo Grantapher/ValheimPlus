@@ -10,6 +10,10 @@ using ValheimPlus.RPC;
 using ValheimPlus.GameClasses;
 
 public static class PeerHost {
+ public static void Controller(bool enabled){ZInput.Gamepad=enabled;}
+ public static bool PrivateMode()=>SharedPinController.PrivatePlacement;
+ public static void OpenMap(){var map=Minimap.instance;map.m_mode=Minimap.MapMode.Small;Call(typeof(SharedPinControllerMapMode),"Prefix",map,Minimap.MapMode.Large);map.m_mode=Minimap.MapMode.Large;}
+ public static void Dpad(string target,bool takeInput,bool typing){var map=Minimap.instance;map.Closest=map.m_pins.FirstOrDefault(p=>p.m_name==target);Minimap.TextInput=typing;ZInput.Left=true;Call(typeof(SharedPinController),"Prefix",map,takeInput);ZInput.Left=false;Minimap.TextInput=false;}
  public static Action<long,long,string,byte[]> Send;public static List<string> Logs=new();
  public static void Init(long id,bool server,string path){ZNet.instance=new ZNet{Server=server};foreach(long peer in new long[]{2,3,4})ZNet.instance.Peers[peer]=new ZNetPeer{m_socket=new Socket{Account=peer==4?"admin":"account"+peer}};ZRoutedRpc.instance=new ZRoutedRpc{Id=id};Player.m_localPlayer=server?null:new Player();Minimap.instance=new Minimap();ValheimPlusPlugin.VPlusDataDirectoryPath=path;VPlusSharedPins.Start();}
  public static void Receive(long sender,string method,byte[] bytes){ZRoutedRpc.instance.Handlers[method](sender,new ZPackage(bytes));}
@@ -69,6 +73,13 @@ class Program {
  for(int i=0;i<35;i++){peers[3].Call("Create","Batch"+i,false);Pump(2);}
  peers[4].Dispose();peers[4]=new Peer(4,false,dir,send);peers[1].Call("Busy",4L,6000);Pump(4);peers[3].Call("Create","DuringSnapshot",false);Pump(2);peers[1].Call("Busy",4L,0);Pump(8);Check(peers[4].Get<int>("Shared")==36&&peers[4].Get<bool>("Has","DuringSnapshot"),"multi-page initial snapshot followed by queued live mutation converges");
  peers[1].Call("Host");Pump(16);Check(peers[1].Get<bool>("Ready")&&peers[1].Get<int>("Shared")==36,"listen host receives the server snapshot on its own peer");peers[1].Call("Create","HostPin",false);Pump();Check(peers[4].Get<bool>("Has","HostPin"),"listen host can publish through the same authoritative protocol");peers[1].Call("Delete","HostPin");Pump();Check(!peers[4].Get<bool>("Has","HostPin"),"listen host delete is synchronized");
+ peers[3].Call("Controller",true);peers[3].Call("OpenMap");Check(!peers[3].Get<bool>("PrivateMode"),"controller map opens with public default");
+ peers[3].Call("Dpad","",false,false);peers[3].Call("Dpad","",true,true);Check(!peers[3].Get<bool>("PrivateMode"),"controller ignores blocked input and text entry");
+ peers[3].Call("Dpad","",true,false);Check(peers[3].Get<bool>("PrivateMode"),"D-pad Left selects private creation");
+ peers[3].Call("Create","ControllerPrivate",false);Pump();Check(peers[3].Get<bool>("Has","ControllerPrivate")&&!peers[4].Get<bool>("Has","ControllerPrivate"),"controller private placement stays local without Ctrl");
+ peers[3].Call("Dpad","ControllerPrivate",true,false);Pump();Check(peers[4].Get<bool>("Has","ControllerPrivate")&&peers[3].Get<bool>("PrivateMode"),"D-pad shares crosshair pin without changing creation mode");
+ peers[3].Call("Delete","ControllerPrivate");Pump();peers[3].Call("OpenMap");Check(!peers[3].Get<bool>("PrivateMode"),"reopening map resets public default");peers[3].Call("Controller",false);
+ peers[3].Call("Dpad","",true,false);Check(!peers[3].Get<bool>("PrivateMode"),"keyboard mode ignores controller action");
  peers[2].Call("Conflict");Check(!peers[2].Get<bool>("Enabled"),"TXC conflict disables V+ pin handling");
  Check(peers[1].Get<string>("Errors")==""&&peers[3].Get<string>("Errors")=="","protocol integration has no retries or invalid packets"); Directory.CreateDirectory(Path.Combine(dir,"42_sharedPins.dat.tmp"));peers[3].Call("Create","DiskFailure",false);Pump();Check(peers[3].Get<bool>("Has","DiskFailure")&&peers[3].Get<int>("Shared")==36&&!peers[4].Get<bool>("Has","DiskFailure"),"failed durable commit leaves source private and does not broadcast");
  foreach(var peer in peers.Values)peer.Dispose();

@@ -22,6 +22,8 @@ The server syncs sharePins to clients. Restart the server and clients after inst
 - Existing personal pins are not automatically uploaded. Death, bed, player, event and temporary pins are not shared. The five normal user icons and boss pins are eligible.
 - privatePinKey and publishPinKey are local [Map] settings, defaulting to LeftControl and LeftShift.
 
+With a controller, open the large map and use **D-pad Left** over empty map space to toggle **New pins: Public / Private**. Press A to place the pin normally. The choice stays in effect until the map is reopened, which resets it to Public. When the centre crosshair targets an eligible private pin, D-pad Left instead **shares that pin** without changing the creation preference. A two-line hint above the normal map controls shows the current preference and available action. Text entry and blocked map input do not trigger this action. Keyboard Ctrl/Shift controls are unchanged; the controller preference applies only while the controller is the active input device. Existing public pins cannot be made private with this control.
+
 The feature starts once the client completes a server handshake. A pin created before that stays private; Shift-click can publish it later. A rejected or failed upload also stays private. Public pins are kept out of character saves and cartography-table exports. They are received afresh when joining the server. Their visibility does not depend on vanilla's cartography checkbox.
 
 TXC SharedMap 2.1.0 was used only as a reference for the requested interaction behavior. Its installed distribution provided no source URL or license file; no code, assets or file format were copied. This is an original implementation in V+. Do not enable both pin-sharing systems: V+ detects loaded TXC SharedMap and disables its own pin feature with a warning. Existing TXC server pin files are not imported or changed. Disable TXC rather than deleting its saved data. Previously shared TXC pins need a separate migration if you want to carry them over.
@@ -56,5 +58,6 @@ Before relying on it in the main world, verify with two clients:
 4. Disconnect/reconnect, then restart the server. Public pins remain and deleted pins do not return. Try joining only after the creator has disconnected.
 5. Save/reload characters and use a cartography table; shared pins should not turn into private or table copies.
 6. Confirm ordinary private pins, exploration sharing, smelter automation and normal map controls still work.
+7. On controller, toggle to Private over empty space, place a pin with A, and confirm the other player cannot see it. Target it with the centre crosshair and press D-pad Left to share it. Reopen the map and confirm the preference returns to Public. Check hint placement at your UI scale and ensure normal D-pad up/down/right, ping, check and delete controls still work.
 
 The bundled DLL retains the earlier smelter guard and optional diagnostics. Keep the last working DLL for rollback. Restoring it makes this feature unavailable but does not delete the shared-pin data file.
