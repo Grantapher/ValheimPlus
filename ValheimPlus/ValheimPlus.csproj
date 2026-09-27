@@ -270,6 +270,9 @@
     <Compile Include="GameClasses\Game.cs" />
     <Compile Include="GameClasses\SteamGameServer.cs" />
     <Compile Include="RPC\VPlusMapSync.cs" />
+    <Compile Include="RPC\SharedPinStore.cs" />
+    <Compile Include="RPC\VPlusSharedPins.cs" />
+    <Compile Include="GameClasses\SharedPins.cs" />
     <Compile Include="GameClasses\Minimap.cs" />
     <Compile Include="GameClasses\Smelter.cs" />
     <Compile Include="Utility\HttpHelper.cs" />
