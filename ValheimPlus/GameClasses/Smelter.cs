@@ -1,12 +1,14 @@
-﻿using HarmonyLib;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using HarmonyLib;
 using UnityEngine;
 using ValheimPlus.Configurations;
 using ValheimPlus.Utility;
+using Object = UnityEngine.Object;
 
 namespace ValheimPlus.GameClasses
 {
@@ -39,7 +41,9 @@ namespace ValheimPlus.GameClasses
 
                 if (Configuration.Current.Furnace.allowAllOres)
                 {
-                    __instance.m_conversion.AddRange(FurnaceDefinitions.AdditionalConversions);
+                    __instance.m_conversion.AddRange(FurnaceDefinitions.AdditionalConversions
+                        .Where(c => __instance.m_conversion.All(existing => existing.m_from != c.m_from))
+                        .ToList());
                 }
             }
             else if (__instance.m_name.Equals(SmelterDefinitions.WindmillName) && Configuration.Current.Windmill.IsEnabled)
@@ -307,7 +311,7 @@ namespace ValheimPlus.GameClasses
             autoFuelRange = Helper.Clamp(autoFuelRange, 1, 50);
 
             int toMaxOre = smelter.m_maxOre - smelter.GetQueueSize();
-            int toMaxFuel = smelter.m_maxFuel - (int)System.Math.Ceiling(smelter.GetFuel());
+            int toMaxFuel = smelter.m_maxFuel - (int)Math.Ceiling(smelter.GetFuel());
 
             if (smelter.m_fuelItem && toMaxFuel > 0)
             {
@@ -371,7 +375,7 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Smelter), nameof(Smelter.FindCookableItem))]
     public static class Smelter_FindCookableItem_Transpiler
     {
-        private static MethodInfo method_PreventUsingSpecificWood = AccessTools.Method(typeof(Smelter_FindCookableItem_Transpiler), nameof(Smelter_FindCookableItem_Transpiler.PreventUsingSpecificWood));
+        private static MethodInfo method_PreventUsingSpecificWood = AccessTools.Method(typeof(Smelter_FindCookableItem_Transpiler), nameof(PreventUsingSpecificWood));
 
         /// <summary>
         /// Patches out the function that check for Cookable items.
@@ -425,7 +429,7 @@ namespace ValheimPlus.GameClasses
     public static class Smelter_UpdaterSmelter_Transpiler
     {
         private static MethodInfo method_Windmill_GetPowerOutput = AccessTools.Method(typeof(Windmill), nameof(Windmill.GetPowerOutput));
-        private static MethodInfo method_GetPowerOutput = AccessTools.Method(typeof(Smelter_UpdaterSmelter_Transpiler), nameof(Smelter_UpdaterSmelter_Transpiler.GetPowerOutput));
+        private static MethodInfo method_GetPowerOutput = AccessTools.Method(typeof(Smelter_UpdaterSmelter_Transpiler), nameof(GetPowerOutput));
 
         /// <summary>
         /// Patches out the code that get the power output of a windmill.
@@ -457,37 +461,38 @@ namespace ValheimPlus.GameClasses
 
     public static class SmelterDefinitions
     {
-        public static readonly string KilnName = "$piece_charcoalkiln";
-        public static readonly string SmelterName = "$piece_smelter";
-        public static readonly string FurnaceName = "$piece_blastfurnace";
-        public static readonly string WindmillName = "$piece_windmill";
-        public static readonly string SpinningWheelName = "$piece_spinningwheel";
-        public static readonly string EitrRefineryName = "$piece_eitrrefinery";
-        public static readonly string HotTubName = "$piece_bathtub";
-        public static readonly string FrigidKilnName = "$piece_frostkiln";
+        public const string KilnName = "$piece_charcoalkiln";
+        public const string SmelterName = "$piece_smelter";
+        public const string FurnaceName = "$piece_blastfurnace";
+        public const string WindmillName = "$piece_windmill";
+        public const string SpinningWheelName = "$piece_spinningwheel";
+        public const string EitrRefineryName = "$piece_eitrrefinery";
+        public const string HotTubName = "$piece_bathtub";
+        public const string FrigidKilnName = "$piece_frostkiln";
     }
 
     public static class FurnaceDefinitions
     {
-        public static readonly string CopperOrePrefabName = "CopperOre";
-        public static readonly string CopperScrapPrefabName = "CopperScrap";
-        public static readonly string ScrapIronPrefabName = "IronScrap";
-        public static readonly string SilverOrePrefabName = "SilverOre";
-        public static readonly string TinOrePrefabName = "TinOre";
+        private const string SmelterPrefabName = "smelter";
 
-        public static readonly string CopperPrefabName = "Copper";
-        public static readonly string IronPrefabName = "Iron";
-        public static readonly string SilverPrefabName = "Silver";
-        public static readonly string TinPrefabName = "Tin";
+        private static List<Smelter.ItemConversion> _additionalConversions;
 
-        public static readonly List<Smelter.ItemConversion> AdditionalConversions = new List<Smelter.ItemConversion>
+        /// <summary>The smelter's conversions, read from its prefab on first use.</summary>
+        public static List<Smelter.ItemConversion> AdditionalConversions =>
+            _additionalConversions ??= FindSmelterConversions();
+
+        private static List<Smelter.ItemConversion> FindSmelterConversions()
         {
-            new Smelter.ItemConversion() { m_from = ObjectDB.instance.GetItemPrefab(CopperOrePrefabName).GetComponent<ItemDrop>(), m_to = ObjectDB.instance.GetItemPrefab(CopperPrefabName).GetComponent<ItemDrop>().GetComponent<ItemDrop>() },
-            new Smelter.ItemConversion() { m_from = ObjectDB.instance.GetItemPrefab(CopperScrapPrefabName).GetComponent<ItemDrop>(), m_to = ObjectDB.instance.GetItemPrefab(CopperPrefabName).GetComponent<ItemDrop>().GetComponent<ItemDrop>() },
-            new Smelter.ItemConversion() { m_from = ObjectDB.instance.GetItemPrefab(ScrapIronPrefabName).GetComponent<ItemDrop>(), m_to = ObjectDB.instance.GetItemPrefab(IronPrefabName).GetComponent<ItemDrop>().GetComponent<ItemDrop>() },
-            new Smelter.ItemConversion() { m_from = ObjectDB.instance.GetItemPrefab(SilverOrePrefabName).GetComponent<ItemDrop>(), m_to = ObjectDB.instance.GetItemPrefab(SilverPrefabName).GetComponent<ItemDrop>().GetComponent<ItemDrop>() },
-            new Smelter.ItemConversion() { m_from = ObjectDB.instance.GetItemPrefab(TinOrePrefabName).GetComponent<ItemDrop>(), m_to = ObjectDB.instance.GetItemPrefab(TinPrefabName).GetComponent<ItemDrop>().GetComponent<ItemDrop>() }
-        };
+            var smelter = ZNetScene.instance.GetPrefab(SmelterPrefabName)?.GetComponent<Smelter>();
+
+            if (smelter == null)
+            {
+                ValheimPlusPlugin.Logger.LogWarning("Smelter prefab not found, furnace allowAllOres has no effect.");
+                return new List<Smelter.ItemConversion>();
+            }
+
+            return smelter.m_conversion;
+        }
     }
 
     public static class WoodDefinitions
