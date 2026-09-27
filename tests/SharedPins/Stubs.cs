@@ -6,11 +6,12 @@ namespace UnityEngine {
  public struct Vector3 {public float x,y,z;public Vector3(float a,float b,float c){x=a;y=b;z=c;}}
  public struct Color {public float r,g,b,a;public Color(float r,float g,float b,float a){this.r=r;this.g=g;this.b=b;this.a=a;}}
  public enum KeyCode{LeftControl,LeftShift}
- public static class Input{public static KeyCode? Pressed;public static bool GetKey(KeyCode key)=>Pressed==key;}
+ public static class Input{public static bool GetKey(KeyCode key)=>throw new InvalidOperationException("Legacy Unity input must not be used for map modifiers");}
  public static class Time{public static float realtimeSinceStartup;}
  public class Image{public Color color;}
  public class Text{public Color color;}
 }
+public static class ZInput{public static UnityEngine.KeyCode? Pressed;public static bool GetKey(UnityEngine.KeyCode key,bool logWarning=true)=>Pressed==key;}
 namespace HarmonyLib {
  public class HarmonyPatch:Attribute{public HarmonyPatch(){} public HarmonyPatch(Type t,string name){}public HarmonyPatch(Type t,string name,Type[] args){}}
  public class HarmonyPriority:Attribute{public HarmonyPriority(int p){}}

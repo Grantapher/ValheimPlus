@@ -38,7 +38,7 @@ namespace ValheimPlus.GameClasses
         internal static Minimap.PinData Pending;
         private static void Postfix(Minimap __instance)
         {
-            Pending = VPlusSharedPins.Enabled && !Input.GetKey(Configuration.Current.Map.privatePinKey)
+            Pending = VPlusSharedPins.Enabled && !ZInput.GetKey(Configuration.Current.Map.privatePinKey)
                 ? __instance.m_namePin : null;
         }
     }
@@ -64,7 +64,7 @@ namespace ValheimPlus.GameClasses
     {
         private static bool Prefix(Minimap __instance)
         {
-            if (!VPlusSharedPins.Enabled || !Input.GetKey(Configuration.Current.Map.publishPinKey)) return true;
+            if (!VPlusSharedPins.Enabled || !ZInput.GetKey(Configuration.Current.Map.publishPinKey)) return true;
             var pin = __instance.GetClosestPinToCursor();
             if (pin == null || VPlusSharedPins.IsShared(pin)) return true;
             if (!SharedPinStore.AllowedType((int)pin.m_type)) return true;
