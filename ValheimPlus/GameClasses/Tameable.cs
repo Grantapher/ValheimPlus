@@ -26,13 +26,16 @@ namespace ValheimPlus.GameClasses
         Lox = 1 << 2,
         Hen = 1 << 3,
         Asksvin = 1 << 4,
-        All = (1 << 5) - 1
+        Moose = 1 << 5,
+        All = (1 << 6) - 1
     }
 
     public static class TameableHelpers
     {
         public static readonly Dictionary<string, AnimalType> NamedTypes = new()
         {
+            { "$enemy_moose", AnimalType.Moose },
+            { "$enemy_moose_calf", AnimalType.Moose },
             { "$enemy_asksvin", AnimalType.Asksvin },
             { "$enemy_asksvin_hatchling", AnimalType.Asksvin },
             { "$enemy_boar", AnimalType.Boar },
