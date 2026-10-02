@@ -100,12 +100,19 @@ namespace ValheimPlus.GameClasses
                 //We left the server, so reset our map sync check.
                 if (Configuration.Current.Map.IsEnabled && Configuration.Current.Map.shareMapProgression)
                     VPlusMapSync.ShouldSyncOnSpawn = true;
+
+                //We left the server, so reset our pin sync check.
+                if (Configuration.Current.Map.IsEnabled && Configuration.Current.Map.shareAllPins)
+                    VPlusMapPinSync.ShouldSyncOnSpawn = true;
             }
             else
             {
                 //Save map data to disk
                 if (Configuration.Current.Map.IsEnabled && Configuration.Current.Map.shareMapProgression)
                     VPlusMapSync.SaveMapDataToDisk();
+
+                //Save shared map pins to disk
+                VPlusMapPinSync.SavePinsToDisk();
             }
         }
     }

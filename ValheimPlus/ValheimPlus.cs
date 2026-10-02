@@ -120,11 +120,14 @@ namespace ValheimPlus
                 if (!Directory.Exists(VPlusDataDirectoryPath)) Directory.CreateDirectory(VPlusDataDirectoryPath);
 
                 //Map Sync Save Timer
-                if (ZNet.m_isServer && Configuration.Current.Map.IsEnabled &&
-                    Configuration.Current.Map.shareMapProgression)
+                var map = Configuration.Current.Map;
+                if (ZNet.m_isServer && map.IsEnabled && (map.shareMapProgression || map.shareAllPins))
                 {
                     MapSyncSaveTimer.AutoReset = true;
-                    MapSyncSaveTimer.Elapsed += (_, _) => VPlusMapSync.SaveMapDataToDisk();
+                    if (map.shareMapProgression)
+                        MapSyncSaveTimer.Elapsed += (_, _) => VPlusMapSync.SaveMapDataToDisk();
+                    if (map.shareAllPins)
+                        MapSyncSaveTimer.Elapsed += (_, _) => VPlusMapPinSync.SavePinsToDisk();
                 }
 
             }

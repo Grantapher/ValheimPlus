@@ -20,6 +20,10 @@ namespace ValheimPlus.GameClasses
         private static void Prefix()
         {
             ZRoutedRpc.instance.Register<ZPackage>("VPlusMapSync", VPlusMapSync.RPC_VPlusMapSync);
+            ZRoutedRpc.instance.Register<ZPackage>(VPlusMapPinSync.AddRpc, VPlusMapPinSync.RPC_MapPinAdd);
+            ZRoutedRpc.instance.Register<ZPackage>(VPlusMapPinSync.RemoveRpc, VPlusMapPinSync.RPC_MapPinRemove);
+            ZRoutedRpc.instance.Register<ZPackage>(VPlusMapPinSync.RequestRpc, VPlusMapPinSync.RPC_MapPinRequest);
+            ZRoutedRpc.instance.Register<ZPackage>(VPlusMapPinSync.SnapshotRpc, VPlusMapPinSync.RPC_MapPinSnapshot);
             ZRoutedRpc.instance.Register("VPlusAck", VPlusAck.RPC_VPlusAck);
         }
     }

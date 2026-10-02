@@ -1572,6 +1572,11 @@
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
+			"shareAllPins": {
+				"description": "Shares map pins with everyone on the server.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
 			"showCartsAndBoats": {
 				"description": "Display carts and boats on the map",
 				"defaultValue": "false",
