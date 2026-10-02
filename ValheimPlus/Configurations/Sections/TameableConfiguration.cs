@@ -34,7 +34,7 @@ namespace ValheimPlus.Configurations.Sections
             BindEnabled(config, Section, false,
                 "Change false to true to enable this section.");
             animalTypesEntry = Bind(config, Section, "animalTypes", AnimalType.All,
-                "A comma-separated list of animals that can be tamed.\nValid types are: boar, hen, wolf, lox, asksvin, all, none");
+                "A comma-separated list of animals that can be tamed.\nValid types are: boar, hen, wolf, lox, asksvin, moose, all, none");
             mortalityEntry = Bind(config, Section, "mortality", 0, 0, 2,
                 "Modify what happens when a tamed creature is attacked.\n0 = normal, 1 = essential(deadly attacks stun instead of kill, tamed creatures can still die rarely), 2 = immortal.");
             ownerDamageOverrideEntry = Bind(config, Section, "ownerDamageOverride", true,
