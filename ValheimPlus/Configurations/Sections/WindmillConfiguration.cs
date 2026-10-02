@@ -40,6 +40,8 @@ namespace ValheimPlus.Configurations.Sections
                 "This option prevents the Windmill to pull items from warded areas if it isn't placed inside of it.\nFor convenience, we recommend this to be set to true.");
             autoRangeEntry = Bind(config, Section, "autoRange", 10f, 1f, 50f,
                 "The range of the chest detection for the auto deposit and auto fuel features.\nMaximum is 50");
+            stopAutoFuelOatThresholdEntry = Bind(config, Section, "stopAutoFuelOatThreshold", 0,
+                "Stops autoFuel (looking for oats) when there is at least this quantity of oat flour in nearby chests\n(ignored if set to 0)");
         }
     }
 }

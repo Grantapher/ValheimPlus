@@ -234,6 +234,7 @@ namespace ValheimPlus.GameClasses
             float autoFuelRange = 0f;
             bool ignorePrivateAreaCheck = false;
             bool isKiln = false;
+            bool isWindmill = false;
             if (smelter.m_name.Equals(SmelterDefinitions.KilnName))
             {
                 if (!Configuration.Current.Kiln.IsEnabled || !Configuration.Current.Kiln.autoFuel)
@@ -260,6 +261,7 @@ namespace ValheimPlus.GameClasses
             {
                 if (!Configuration.Current.Windmill.IsEnabled || !Configuration.Current.Windmill.autoFuel)
                     return;
+                isWindmill = true;
                 autoFuelRange = Configuration.Current.Windmill.autoRange;
                 ignorePrivateAreaCheck = Configuration.Current.Windmill.ignorePrivateAreaCheck;
             }
@@ -338,6 +340,12 @@ namespace ValheimPlus.GameClasses
 
                             int threshold = Configuration.Current.Kiln.stopAutoFuelThreshold < 0 ? 0 : Configuration.Current.Kiln.stopAutoFuelThreshold;
                             if (threshold > 0 && InventoryAssistant.GetItemAmountInItemList(InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests), itemConversion.m_to.m_itemData) >= threshold) return;
+                        }
+
+                        if (isWindmill)
+                        {
+                            int threshold = Configuration.Current.Windmill.stopAutoFuelOatThreshold < 0 ? 0 : Configuration.Current.Windmill.stopAutoFuelOatThreshold;
+                            if (threshold > 0 && itemConversion.m_from.m_itemData.m_shared.m_name.Equals(WindmillDefinitions.OatName) && InventoryAssistant.GetItemAmountInItemList(InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests), itemConversion.m_to.m_itemData) >= threshold) continue;
                         }
 
                         ItemDrop.ItemData oreItem = itemConversion.m_from.m_itemData;
@@ -494,5 +502,10 @@ namespace ValheimPlus.GameClasses
     {
         public static readonly string FineWoodName = "$item_finewood";
         public static readonly string RoundLogName = "$item_roundlog";
+    }
+
+    public static class WindmillDefinitions
+    {
+        public static readonly string OatName = "$item_oat";
     }
 }
