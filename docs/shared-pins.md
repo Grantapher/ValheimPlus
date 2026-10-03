@@ -60,4 +60,4 @@ Before relying on it in the main world, verify with two clients:
 6. Confirm ordinary private pins, exploration sharing, smelter automation and normal map controls still work.
 7. On controller, toggle to Private over empty space, place a pin with A, and confirm the other player cannot see it. Target it with the centre crosshair and press D-pad Left to share it. Reopen the map and confirm the preference returns to Public. Check hint placement at your UI scale and ensure normal D-pad up/down/right, ping, check and delete controls still work.
 
-The bundled DLL retains the earlier smelter guard and optional diagnostics. Keep the last working DLL for rollback. Restoring it makes this feature unavailable but does not delete the shared-pin data file.
+This change contains shared-pin functionality only. Keep the last working DLL for rollback. Restoring it makes this feature unavailable but does not delete the shared-pin data file.

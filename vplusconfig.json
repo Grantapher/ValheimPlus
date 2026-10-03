@@ -1557,6 +1557,21 @@
 				"defaultValue": "false",
 				"defaultType": "bool"
 			},
+			"sharePins": {
+				"description": "Share new map pins through the server with persistent storage. Hold Left Ctrl at placement for private pins; Left Shift-click publishes existing private pins. Controller D-pad Left toggles privacy or publishes the targeted pin. Requires compatible clients and server. Disable TXC SharedMap first.",
+				"defaultValue": "false",
+				"defaultType": "bool"
+			},
+			"privatePinKey": {
+				"description": "Local key held when placing a new pin to keep it private.",
+				"defaultValue": "LeftControl",
+				"defaultType": "KeyCode"
+			},
+			"publishPinKey": {
+				"description": "Local key held while left-clicking a private pin to publish it.",
+				"defaultValue": "LeftShift",
+				"defaultType": "KeyCode"
+			},
 			"shareMapProgression": {
 				"description": "With this enabled you will receive the same exploration progression as other players on the server, this will also enable the option for the server to sync everyones exploration progression on connecting to the server.",
 				"defaultValue": "false",
