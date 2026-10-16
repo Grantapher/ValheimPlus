@@ -8,6 +8,34 @@ compatible; see the [release archive](https://github.com/Grantapher/ValheimPlus/
 for those notes.
 
 
+## 0.10.3.0 - Valheim 1.0.20 Compatibility
+
+_Released 2026-10-15_
+
+### Patch Notes
+
+* Support for Valheim 1.0.20.
+* `Experience.dodge` added.
+
+### Compatibility
+
+* ✅ - `Valheim 1.0.20 (n-41)` + `BepInExPack_Valheim 5.4.2351` + `ValheimPlus 0.10.3.0`
+* ⛔️ - Anything else
+
+### Detailed Patch Notes
+
+* Cheat flag and auto-deposit
+    * Valheim 1.0.20 resets the cheat flag on stations: anything flagged by an earlier version is now treated as clean, and the game's own output from those stations is no longer marked as cheated.
+    * Auto-deposit for smelter-type stations and fermenters still read the old flag, so items it put in chests were marked as cheated where the game's would not be. Cheated items spread the mark to the stacks they join and to anything crafted from them, and they block achievements.
+    * Auto-deposit now reads the flag the same way the game does. Items marked before this fix stay marked.
+* `LootDrop` and starred creatures
+    * The game now lets a drop scale its chance with a creature's star level without also scaling the amount. `LootDrop` rebuilt each drop without that setting, so those drops still had their amount multiplied by 2 for 1-star and 4 for 2-star creatures.
+    * The setting is now kept, so starred creatures drop the amounts the game intends, before your `LootDrop` multipliers.
+* `Experience.dodge` added
+* `Furnace.allowAllOres`
+    * The list of extra ores was hardcoded. It is now read from the smelter prefab, so ores the game adds to the smelter are picked up automatically, and ores the furnace already accepts are not added a second time.
+
+
 ## 0.10.2.0 - Valheim 1.0.15 Compatibility and New Settings
 
 _Released 2026-09-19_
