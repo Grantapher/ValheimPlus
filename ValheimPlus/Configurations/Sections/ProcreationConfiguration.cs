@@ -36,7 +36,7 @@ namespace ValheimPlus.Configurations.Sections
             BindEnabled(config, Section, false,
                 "Change false to true to enable this section.");
             animalTypesEntry = Bind(config, Section, "animalTypes", AnimalType.All,
-                "A comma-separated list of animals that can be tamed.\nValid types are: boar, hen, wolf, lox, asksvin, all, none");
+                "A comma-separated list of animals that can be tamed.\nValid types are: boar, hen, wolf, lox, asksvin, moose, all, none");
             loveInformationEntry = Bind(config, Section, "loveInformation", false,
                 "Set to true to display the amount of love points a creature has.\nWhen they become pregnant it will display the amount of time until they give birth.");
             offspringInformationEntry = Bind(config, Section, "offspringInformation", false,
