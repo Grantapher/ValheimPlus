@@ -272,7 +272,7 @@ namespace ValheimPlus.GameClasses
                 // what we put in the chest is indistinguishable from what it would have dropped.
                 ItemDrop.OnCreateNew(comp,
                     (__instance.m_delayedTapItemCheated ||
-                     __instance.m_nview.GetZDO().GetBool(ZDOVars.s_cheated)) &&
+                     __instance.m_nview.GetZDO().IsCheated()) &&
                     !PlayerProfile.s_bypassCheatChecks);
 
                 bool result = spawnNearbyChest(comp, true);

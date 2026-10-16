@@ -24,6 +24,7 @@ namespace ValheimPlus
                     m_chance = Helper.applyModifierValue(originalDrop.m_chance, Configuration.Current.LootDrop.lootDropChanceMultiplier),
                     m_onePerPlayer = originalDrop.m_onePerPlayer,
                     m_levelMultiplier = originalDrop.m_levelMultiplier,
+                    m_levelMultiplierNotAmount = originalDrop.m_levelMultiplierNotAmount,
                     m_dontScale = originalDrop.m_dontScale
                 }
                 );

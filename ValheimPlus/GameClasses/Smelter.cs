@@ -182,7 +182,7 @@ namespace ValheimPlus.GameClasses
                 // put in the chest is indistinguishable from what the smelter would have dropped.
                 ItemDrop.OnCreateNew(comp,
                     (smelter.m_nview.GetZDO().GetBool(ZDOVars.s_cheatedQueued) ||
-                     smelter.m_nview.GetZDO().GetBool(ZDOVars.s_cheated)) &&
+                     smelter.m_nview.GetZDO().IsCheated()) &&
                     !PlayerProfile.s_bypassCheatChecks);
 
                 bool result = spawnNearbyChest(true);
