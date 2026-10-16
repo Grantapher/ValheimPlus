@@ -238,6 +238,7 @@
     <Compile Include="GameClasses\Chat.cs" />
     <Compile Include="GameClasses\ZPlayFabMatchmaking.cs" />
     <Compile Include="GameClasses\WispSpawner.cs" />
+    <Compile Include="RPC\VPlusMapPinSync.cs" />
     <Compile Include="UI\HotkeyBar.cs" />
     <Compile Include="GameClasses\Hud.cs" />
     <Compile Include="GameClasses\EventSystem.cs" />

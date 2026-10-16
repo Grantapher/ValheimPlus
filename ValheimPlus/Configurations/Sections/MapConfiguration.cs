@@ -9,11 +9,13 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<bool> shareMapProgressionEntry;
         private ConfigEntry<float> exploreRadiusEntry;
         private ConfigEntry<bool> preventPlayerFromTurningOffPublicPositionEntry;
+        private ConfigEntry<bool> shareAllPinsEntry;
         private ConfigEntry<bool> displayCartsAndBoatsEntry;
 
         public bool shareMapProgression => shareMapProgressionEntry.Value;
         public float exploreRadius => exploreRadiusEntry.Value;
         public bool preventPlayerFromTurningOffPublicPosition => preventPlayerFromTurningOffPublicPositionEntry.Value;
+        public bool shareAllPins => shareAllPinsEntry.Value;
         public bool displayCartsAndBoats => displayCartsAndBoatsEntry.Value;
 
         public override void Bind(ConfigFile config)
@@ -26,6 +28,8 @@ namespace ValheimPlus.Configurations.Sections
                 "The radius of the map that you explore when moving.");
             preventPlayerFromTurningOffPublicPositionEntry = Bind(config, Section, "preventPlayerFromTurningOffPublicPosition", false,
                 "Prevents you and other people on the server to turn off their map sharing option.");
+            shareAllPinsEntry = Bind(config, Section, "shareAllPins", false,
+                "Shares map pins with everyone on the server.");
             displayCartsAndBoatsEntry = Bind(config, Section, "displayCartsAndBoats", false,
                 "Display carts and boats on the map");
         }
