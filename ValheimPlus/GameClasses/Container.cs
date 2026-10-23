@@ -27,6 +27,21 @@ namespace ValheimPlus.GameClasses
         private const int blackmetalChestInventoryMaxCol = 8;
         private const int blackmetalChestInventoryMinCol = 3;
 
+        private const int graustenChestInventoryMaxRows = 20;
+        private const int graustenChestInventoryMinRows = 3;
+        private const int graustenChestInventoryMaxCol = 8;
+        private const int graustenChestInventoryMinCol = 3;
+
+        private const int wardrobeInventoryMaxRows = 20;
+        private const int wardrobeInventoryMinRows = 3;
+        private const int wardrobeInventoryMaxCol = 8;
+        private const int wardrobeInventoryMinCol = 3;
+
+        private const int barrelInventoryMaxRows = 20;
+        private const int barrelInventoryMinRows = 2;
+        private const int barrelInventoryMaxCol = 8;
+        private const int barrelInventoryMinCol = 3;
+
         private const int karveChestInventoryMaxRows = 30;
         private const int karveChestInventoryMinRows = 2;
         private const int karveChestInventoryMaxCol = 8;
@@ -36,6 +51,11 @@ namespace ValheimPlus.GameClasses
         private const int longboatChestInventoryMinRows = 3;
         private const int longboatChestInventoryMaxCol = 8;
         private const int longboatChestInventoryMinCol = 6;
+
+        private const int drakkarChestInventoryMaxRows = 30;
+        private const int drakkarChestInventoryMinRows = 3;
+        private const int drakkarChestInventoryMaxCol = 8;
+        private const int drakkarChestInventoryMinCol = 6;
 
         private const int cartChestInventoryMaxRows = 30;
         private const int cartChestInventoryMinRows = 3;
@@ -56,12 +76,24 @@ namespace ValheimPlus.GameClasses
             // load, so the Container's own dimensions have to agree with ours.
             __instance.m_width = ___m_inventory.m_width;
             __instance.m_height = ___m_inventory.m_height;
+
+            PreserveOccupiedColumns(__instance, ___m_inventory);
         }
 
         static void ApplyConfiguredSize(Container __instance, ref Inventory ___m_inventory)
         {
 
             if (!Configuration.Current.Inventory.IsEnabled) return;
+
+            // Check the new containers first: VikingShip_Ashlands would otherwise match
+            // the longboat's VikingShip substring below.
+            if (__instance != null && ___m_inventory != null &&
+                TryGetAdditionalContainerSize(__instance, ___m_inventory, out int columns, out int rows))
+            {
+                ___m_inventory.m_width = columns;
+                ___m_inventory.m_height = rows;
+                return;
+            }
 
             if (__instance == null || ___m_inventory == null || !__instance.transform.parent) {
 
@@ -130,6 +162,87 @@ namespace ValheimPlus.GameClasses
             };
 
 
+        }
+
+        internal static bool TryGetAdditionalContainerSize(Container container, Inventory inventory, out int columns, out int rows)
+        {
+            columns = rows = 0;
+            if (inventory.m_name == "$piece_chestgrausten")
+            {
+                columns = Helper.Clamp(Configuration.Current.Inventory.graustenChestColumns, graustenChestInventoryMinCol, graustenChestInventoryMaxCol);
+                rows = Helper.Clamp(Configuration.Current.Inventory.graustenChestRows, graustenChestInventoryMinRows, graustenChestInventoryMaxRows);
+                return true;
+            }
+            if (inventory.m_name == "$piece_chestwarderobe")
+            {
+                columns = Helper.Clamp(Configuration.Current.Inventory.wardrobeColumns, wardrobeInventoryMinCol, wardrobeInventoryMaxCol);
+                rows = Helper.Clamp(Configuration.Current.Inventory.wardrobeRows, wardrobeInventoryMinRows, wardrobeInventoryMaxRows);
+                return true;
+            }
+            if (inventory.m_name == "$piece_chestbarrel")
+            {
+                columns = Helper.Clamp(Configuration.Current.Inventory.barrelColumns, barrelInventoryMinCol, barrelInventoryMaxCol);
+                rows = Helper.Clamp(Configuration.Current.Inventory.barrelRows, barrelInventoryMinRows, barrelInventoryMaxRows);
+                return true;
+            }
+
+            var root = container.m_rootObjectOverride ? container.m_rootObjectOverride.transform : container.transform.parent;
+            if (root && Utils.GetPrefabName(root.name) == "VikingShip_Ashlands")
+            {
+                columns = Helper.Clamp(Configuration.Current.Inventory.drakkarInventoryColumns, drakkarChestInventoryMinCol, drakkarChestInventoryMaxCol);
+                rows = Helper.Clamp(Configuration.Current.Inventory.drakkarInventoryRows, drakkarChestInventoryMinRows, drakkarChestInventoryMaxRows);
+                return true;
+            }
+            return false;
+        }
+
+        internal static void PreserveOccupiedColumns(Container container, Inventory inventory)
+        {
+            if (!Configuration.Current.Inventory.IsEnabled || container == null || inventory == null) return;
+            if (!TryGetAdditionalContainerSize(container, inventory, out _, out _)) return;
+
+            // Native Container.UpdateRows retains occupied rows after loading. Do the
+            // same for columns so lowering these settings cannot hide saved items.
+            int columns = container.m_width;
+            foreach (var item in inventory.GetAllItems())
+                columns = System.Math.Max(columns, item.m_gridPos.x + 1);
+            inventory.m_width = columns;
+        }
+    }
+
+    [HarmonyPatch(typeof(Container), "Load")]
+    public static class Container_Load_Patch
+    {
+        private static void Prefix(Container __instance, Inventory ___m_inventory, ZNetView ___m_nview, uint ___m_lastRevision, bool ___m_inUse)
+        {
+            if (!Configuration.Current.Inventory.IsEnabled || __instance == null || ___m_inventory == null || !___m_nview) return;
+            if (!Container_Awake_Patch.TryGetAdditionalContainerSize(__instance, ___m_inventory, out _, out _)) return;
+
+            var zdo = ___m_nview.GetZDO();
+            if (zdo == null || ___m_inUse || zdo.DataRevision == ___m_lastRevision) return;
+            var savedItems = zdo.GetByteArray(ZDOVars.s_items);
+            if (savedItems == null) return;
+
+            // Native loading rejects saved columns beyond the current width. Older
+            // save formats also reject rows beyond the height. Read positions without
+            // bounds first so every saved item fits when the real inventory loads.
+            var savedInventory = new Inventory(true);
+            savedInventory.Load(new ZPackage(savedItems));
+            int columns = __instance.m_width;
+            int rows = __instance.m_height;
+            foreach (var item in savedInventory.GetAllItems())
+            {
+                columns = System.Math.Max(columns, item.m_gridPos.x + 1);
+                rows = System.Math.Max(rows, item.m_gridPos.y + 1);
+            }
+            ___m_inventory.m_width = columns;
+            ___m_inventory.m_height = rows;
+        }
+
+        private static void Postfix(Container __instance, Inventory ___m_inventory, bool __result)
+        {
+            if (__result)
+                Container_Awake_Patch.PreserveOccupiedColumns(__instance, ___m_inventory);
         }
     }
 

@@ -1385,6 +1385,36 @@
 				"defaultValue": "4",
 				"defaultType": "int"
 			},
+			"graustenChestColumns": {
+				"description": "Grausten chest number of columns. Occupied columns are preserved when loading an existing chest.\n(default 8, min 3, max 8)",
+				"defaultValue": "8",
+				"defaultType": "int"
+			},
+			"graustenChestRows": {
+				"description": "Grausten chest number of rows (more than 4 rows will add a scrollbar).\nOccupied rows are preserved when loading an existing chest.\n(default 5, min 3, max 20)",
+				"defaultValue": "5",
+				"defaultType": "int"
+			},
+			"wardrobeColumns": {
+				"description": "Wardrobe number of columns. Occupied columns are preserved when loading an existing wardrobe.\n(default 5, min 3, max 8)",
+				"defaultValue": "5",
+				"defaultType": "int"
+			},
+			"wardrobeRows": {
+				"description": "Wardrobe number of rows (more than 4 rows will add a scrollbar).\nOccupied rows are preserved when loading an existing wardrobe.\n(default 10, min 3, max 20)",
+				"defaultValue": "10",
+				"defaultType": "int"
+			},
+			"barrelColumns": {
+				"description": "Barrel number of columns. Occupied columns are preserved when loading an existing barrel.\n(default 6, min 3, max 8)",
+				"defaultValue": "6",
+				"defaultType": "int"
+			},
+			"barrelRows": {
+				"description": "Barrel number of rows (more than 4 rows will add a scrollbar).\nOccupied rows are preserved when loading an existing barrel.\n(default 2, min 2, max 20)",
+				"defaultValue": "2",
+				"defaultType": "int"
+			},
 			"cartInventoryColumns": {
 				"description": "Cart (Wagon) inventory number of columns",
 				"defaultValue": "8",
@@ -1413,6 +1443,16 @@
 			"longboatInventoryRows": {
 				"description": "Longboat (large boat) inventory number of rows (more than 4 rows will add a scrollbar)",
 				"defaultValue": "3",
+				"defaultType": "int"
+			},
+			"drakkarInventoryColumns": {
+				"description": "Drakkar inventory number of columns. Occupied columns are preserved when loading an existing ship.\n(default 8, min 6, max 8)",
+				"defaultValue": "8",
+				"defaultType": "int"
+			},
+			"drakkarInventoryRows": {
+				"description": "Drakkar inventory number of rows (more than 4 rows will add a scrollbar).\nOccupied rows are preserved when loading an existing ship.\n(default 4, min 3, max 30)",
+				"defaultValue": "4",
 				"defaultType": "int"
 			},
 			"inventoryFillTopToBottom": {
