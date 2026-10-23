@@ -11,6 +11,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<float> coreWoodEntry;
         private ConfigEntry<float> elderBarkEntry;
         private ConfigEntry<float> yggdrasilWoodEntry;
+        private ConfigEntry<float> frostwoodEntry;
         private ConfigEntry<float> stoneEntry;
         private ConfigEntry<float> blackMarbleEntry;
         private ConfigEntry<float> tinOreEntry;
@@ -18,6 +19,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<float> copperScrapEntry;
         private ConfigEntry<float> ironScrapEntry;
         private ConfigEntry<float> silverOreEntry;
+        private ConfigEntry<float> goldOreEntry;
         private ConfigEntry<float> chitinEntry;
         private ConfigEntry<float> featherEntry;
         private ConfigEntry<float> dropChanceEntry;
@@ -31,6 +33,7 @@ namespace ValheimPlus.Configurations.Sections
         public float coreWood => coreWoodEntry.Value;
         public float elderBark => elderBarkEntry.Value;
         public float yggdrasilWood => yggdrasilWoodEntry.Value;
+        public float frostwood => frostwoodEntry.Value;
         public float stone => stoneEntry.Value;
         public float blackMarble => blackMarbleEntry.Value;
         public float tinOre => tinOreEntry.Value;
@@ -38,6 +41,7 @@ namespace ValheimPlus.Configurations.Sections
         public float copperScrap => copperScrapEntry.Value;
         public float ironScrap => ironScrapEntry.Value;
         public float silverOre => silverOreEntry.Value;
+        public float goldOre => goldOreEntry.Value;
         public float chitin => chitinEntry.Value;
         public float feather => featherEntry.Value;
         public float dropChance => dropChanceEntry.Value;
@@ -60,6 +64,8 @@ namespace ValheimPlus.Configurations.Sections
                 "Each of these values increase or reduce the dropped items from destroyed objects with tools (Stones, Trees, Resource nodes, etc.) by %.\nThe value 50 will increase the dropped wood from trees from 10 to 15. The value -50 will reduce the amount of dropped wood from 10 to 5.");
             yggdrasilWoodEntry = Bind(config, Section, "yggdrasilWood", 0f,
                 "Each of these values increase or reduce the dropped items from destroyed objects with tools (Stones, Trees, Resource nodes, etc.) by %.\nThe value 50 will increase the dropped wood from trees from 10 to 15. The value -50 will reduce the amount of dropped wood from 10 to 5.");
+            frostwoodEntry = Bind(config, Section, "frostwood", 0f,
+                "Modify the amount of Timberwood (Frostwood) dropped from trees and logs by a percentage. 0 keeps the normal amount, 100 doubles it, and -100 removes the drops.");
             stoneEntry = Bind(config, Section, "stone", 0f,
                 "Each of these values increase or reduce the dropped items from destroyed objects with tools (Stones, Trees, Resource nodes, etc.) by %.\nThe value 50 will increase the dropped wood from trees from 10 to 15. The value -50 will reduce the amount of dropped wood from 10 to 5.");
             blackMarbleEntry = Bind(config, Section, "blackMarble", 0f,
@@ -74,6 +80,8 @@ namespace ValheimPlus.Configurations.Sections
                 "copperScrap doesn't increase drop rate from looting, ex. killing Dvergrs.");
             silverOreEntry = Bind(config, Section, "silverOre", 0f,
                 "copperScrap doesn't increase drop rate from looting, ex. killing Dvergrs.");
+            goldOreEntry = Bind(config, Section, "goldOre", 0f,
+                "Modify the amount of Petrified Tissue (GoldOre) dropped when petrified rotten trolls are destroyed by a percentage. 0 keeps the normal amount, 100 doubles it, and -100 removes the drops.");
             chitinEntry = Bind(config, Section, "chitin", 0f,
                 "copperScrap doesn't increase drop rate from looting, ex. killing Dvergrs.");
             featherEntry = Bind(config, Section, "feather", 0f,
