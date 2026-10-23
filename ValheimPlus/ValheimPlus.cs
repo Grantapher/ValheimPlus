@@ -28,7 +28,7 @@ namespace ValheimPlus
         private const string ValheimPlusName = "Valheim Plus";
 
         // Version used when numeric is required (assembly info, System.Version parsing).
-        public const string NumericVersion = "0.10.3.0";
+        public const string NumericVersion = "0.10.3.4";
 
         // Extra version, like alpha/beta/rc/stable. Can leave blank if a stable release.
         // Must start with `-` or be blank.
@@ -73,8 +73,8 @@ namespace ValheimPlus
         private static bool configLoaded;
 
         // Project Repository Info
-        public const string Repository = "https://github.com/Grantapher/ValheimPlus/releases/latest";
-        private const string ApiRepository = "https://api.github.com/repos/grantapher/valheimPlus/releases/latest";
+        public const string Repository = "https://github.com/Iceskull7/ValheimPlus/releases/latest";
+        private const string ApiRepository = "https://api.github.com/repos/Iceskull7/ValheimPlus/releases/latest";
 
 
         // Awake is called once when both the game and the plug-in are loaded
