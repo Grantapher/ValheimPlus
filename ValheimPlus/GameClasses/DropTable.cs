@@ -40,6 +40,7 @@ namespace ValheimPlus.GameClasses
                     "RoundLog" => config.coreWood, // Corewood
                     "ElderBark" => config.elderBark,
                     "YggdrasilWood" => config.yggdrasilWood,
+                    "Frostwood" => config.frostwood,
                     "Stone" => config.stone,
                     "BlackMarble" => config.blackMarble,
                     "TinOre" => config.tinOre,
@@ -47,6 +48,7 @@ namespace ValheimPlus.GameClasses
                     "CopperScrap" => config.copperScrap,
                     "IronScrap" => config.ironScrap,
                     "SilverOre" => config.silverOre,
+                    "GoldOre" => config.goldOre,
                     "Chitin" => config.chitin,
                     "Feathers" => config.feather,
                     "Grausten" => config.grausten,
