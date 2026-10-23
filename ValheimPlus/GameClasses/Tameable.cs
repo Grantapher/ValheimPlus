@@ -26,7 +26,8 @@ namespace ValheimPlus.GameClasses
         Lox = 1 << 2,
         Hen = 1 << 3,
         Asksvin = 1 << 4,
-        All = (1 << 5) - 1
+        Moose = 1 << 5,
+        All = (1 << 6) - 1
     }
 
     public static class TameableHelpers
@@ -42,7 +43,9 @@ namespace ValheimPlus.GameClasses
             { "$enemy_lox", AnimalType.Lox },
             { "$enemy_loxcalf", AnimalType.Lox },
             { "$enemy_hen", AnimalType.Hen },
-            { "$enemy_chicken", AnimalType.Hen }
+            { "$enemy_chicken", AnimalType.Hen },
+            { "$enemy_moose", AnimalType.Moose },
+            { "$enemy_moosecalf", AnimalType.Moose }
         };
 
         public static bool IsValidAnimalType(string name)

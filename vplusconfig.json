@@ -1867,7 +1867,7 @@
 				"defaultValue": "false"
 			},
 			"animalTypes": {
-				"description": "A comma-separated list of animals that can breed. Valid types are: boar, wolf, lox, asksvin, all, none",
+				"description": "A comma-separated list of animals whose breeding settings are changed. Valid types are: boar, hen, wolf, lox, asksvin, moose, all, none",
 				"defaultValue": "all",
 				"defaultType": "string"
 			},
@@ -2464,7 +2464,7 @@
 				"defaultValue": "false"
 			},
 			"animalTypes": {
-				"description": "A comma-separated list of animals that can be tamed. Valid types are: boar, hen, wolf, lox, asksvin, all, none",
+				"description": "A comma-separated list of animals that can be tamed. Valid types are: boar, hen, wolf, lox, asksvin, moose, all, none",
 				"defaultValue": "all",
 				"defaultType": "string"
 			},
