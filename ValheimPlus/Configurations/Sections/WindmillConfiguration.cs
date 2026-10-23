@@ -2,6 +2,12 @@
 
 namespace ValheimPlus.Configurations.Sections
 {
+    public enum OatProcessingMode
+    {
+        Oat,
+        OatFlour
+    }
+
     public class WindmillConfiguration : BaseConfig
     {
         private const string Section = "Windmill";
@@ -11,6 +17,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<bool> ignoreWindIntensityEntry;
         private ConfigEntry<bool> autoDepositEntry;
         private ConfigEntry<bool> autoFuelEntry;
+        private ConfigEntry<OatProcessingMode> oatProcessingEntry;
         private ConfigEntry<bool> ignorePrivateAreaCheckEntry;
         private ConfigEntry<float> autoRangeEntry;
 
@@ -19,6 +26,7 @@ namespace ValheimPlus.Configurations.Sections
         public bool ignoreWindIntensity => ignoreWindIntensityEntry.Value;
         public bool autoDeposit => autoDepositEntry.Value;
         public bool autoFuel => autoFuelEntry.Value;
+        public OatProcessingMode oatProcessing => oatProcessingEntry.Value;
         public bool ignorePrivateAreaCheck => ignorePrivateAreaCheckEntry.Value;
         public float autoRange => autoRangeEntry.Value;
 
@@ -27,15 +35,17 @@ namespace ValheimPlus.Configurations.Sections
             BindEnabled(config, Section, false,
                 "Change false to true to enable this section.");
             maximumBarleyEntry = Bind(config, Section, "maximumBarley", 50,
-                "Maximum amount of barley in a windmill.");
+                "Maximum number of queued inputs, shared by barley, oat seeds and oats. Inputs are processed in insertion order.\nWith the default capacity, 5 oat seeds followed by 5 oats show 10/50 items. Each queued input keeps its recipe: oat seeds produce oats, and oats produce oat flour.");
             productionSpeedEntry = Bind(config, Section, "productionSpeed", 10f,
-                "The time it takes for the windmill to produce a single ingot in seconds.");
+                "The time it takes for the windmill to process one input in seconds.");
             ignoreWindIntensityEntry = Bind(config, Section, "ignoreWindIntensity", false,
-                "Ignore wind intensity so it always takes the production speed value to process one barley.");
+                "Ignore wind intensity so it always takes the production speed value to process one input.");
             autoDepositEntry = Bind(config, Section, "autoDeposit", false,
-                "Instead of dropping the items, they will be placed inside the nearest nearby chests.");
+                "Automatically empty processed output into nearby chests, preferring existing stacks. Any remainder drops normally.");
             autoFuelEntry = Bind(config, Section, "autoFuel", false,
-                "The Windmill will pull barley from nearby chests to be automatically added to it when its empty.");
+                "Fill free windmill slots from nearby chests using the game's conversions, including barley and oats.\nProcess intermediate ingredients such as oats before raw seeds, then prefer the nearest chests.");
+            oatProcessingEntry = Bind(config, Section, "oatProcessing", OatProcessingMode.OatFlour,
+                "Choose the final product of automatic oat processing: Oat or OatFlour.\nOat mode still processes oats already added to the windmill into oat flour. Oats produced from seeds are automatically deposited and stay in chests until you move an entire stack into your inventory and return it.\nReturning a whole stack allows it to enter the queue for milling into flour. It waits in the chest if the windmill is full. Partial transfers do not release oats for further processing.");
             ignorePrivateAreaCheckEntry = Bind(config, Section, "ignorePrivateAreaCheck", true,
                 "This option prevents the Windmill to pull items from warded areas if it isn't placed inside of it.\nFor convenience, we recommend this to be set to true.");
             autoRangeEntry = Bind(config, Section, "autoRange", 10f, 1f, 50f,

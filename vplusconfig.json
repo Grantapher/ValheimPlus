@@ -1867,7 +1867,7 @@
 				"defaultValue": "false"
 			},
 			"animalTypes": {
-				"description": "A comma-separated list of animals that can breed. Valid types are: boar, wolf, lox, asksvin, all, none",
+				"description": "A comma-separated list of animals whose breeding settings are changed. Valid types are: boar, hen, wolf, lox, asksvin, moose, all, none",
 				"defaultValue": "all",
 				"defaultType": "string"
 			},
@@ -2464,7 +2464,7 @@
 				"defaultValue": "false"
 			},
 			"animalTypes": {
-				"description": "A comma-separated list of animals that can be tamed. Valid types are: boar, hen, wolf, lox, asksvin, all, none",
+				"description": "A comma-separated list of animals that can be tamed. Valid types are: boar, hen, wolf, lox, asksvin, moose, all, none",
 				"defaultValue": "all",
 				"defaultType": "string"
 			},
@@ -2649,13 +2649,13 @@
 				"defaultValue": "false"
 			},
 			"maximumBarley": {
-				"description": "Maximum amount of barley in a windmill.",
-				"defaultValue": "40",
+				"description": "Maximum number of queued inputs, shared by barley, oat seeds and oats. Inputs are processed in insertion order. With the default capacity, 5 oat seeds followed by 5 oats show 10/50 items. Each queued input keeps its recipe: oat seeds produce oats, and oats produce oat flour.",
+				"defaultValue": "50",
 				"defaultType": "int"
 			},
 			"productionSpeed": {
-				"description": "The time it takes for the windmill to produce barley floor",
-				"defaultValue": "30",
+				"description": "The time it takes for the windmill to process one input in seconds.",
+				"defaultValue": "10",
 				"defaultType": "float"
 			},
 			"autoDeposit": {
@@ -2664,9 +2664,14 @@
 				"defaultType": "bool"
 			},
 			"autoFuel": {
-				"description": "Look for barley inside nearby chests",
+				"description": "Fill free windmill slots from nearby chests using the game's conversions, including barley and oats. Process intermediate ingredients such as oats before raw seeds, then prefer the nearest chests.",
 				"defaultValue": "false",
 				"defaultType": "bool"
+			},
+			"oatProcessing": {
+				"description": "Choose the final product of automatic oat processing: Oat or OatFlour. Oat mode still processes oats already added to the windmill into oat flour. Oats produced from seeds are automatically deposited and stay in chests until you move an entire stack into your inventory and return it. Returning a whole stack allows it to enter the queue for milling into flour. It waits in the chest if the windmill is full. Partial transfers do not release oats for further processing.",
+				"defaultValue": "OatFlour",
+				"defaultType": "string"
 			},
 			"ignorePrivateAreaCheck": {
 				"description": "Change true to false to enable private area check when looking for chests",

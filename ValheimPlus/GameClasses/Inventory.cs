@@ -171,6 +171,8 @@ namespace ValheimPlus.GameClasses
             foreach (var otherItem in otherInventoryItems)
             {
                 if (otherItem.m_shared.m_maxStackSize <= 1) continue;
+                // Let the native transfer preserve protected oat quantities and track complete stacks.
+                if (WindmillOats.NeedsTracking(__instance, otherItem)) continue;
 
                 foreach (var myItem in __instance.m_inventory)
                 {

@@ -254,6 +254,7 @@
     <Compile Include="RPC\VPlusAck.cs" />
     <Compile Include="Utility\GameObjectAssistant.cs" />
     <Compile Include="Utility\InventoryAssistant.cs" />
+    <Compile Include="Utility\ChestDeposit.cs" />
     <Compile Include="Utility\ListExtensions.cs" />
     <Compile Include="Utility\PatchLog.cs" />
     <Compile Include="Utility\RPCQueue.cs" />
@@ -272,6 +273,7 @@
     <Compile Include="RPC\VPlusMapSync.cs" />
     <Compile Include="GameClasses\Minimap.cs" />
     <Compile Include="GameClasses\Smelter.cs" />
+    <Compile Include="GameClasses\WindmillOats.cs" />
     <Compile Include="Utility\HttpHelper.cs" />
     <Compile Include="GameClasses\Vagon.cs" />
     <Compile Include="GameClasses\WearNTear.cs" />
