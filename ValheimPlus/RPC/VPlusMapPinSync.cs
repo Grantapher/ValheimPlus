@@ -245,9 +245,7 @@ namespace ValheimPlus.RPC
             ZNet.instance.GetWorldName() + "_mapPinsDeleted.dat";
 
         /// <summary>
-        /// Loads the persisted pin list on first use. Deferred rather than done at start-up because
-        /// a dedicated server has no Minimap to hang the load off, and the world name is only known
-        /// once ZNet is up.
+        /// Loads the persisted pin list on first use, since the world name is only known once ZNet is up.
         /// </summary>
         private static void EnsureLoaded()
         {

@@ -62,6 +62,7 @@ A HarmonyX Mod aimed at improving the gameplay quality of Valheim. The mod inclu
 - Force all players in the server to display their map position.
 - Allow all players to share all map exploration with every other player in the server, as long as their map position is displayed.
 - A system to automatically share all map progression with players connecting, even if they have never been on the server.
+- Share map pins through the server. Other players' pins appear faded until clicked, and deleting a pin removes it for everyone.
 - Modify the radius of the map that is explored as you move.
 - Option to show boats and carts on the map with icons.
 
