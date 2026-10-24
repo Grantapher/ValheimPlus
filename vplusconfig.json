@@ -1137,8 +1137,8 @@
 				"defaultType": "float",
 				"modifier": "true"
 			},
-			"frostwood": {
-				"description": "Modify the amount of Timberwood (Frostwood) dropped from trees and logs by a percentage. 0 keeps the normal amount, 100 doubles it, and -100 removes the drops.",
+			"timberwood": {
+				"description": "Modify the amount of Timberwood dropped from trees and logs by a percentage. 0 keeps the normal amount, 100 doubles it, and -100 removes the drops.",
 				"defaultValue": "0",
 				"defaultType": "float",
 				"modifier": "true"
@@ -1179,8 +1179,8 @@
 				"defaultType": "float",
 				"modifier": "true"
 			},
-			"goldOre": {
-				"description": "Modify the amount of Petrified Tissue (GoldOre) dropped when petrified rotten trolls are destroyed by a percentage. 0 keeps the normal amount, 100 doubles it, and -100 removes the drops.",
+			"petrifiedTissue": {
+				"description": "Modify the amount of Petrified Tissue dropped when petrified rotten trolls are destroyed by a percentage. 0 keeps the normal amount, 100 doubles it, and -100 removes the drops.",
 				"defaultValue": "0",
 				"defaultType": "float",
 				"modifier": "true"
