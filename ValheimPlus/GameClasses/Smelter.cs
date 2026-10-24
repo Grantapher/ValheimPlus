@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
+using JetBrains.Annotations;
 using UnityEngine;
 using ValheimPlus.Configurations;
 using ValheimPlus.Utility;
@@ -121,59 +122,87 @@ namespace ValheimPlus.GameClasses
     [HarmonyPatch(typeof(Smelter), nameof(Smelter.Spawn))]
     public static class Smelter_Spawn_Patch
     {
-        private static bool Prefix(string ore, int stack, ref Smelter __instance)
+        [UsedImplicitly]
+        private static bool Prefix(string ore, ref int stack, ref Smelter __instance)
         {
-            Smelter smelter = __instance; // allowing access to local function
-            if (!smelter.m_nview.IsOwner())
+            if (!__instance.m_nview.IsOwner())
                 return true;
 
-            if (__instance.m_name.Equals(SmelterDefinitions.KilnName) && Configuration.Current.Kiln.IsEnabled && Configuration.Current.Kiln.autoDeposit)
+            if (__instance.m_name.Equals(SmelterDefinitions.KilnName) && Configuration.Current.Kiln.IsEnabled &&
+                Configuration.Current.Kiln.autoDeposit)
             {
-                return spawn(Helper.Clamp(Configuration.Current.Kiln.autoRange, 1, 50), Configuration.Current.Kiln.ignorePrivateAreaCheck);
+                return Deposit(__instance, ore, ref stack, Configuration.Current.Kiln.autoRange,
+                    Configuration.Current.Kiln.ignorePrivateAreaCheck);
             }
-            if (__instance.m_name.Equals(SmelterDefinitions.SmelterName) && Configuration.Current.Smelter.IsEnabled && Configuration.Current.Smelter.autoDeposit)
-            {
-                return spawn(Helper.Clamp(Configuration.Current.Smelter.autoRange, 1, 50), Configuration.Current.Smelter.ignorePrivateAreaCheck);
-            }
-            if (__instance.m_name.Equals(SmelterDefinitions.FurnaceName) && Configuration.Current.Furnace.IsEnabled && Configuration.Current.Furnace.autoDeposit)
-            {
-                return spawn(Helper.Clamp(Configuration.Current.Furnace.autoRange, 1, 50), Configuration.Current.Furnace.ignorePrivateAreaCheck);
-            }
-            if (__instance.m_name.Equals(SmelterDefinitions.WindmillName) && Configuration.Current.Windmill.IsEnabled && Configuration.Current.Windmill.autoDeposit)
-            {
-                return spawn(Helper.Clamp(Configuration.Current.Windmill.autoRange, 1, 50), Configuration.Current.Windmill.ignorePrivateAreaCheck);
-            }
-            if (__instance.m_name.Equals(SmelterDefinitions.SpinningWheelName) && Configuration.Current.SpinningWheel.IsEnabled && Configuration.Current.SpinningWheel.autoDeposit)
-            {
-                return spawn(Helper.Clamp(Configuration.Current.SpinningWheel.autoRange, 1, 50), Configuration.Current.SpinningWheel.ignorePrivateAreaCheck);
-            }
-            if (__instance.m_name.Equals(SmelterDefinitions.EitrRefineryName) && Configuration.Current.EitrRefinery.IsEnabled && Configuration.Current.EitrRefinery.autoDeposit)
-            {
-                return spawn(Helper.Clamp(Configuration.Current.EitrRefinery.autoRange, 1, 50), Configuration.Current.EitrRefinery.ignorePrivateAreaCheck);
-            }
-            if (__instance.m_name.Equals(SmelterDefinitions.FrigidKilnName) && Configuration.Current.FrigidKiln.IsEnabled && Configuration.Current.FrigidKiln.autoDeposit)
-            {
-                return spawn(Helper.Clamp(Configuration.Current.FrigidKiln.autoRange, 1, 50), Configuration.Current.FrigidKiln.ignorePrivateAreaCheck);
-            }
-            bool spawn(float autoDepositRange, bool ignorePrivateAreaCheck)
-            {
-                List<Container> nearbyChests = InventoryAssistant.GetNearbyChestsForMachine(smelter.gameObject, autoDepositRange, !ignorePrivateAreaCheck);
-                if (nearbyChests.Count == 0)
-                    return true;
 
-                if (autoDepositRange > 50)
-                    autoDepositRange = 50;
-                else if (autoDepositRange < 1)
-                    autoDepositRange = 1;
+            if (__instance.m_name.Equals(SmelterDefinitions.SmelterName) && Configuration.Current.Smelter.IsEnabled &&
+                Configuration.Current.Smelter.autoDeposit)
+            {
+                return Deposit(__instance, ore, ref stack, Configuration.Current.Smelter.autoRange,
+                    Configuration.Current.Smelter.ignorePrivateAreaCheck);
+            }
 
-                // Replicating original code, just "spawning/adding" the item inside the chest makes it "not have a prefab"
-                GameObject itemPrefab = ObjectDB.instance.GetItemPrefab(smelter.GetItemConversion(ore).m_to.gameObject.name);
+            if (__instance.m_name.Equals(SmelterDefinitions.FurnaceName) && Configuration.Current.Furnace.IsEnabled &&
+                Configuration.Current.Furnace.autoDeposit)
+            {
+                return Deposit(__instance, ore, ref stack, Configuration.Current.Furnace.autoRange,
+                    Configuration.Current.Furnace.ignorePrivateAreaCheck);
+            }
 
-                // Also replication of original code, really have no idead what it is for, didn't bother look
-                ZNetView.m_forceDisableInit = true;
-                GameObject spawnedOre = Object.Instantiate<GameObject>(itemPrefab);
-                ZNetView.m_forceDisableInit = false;
+            if (__instance.m_name.Equals(SmelterDefinitions.WindmillName) && Configuration.Current.Windmill.IsEnabled &&
+                Configuration.Current.Windmill.autoDeposit)
+            {
+                return Deposit(__instance, ore, ref stack, Configuration.Current.Windmill.autoRange,
+                    Configuration.Current.Windmill.ignorePrivateAreaCheck);
+            }
 
+            if (__instance.m_name.Equals(SmelterDefinitions.SpinningWheelName) &&
+                Configuration.Current.SpinningWheel.IsEnabled && Configuration.Current.SpinningWheel.autoDeposit)
+            {
+                return Deposit(__instance, ore, ref stack, Configuration.Current.SpinningWheel.autoRange,
+                    Configuration.Current.SpinningWheel.ignorePrivateAreaCheck);
+            }
+
+            if (__instance.m_name.Equals(SmelterDefinitions.EitrRefineryName) &&
+                Configuration.Current.EitrRefinery.IsEnabled && Configuration.Current.EitrRefinery.autoDeposit)
+            {
+                return Deposit(__instance, ore, ref stack, Configuration.Current.EitrRefinery.autoRange,
+                    Configuration.Current.EitrRefinery.ignorePrivateAreaCheck);
+            }
+
+            if (__instance.m_name.Equals(SmelterDefinitions.FrigidKilnName) &&
+                Configuration.Current.FrigidKiln.IsEnabled && Configuration.Current.FrigidKiln.autoDeposit)
+            {
+                return Deposit(__instance, ore, ref stack, Configuration.Current.FrigidKiln.autoRange,
+                    Configuration.Current.FrigidKiln.ignorePrivateAreaCheck);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Puts the output in nearby chests. Returns true to let vanilla drop what no chest took, with stack set to that amount.
+        /// </summary>
+        private static bool Deposit(Smelter smelter, string ore, ref int stack, float autoDepositRange,
+            bool ignorePrivateAreaCheck)
+        {
+            var range = Helper.Clamp(autoDepositRange, 1, 50);
+            List<Container> nearbyChests =
+                InventoryAssistant.GetNearbyChestsForMachine(smelter.gameObject, range, !ignorePrivateAreaCheck);
+            if (nearbyChests.Count == 0)
+                return true;
+
+            // Replicating original code, just "spawning/adding" the item inside the chest makes it "not have a prefab"
+            GameObject itemPrefab =
+                ObjectDB.instance.GetItemPrefab(smelter.GetItemConversion(ore).m_to.gameObject.name);
+
+            // Also replication of original code, really have no idea what it is for, didn't bother to look
+            ZNetView.m_forceDisableInit = true;
+            GameObject spawnedOre = Object.Instantiate<GameObject>(itemPrefab);
+            ZNetView.m_forceDisableInit = false;
+
+            try
+            {
                 // assign stack size, nobody wants a 0/20 stack of metals (its not very usefull)
                 ItemDrop comp = spawnedOre.GetComponent<ItemDrop>();
                 comp.m_itemData.m_stack = stack;
@@ -185,39 +214,36 @@ namespace ValheimPlus.GameClasses
                      smelter.m_nview.GetZDO().IsCheated()) &&
                     !PlayerProfile.s_bypassCheatChecks);
 
-                bool result = spawnNearbyChest(true);
-                Object.Destroy(spawnedOre);
-
-                bool spawnNearbyChest(bool mustHaveItem)
+                // Chests that already hold the item first, then any chest.
+                for (int pass = 0; pass < 2; pass++)
                 {
                     foreach (Container chest in nearbyChests)
                     {
                         Inventory cInventory = chest.GetInventory();
-                        if (mustHaveItem && !cInventory.HaveItem(comp.m_itemData.m_shared.m_name))
+                        if (pass == 0 && !cInventory.HaveItem(comp.m_itemData.m_shared.m_name))
                             continue;
 
+                        // AddItem can top up existing stacks and still return false, leaving only the rest in the item.
+                        int before = comp.m_itemData.m_stack;
                         bool added = cInventory.AddItem(comp.m_itemData);
+                        if (added || comp.m_itemData.m_stack < before)
+                            InventoryAssistant.ConveyContainerToNetwork(chest);
                         if (!added)
-                        {
-                            // Chest full, move to the next
                             continue;
-                        }
 
-                        smelter.m_produceEffects.Create(smelter.transform.position, smelter.transform.rotation, null, 1f);
-                        InventoryAssistant.ConveyContainerToNetwork(chest);
+                        smelter.m_produceEffects.Create(smelter.transform.position, smelter.transform.rotation);
                         return false;
                     }
-
-                    if (mustHaveItem)
-                        return spawnNearbyChest(false);
-
-                    return true;
                 }
-                return result;
+
+                // Only drop what no chest took, or the part already deposited is duplicated.
+                stack = comp.m_itemData.m_stack;
+                return true;
             }
-
-
-            return true;
+            finally
+            {
+                Object.Destroy(spawnedOre);
+            }
         }
     }
 
