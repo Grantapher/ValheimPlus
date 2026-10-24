@@ -340,75 +340,108 @@ namespace ValheimPlus.GameClasses
 
             int toMaxOre = smelter.m_maxOre - smelter.GetQueueSize();
             int toMaxFuel = smelter.m_maxFuel - (int)Math.Ceiling(smelter.GetFuel());
+            bool needsFuel = smelter.m_fuelItem && toMaxFuel > 0;
 
-            if (smelter.m_fuelItem && toMaxFuel > 0)
+            if (!needsFuel && toMaxOre <= 0) return;
+
+            var nearbyChests =
+                InventoryAssistant.GetNearbyChestsForMachine(smelter.gameObject, autoFuelRange,
+                    !ignorePrivateAreaCheck);
+
+            if (needsFuel)
             {
-                ItemDrop.ItemData fuelItemData = smelter.m_fuelItem.m_itemData;
+                var fuelItemData = smelter.m_fuelItem.m_itemData;
 
                 // Check for fuel in nearby containers
-                int addedFuel = InventoryAssistant.RemoveItemInAmountFromChests(
-                    InventoryAssistant.GetNearbyChestsForMachine(smelter.gameObject, autoFuelRange, !ignorePrivateAreaCheck),
-                    fuelItemData, toMaxFuel);
+                int addedFuel = InventoryAssistant.RemoveItemInAmountFromChests(nearbyChests, fuelItemData, toMaxFuel);
                 for (int i = 0; i < addedFuel; i++)
                 {
-                    smelter.m_nview.InvokeRPC("RPC_AddFuel", new object[] { });
+                    smelter.m_nview.InvokeRPC("RPC_AddFuel");
                 }
+
                 if (addedFuel > 0)
-                    ValheimPlusPlugin.Logger.LogDebug("Added " + addedFuel + " fuel(" + fuelItemData.m_shared.m_name + ") in " + smelter.m_name);
+                    ValheimPlusPlugin.Logger.LogDebug("Added " + addedFuel + " fuel(" + fuelItemData.m_shared.m_name +
+                                                      ") in " + smelter.m_name);
             }
-            if (toMaxOre > 0)
+
+            if (toMaxOre <= 0) return;
+
+            var conversions = GetAutoFuelConversions(smelter, isKiln, isWindmill, nearbyChests);
+            if (conversions == null) return;
+
+            foreach (Container container in nearbyChests)
             {
-                List<Container> nearbyChests = InventoryAssistant.GetNearbyChestsForMachine(smelter.gameObject, autoFuelRange, !ignorePrivateAreaCheck);
-                foreach (Container c in nearbyChests)
+                foreach (Smelter.ItemConversion conversion in conversions)
                 {
-                    foreach (Smelter.ItemConversion itemConversion in smelter.m_conversion)
+                    ItemDrop.ItemData oreItem = conversion.m_from.m_itemData;
+
+                    // Read the flag off the chest's own item before we take it, so cheated ore
+                    // stays cheated once it is in the smelter.
+                    bool oreCheated = container.GetInventory().GetAllItems()
+                        .Any(i => i.m_shared.m_name == oreItem.m_shared.m_name && i.m_cheated);
+
+                    int addedOres = InventoryAssistant.RemoveItemFromChest(container, oreItem, toMaxOre);
+                    if (addedOres <= 0) continue;
+
+                    var orePrefab = ObjectDB.instance.GetItemPrefab(conversion.m_from.gameObject.name);
+
+                    for (int i = 0; i < addedOres; i++)
                     {
-                        if (isKiln)
-                        {
-                            if (Configuration.Current.Kiln.dontProcessFineWood && itemConversion.m_from.m_itemData.m_shared.m_name.Equals(WoodDefinitions.FineWoodName)) continue;
-                            if (Configuration.Current.Kiln.dontProcessRoundLog && itemConversion.m_from.m_itemData.m_shared.m_name.Equals(WoodDefinitions.RoundLogName)) continue;
-
-                            int threshold = Configuration.Current.Kiln.stopAutoFuelThreshold < 0 ? 0 : Configuration.Current.Kiln.stopAutoFuelThreshold;
-                            if (threshold > 0 && InventoryAssistant.GetItemAmountInItemList(InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests), itemConversion.m_to.m_itemData) >= threshold) return;
-                        }
-
-                        if (isWindmill && ShouldSkipForWindmill(itemConversion, nearbyChests)) continue;
-
-                        ItemDrop.ItemData oreItem = itemConversion.m_from.m_itemData;
-
-                        // Read the flag off the chest's own item before we take it, so cheated ore
-                        // stays cheated once it is in the smelter.
-                        bool oreCheated = c.GetInventory().GetAllItems()
-                            .Any(i => i.m_shared.m_name == oreItem.m_shared.m_name && i.m_cheated);
-
-                        int addedOres = InventoryAssistant.RemoveItemFromChest(c, oreItem, toMaxOre);
-                        if (addedOres > 0)
-                        {
-                            GameObject orePrefab = ObjectDB.instance.GetItemPrefab(itemConversion.m_from.gameObject.name);
-
-                            for (int i = 0; i < addedOres; i++)
-                            {
-                                smelter.m_nview.InvokeRPC("RPC_AddOre", new object[] { orePrefab.name, oreCheated });
-                            }
-                            toMaxOre -= addedOres;
-                            if (addedOres > 0)
-                                ValheimPlusPlugin.Logger.LogDebug("Added " + addedOres + " ores(" + oreItem.m_shared.m_name + ") in " + smelter.m_name);
-                            if (toMaxOre == 0)
-                                return;
-                        }
+                        smelter.m_nview.InvokeRPC("RPC_AddOre", orePrefab.name, oreCheated);
                     }
+
+                    toMaxOre -= addedOres;
+                    if (addedOres > 0)
+                        ValheimPlusPlugin.Logger.LogDebug("Added " + addedOres + " ores(" +
+                                                          oreItem.m_shared.m_name + ") in " + smelter.m_name);
+                    if (toMaxOre == 0) return;
                 }
             }
         }
 
-        private static bool ShouldSkipForWindmill(Smelter.ItemConversion itemConversion, List<Container> nearbyChests)
+        /// <summary>
+        /// Conversions auto-fuel may pull this tick, or null when the Kiln's coal threshold stops it entirely.
+        /// Worked out once per tick, since the chest totals don't change while pulling input.
+        /// </summary>
+        private static List<Smelter.ItemConversion> GetAutoFuelConversions(Smelter smelter, bool isKiln,
+            bool isWindmill, List<Container> nearbyChests)
         {
-            var config = Configuration.Current.Windmill;
-            if (config.stopAutoFuelOatThreshold <= 0) return false;
-            if (!itemConversion.m_from.m_itemData.m_shared.m_name.Equals(WindmillDefinitions.OatName)) return false;
-            var items = InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests);
-            var toItemData = itemConversion.m_to.m_itemData;
-            return InventoryAssistant.GetItemAmountInItemList(items, toItemData) >= config.stopAutoFuelOatThreshold;
+
+            // Only gathered when a threshold needs it.
+            List<ItemDrop.ItemData> chestItems = null;
+
+            int AmountInChests(ItemDrop.ItemData item)
+            {
+                chestItems ??= InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests);
+                return InventoryAssistant.GetItemAmountInItemList(chestItems, item);
+            }
+
+            var conversions = new List<Smelter.ItemConversion>();
+            foreach (Smelter.ItemConversion conversion in smelter.m_conversion)
+            {
+                var fromName = conversion.m_from.m_itemData.m_shared.m_name;
+                var toData = conversion.m_to.m_itemData;
+                if (isKiln)
+                {
+                    var kilnConfig = Configuration.Current.Kiln;
+                    if (kilnConfig.dontProcessFineWood && fromName.Equals(WoodDefinitions.FineWoodName)) continue;
+                    if (kilnConfig.dontProcessRoundLog && fromName.Equals(WoodDefinitions.RoundLogName)) continue;
+
+                    int threshold = kilnConfig.stopAutoFuelThreshold;
+                    if (threshold > 0 && AmountInChests(toData) >= threshold) return null;
+                }
+
+                if (isWindmill)
+                {
+                    var windmillConfig = Configuration.Current.Windmill;
+                    int threshold = windmillConfig.stopAutoFuelOatThreshold;
+                    if (threshold > 0 && fromName.Equals(WindmillDefinitions.OatName) &&
+                        AmountInChests(toData) >= threshold) continue;
+                }
+                conversions.Add(conversion);
+            }
+
+            return conversions;
         }
     }
 
