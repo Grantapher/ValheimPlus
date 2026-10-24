@@ -13,6 +13,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<bool> autoFuelEntry;
         private ConfigEntry<bool> ignorePrivateAreaCheckEntry;
         private ConfigEntry<float> autoRangeEntry;
+        private ConfigEntry<int> stopAutoFuelOatThresholdEntry;
 
         public int maximumBarley => maximumBarleyEntry.Value;
         public float productionSpeed => productionSpeedEntry.Value;
@@ -21,6 +22,7 @@ namespace ValheimPlus.Configurations.Sections
         public bool autoFuel => autoFuelEntry.Value;
         public bool ignorePrivateAreaCheck => ignorePrivateAreaCheckEntry.Value;
         public float autoRange => autoRangeEntry.Value;
+        public int stopAutoFuelOatThreshold => stopAutoFuelOatThresholdEntry.Value;
 
         public override void Bind(ConfigFile config)
         {
@@ -41,7 +43,7 @@ namespace ValheimPlus.Configurations.Sections
             autoRangeEntry = Bind(config, Section, "autoRange", 10f, 1f, 50f,
                 "The range of the chest detection for the auto deposit and auto fuel features.\nMaximum is 50");
             stopAutoFuelOatThresholdEntry = Bind(config, Section, "stopAutoFuelOatThreshold", 0,
-                "Stops autoFuel (looking for oats) when there is at least this quantity of oat flour in nearby chests\n(ignored if set to 0)");
+                "Stops pulling oats from nearby chests once they hold at least this much oat flour.\nBarley and oat seeds are still pulled. Ignored if set to 0.");
         }
     }
 }

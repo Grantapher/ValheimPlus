@@ -346,11 +346,7 @@ namespace ValheimPlus.GameClasses
                             if (threshold > 0 && InventoryAssistant.GetItemAmountInItemList(InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests), itemConversion.m_to.m_itemData) >= threshold) return;
                         }
 
-                        if (isWindmill)
-                        {
-                            int threshold = Configuration.Current.Windmill.stopAutoFuelOatThreshold < 0 ? 0 : Configuration.Current.Windmill.stopAutoFuelOatThreshold;
-                            if (threshold > 0 && itemConversion.m_from.m_itemData.m_shared.m_name.Equals(WindmillDefinitions.OatName) && InventoryAssistant.GetItemAmountInItemList(InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests), itemConversion.m_to.m_itemData) >= threshold) continue;
-                        }
+                        if (isWindmill && ShouldSkipForWindmill(itemConversion, nearbyChests)) continue;
 
                         ItemDrop.ItemData oreItem = itemConversion.m_from.m_itemData;
 
@@ -377,6 +373,16 @@ namespace ValheimPlus.GameClasses
                     }
                 }
             }
+        }
+
+        private static bool ShouldSkipForWindmill(Smelter.ItemConversion itemConversion, List<Container> nearbyChests)
+        {
+            var config = Configuration.Current.Windmill;
+            if (config.stopAutoFuelOatThreshold <= 0) return false;
+            if (!itemConversion.m_from.m_itemData.m_shared.m_name.Equals(WindmillDefinitions.OatName)) return false;
+            var items = InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests);
+            var toItemData = itemConversion.m_to.m_itemData;
+            return InventoryAssistant.GetItemAmountInItemList(items, toItemData) >= config.stopAutoFuelOatThreshold;
         }
     }
 

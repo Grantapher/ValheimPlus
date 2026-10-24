@@ -224,6 +224,7 @@ _These are the `Kiln`, `Smelter` and `Furnace` config sections respectively._
 - Modify maximum amount of barley that can be placed inside.
 - Allow ignoring wind intensity so it's always producing at max speed.
 - Allow barley to be automatically pulled from closest containers.
+- Allow the Windmill to stop pulling oats from closest containers when a specific amount of oat flour has been reached.
 - Allow items produced by Windmill to be automatically placed in the closest containers.
 
 ### Spinning Wheel
