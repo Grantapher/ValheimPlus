@@ -76,24 +76,12 @@ namespace ValheimPlus.GameClasses
             // load, so the Container's own dimensions have to agree with ours.
             __instance.m_width = ___m_inventory.m_width;
             __instance.m_height = ___m_inventory.m_height;
-
-            PreserveOccupiedColumns(__instance, ___m_inventory);
         }
 
         static void ApplyConfiguredSize(Container __instance, ref Inventory ___m_inventory)
         {
 
             if (!Configuration.Current.Inventory.IsEnabled) return;
-
-            // Check the new containers first: VikingShip_Ashlands would otherwise match
-            // the longboat's VikingShip substring below.
-            if (__instance != null && ___m_inventory != null &&
-                TryGetAdditionalContainerSize(__instance, ___m_inventory, out int columns, out int rows))
-            {
-                ___m_inventory.m_width = columns;
-                ___m_inventory.m_height = rows;
-                return;
-            }
 
             if (__instance == null || ___m_inventory == null || !__instance.transform.parent) {
 
@@ -129,32 +117,53 @@ namespace ValheimPlus.GameClasses
                     inventoryRows = Helper.Clamp(Configuration.Current.Inventory.blackmetalChestRows, blackmetalChestInventoryMinRows, blackmetalChestInventoryMaxRows);
                     inventoryColumns = Helper.Clamp(Configuration.Current.Inventory.blackmetalChestColumns, blackmetalChestInventoryMinCol, blackmetalChestInventoryMaxCol);
                 }
+                // Grausten chest
+                else if (inventoryName == "$piece_chestgrausten")
+                {
+                    inventoryRows = Helper.Clamp(Configuration.Current.Inventory.graustenChestRows, graustenChestInventoryMinRows, graustenChestInventoryMaxRows);
+                    inventoryColumns = Helper.Clamp(Configuration.Current.Inventory.graustenChestColumns, graustenChestInventoryMinCol, graustenChestInventoryMaxCol);
+                }
+                // Wardrobe
+                else if (inventoryName == "$piece_chestwarderobe")
+                {
+                    inventoryRows = Helper.Clamp(Configuration.Current.Inventory.wardrobeRows, wardrobeInventoryMinRows, wardrobeInventoryMaxRows);
+                    inventoryColumns = Helper.Clamp(Configuration.Current.Inventory.wardrobeColumns, wardrobeInventoryMinCol, wardrobeInventoryMaxCol);
+                }
+                // Barrel
+                else if (inventoryName == "$piece_chestbarrel")
+                {
+                    inventoryRows = Helper.Clamp(Configuration.Current.Inventory.barrelRows, barrelInventoryMinRows, barrelInventoryMaxRows);
+                    inventoryColumns = Helper.Clamp(Configuration.Current.Inventory.barrelColumns, barrelInventoryMinCol, barrelInventoryMaxCol);
+                }
 
                 return;
             } else {
 
                 // is not chest
 
-                string containerName = __instance.transform.parent.name;
-                string inventoryName = ___m_inventory.m_name;
+                string prefabName = Utils.GetPrefabName(__instance.transform.parent.name);
                 ref int inventoryColumns = ref ___m_inventory.m_width;
                 ref int inventoryRows = ref ___m_inventory.m_height;
 
-                // Karve (small boat)
-                // Use Contains because the actual name is "Karve (Clone)"
-                if (containerName.Contains("Karve"))
+                if (prefabName == "Karve")
                 {
                     inventoryRows = Helper.Clamp(Configuration.Current.Inventory.karveInventoryRows, karveChestInventoryMinRows, karveChestInventoryMaxRows);
                     inventoryColumns = Helper.Clamp(Configuration.Current.Inventory.karveInventoryColumns, karveChestInventoryMinCol, karveChestInventoryMaxCol);
                 }
-                // Longboat (Large boat)
-                else if (containerName.Contains("VikingShip"))
+                // Longboat
+                else if (prefabName == "VikingShip")
                 {
                     inventoryRows = Helper.Clamp(Configuration.Current.Inventory.longboatInventoryRows, longboatChestInventoryMinRows, longboatChestInventoryMaxRows);
                     inventoryColumns = Helper.Clamp(Configuration.Current.Inventory.longboatInventoryColumns, longboatChestInventoryMinCol, longboatChestInventoryMaxCol);
                 }
+                // Drakkar
+                else if (prefabName == "VikingShip_Ashlands")
+                {
+                    inventoryRows = Helper.Clamp(Configuration.Current.Inventory.drakkarInventoryRows, drakkarChestInventoryMinRows, drakkarChestInventoryMaxRows);
+                    inventoryColumns = Helper.Clamp(Configuration.Current.Inventory.drakkarInventoryColumns, drakkarChestInventoryMinCol, drakkarChestInventoryMaxCol);
+                }
                 // Cart (Wagon)
-                else if (containerName.Contains("Cart"))
+                else if (prefabName == "Cart")
                 {
                     inventoryRows = Helper.Clamp(Configuration.Current.Inventory.cartInventoryRows, cartChestInventoryMinRows, cartChestInventoryMaxRows);
                     inventoryColumns = Helper.Clamp(Configuration.Current.Inventory.cartInventoryColumns, cartChestInventoryMinCol, cartChestInventoryMaxCol);
@@ -162,87 +171,6 @@ namespace ValheimPlus.GameClasses
             };
 
 
-        }
-
-        internal static bool TryGetAdditionalContainerSize(Container container, Inventory inventory, out int columns, out int rows)
-        {
-            columns = rows = 0;
-            if (inventory.m_name == "$piece_chestgrausten")
-            {
-                columns = Helper.Clamp(Configuration.Current.Inventory.graustenChestColumns, graustenChestInventoryMinCol, graustenChestInventoryMaxCol);
-                rows = Helper.Clamp(Configuration.Current.Inventory.graustenChestRows, graustenChestInventoryMinRows, graustenChestInventoryMaxRows);
-                return true;
-            }
-            if (inventory.m_name == "$piece_chestwarderobe")
-            {
-                columns = Helper.Clamp(Configuration.Current.Inventory.wardrobeColumns, wardrobeInventoryMinCol, wardrobeInventoryMaxCol);
-                rows = Helper.Clamp(Configuration.Current.Inventory.wardrobeRows, wardrobeInventoryMinRows, wardrobeInventoryMaxRows);
-                return true;
-            }
-            if (inventory.m_name == "$piece_chestbarrel")
-            {
-                columns = Helper.Clamp(Configuration.Current.Inventory.barrelColumns, barrelInventoryMinCol, barrelInventoryMaxCol);
-                rows = Helper.Clamp(Configuration.Current.Inventory.barrelRows, barrelInventoryMinRows, barrelInventoryMaxRows);
-                return true;
-            }
-
-            var root = container.m_rootObjectOverride ? container.m_rootObjectOverride.transform : container.transform.parent;
-            if (root && Utils.GetPrefabName(root.name) == "VikingShip_Ashlands")
-            {
-                columns = Helper.Clamp(Configuration.Current.Inventory.drakkarInventoryColumns, drakkarChestInventoryMinCol, drakkarChestInventoryMaxCol);
-                rows = Helper.Clamp(Configuration.Current.Inventory.drakkarInventoryRows, drakkarChestInventoryMinRows, drakkarChestInventoryMaxRows);
-                return true;
-            }
-            return false;
-        }
-
-        internal static void PreserveOccupiedColumns(Container container, Inventory inventory)
-        {
-            if (!Configuration.Current.Inventory.IsEnabled || container == null || inventory == null) return;
-            if (!TryGetAdditionalContainerSize(container, inventory, out _, out _)) return;
-
-            // Native Container.UpdateRows retains occupied rows after loading. Do the
-            // same for columns so lowering these settings cannot hide saved items.
-            int columns = container.m_width;
-            foreach (var item in inventory.GetAllItems())
-                columns = System.Math.Max(columns, item.m_gridPos.x + 1);
-            inventory.m_width = columns;
-        }
-    }
-
-    [HarmonyPatch(typeof(Container), "Load")]
-    public static class Container_Load_Patch
-    {
-        private static void Prefix(Container __instance, Inventory ___m_inventory, ZNetView ___m_nview, uint ___m_lastRevision, bool ___m_inUse)
-        {
-            if (!Configuration.Current.Inventory.IsEnabled || __instance == null || ___m_inventory == null || !___m_nview) return;
-            if (!Container_Awake_Patch.TryGetAdditionalContainerSize(__instance, ___m_inventory, out _, out _)) return;
-
-            var zdo = ___m_nview.GetZDO();
-            if (zdo == null || ___m_inUse || zdo.DataRevision == ___m_lastRevision) return;
-            var savedItems = zdo.GetByteArray(ZDOVars.s_items);
-            if (savedItems == null) return;
-
-            // Native loading rejects saved columns beyond the current width. Older
-            // save formats also reject rows beyond the height. Read positions without
-            // bounds first so every saved item fits when the real inventory loads.
-            var savedInventory = new Inventory(true);
-            savedInventory.Load(new ZPackage(savedItems));
-            int columns = __instance.m_width;
-            int rows = __instance.m_height;
-            foreach (var item in savedInventory.GetAllItems())
-            {
-                columns = System.Math.Max(columns, item.m_gridPos.x + 1);
-                rows = System.Math.Max(rows, item.m_gridPos.y + 1);
-            }
-            ___m_inventory.m_width = columns;
-            ___m_inventory.m_height = rows;
-        }
-
-        private static void Postfix(Container __instance, Inventory ___m_inventory, bool __result)
-        {
-            if (__result)
-                Container_Awake_Patch.PreserveOccupiedColumns(__instance, ___m_inventory);
         }
     }
 

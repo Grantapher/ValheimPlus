@@ -90,17 +90,17 @@ namespace ValheimPlus.Configurations.Sections
             blackmetalChestRowsEntry = Bind(config, Section, "blackmetalChestRows", 4, 3, 20,
                 "Blackmetal number of rows (more than 4 rows will add a scrollbar)\n(default 4, min 3, max 20)");
             graustenChestColumnsEntry = Bind(config, Section, "graustenChestColumns", 8, 3, 8,
-                "Grausten chest number of columns. Occupied columns are preserved when loading an existing chest.\n(default 8, min 3, max 8)");
+                "Grausten chest number of columns.\n(default 8, min 3, max 8)");
             graustenChestRowsEntry = Bind(config, Section, "graustenChestRows", 5, 3, 20,
-                "Grausten chest number of rows (more than 4 rows will add a scrollbar).\nOccupied rows are preserved when loading an existing chest.\n(default 5, min 3, max 20)");
+                "Grausten chest number of rows (more than 4 rows will add a scrollbar).\n(default 5, min 3, max 20)");
             wardrobeColumnsEntry = Bind(config, Section, "wardrobeColumns", 5, 3, 8,
-                "Wardrobe number of columns. Occupied columns are preserved when loading an existing wardrobe.\n(default 5, min 3, max 8)");
+                "Wardrobe number of columns.\n(default 5, min 3, max 8)");
             wardrobeRowsEntry = Bind(config, Section, "wardrobeRows", 10, 3, 20,
-                "Wardrobe number of rows (more than 4 rows will add a scrollbar).\nOccupied rows are preserved when loading an existing wardrobe.\n(default 10, min 3, max 20)");
+                "Wardrobe number of rows (more than 4 rows will add a scrollbar).\n(default 10, min 3, max 20)");
             barrelColumnsEntry = Bind(config, Section, "barrelColumns", 6, 3, 8,
-                "Barrel number of columns. Occupied columns are preserved when loading an existing barrel.\n(default 6, min 3, max 8)");
+                "Barrel number of columns.\n(default 6, min 3, max 8)");
             barrelRowsEntry = Bind(config, Section, "barrelRows", 2, 2, 20,
-                "Barrel number of rows (more than 4 rows will add a scrollbar).\nOccupied rows are preserved when loading an existing barrel.\n(default 2, min 2, max 20)");
+                "Barrel number of rows (more than 4 rows will add a scrollbar).\n(default 2, min 2, max 20)");
             cartInventoryColumnsEntry = Bind(config, Section, "cartInventoryColumns", 8, 6, 8,
                 "Cart (Wagon) inventory number of columns\n(default 8, min 6, max 8)");
             cartInventoryRowsEntry = Bind(config, Section, "cartInventoryRows", 3, 3, 30,
@@ -114,9 +114,9 @@ namespace ValheimPlus.Configurations.Sections
             longboatInventoryRowsEntry = Bind(config, Section, "longboatInventoryRows", 3, 3, 30,
                 "Longboat (large boat) inventory number of rows (more than 4 rows will add a scrollbar)\n(default 3, min 3, max 30)");
             drakkarInventoryColumnsEntry = Bind(config, Section, "drakkarInventoryColumns", 8, 6, 8,
-                "Drakkar inventory number of columns. Occupied columns are preserved when loading an existing ship.\n(default 8, min 6, max 8)");
+                "Drakkar inventory number of columns.\n(default 8, min 6, max 8)");
             drakkarInventoryRowsEntry = Bind(config, Section, "drakkarInventoryRows", 4, 3, 30,
-                "Drakkar inventory number of rows (more than 4 rows will add a scrollbar).\nOccupied rows are preserved when loading an existing ship.\n(default 4, min 3, max 30)");
+                "Drakkar inventory number of rows (more than 4 rows will add a scrollbar).\n(default 4, min 3, max 30)");
         }
     }
 }
