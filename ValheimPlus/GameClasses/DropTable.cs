@@ -16,7 +16,7 @@ namespace ValheimPlus.GameClasses
             __state = __instance.m_dropChance; // we have to save the original to change it back after the function
 
             var config = Configuration.Current.Gathering;
-            if (!config.IsEnabled || config.dropChance == 0 || !Mathf.Approximately(__instance.m_dropChance, 1f))
+            if (!config.IsEnabled || config.dropChance == 0 || Mathf.Approximately(__instance.m_dropChance, 1f))
                 return;
             float modified = Helper.applyModifierValue(__instance.m_dropChance, config.dropChance);
             __instance.m_dropChance = Helper.Clamp(modified, 0, 1);
