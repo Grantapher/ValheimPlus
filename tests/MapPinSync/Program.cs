@@ -100,7 +100,7 @@ internal static class Program
         if (!keepDisk && File.Exists(StoreFile)) File.Delete(StoreFile);
         if (!keepDisk && File.Exists(DeletedStoreFile)) File.Delete(DeletedStoreFile);
         Configuration.Current.Map.IsEnabled = true;
-        Configuration.Current.Map.shareAllPins = true;
+        Configuration.Current.Map.syncPins = true;
 
         server = new Node(server: true, ServerPeer, ServerPlayer);
         client = new Node(server: false, ClientPeer, ClientPlayer);
@@ -304,9 +304,9 @@ internal static class Program
     {
         Setup();
         // A pin placed before the setting was on: the server has never heard of it.
-        Configuration.Current.Map.shareAllPins = false;
+        Configuration.Current.Map.syncPins = false;
         client.Map.AddPin(new Vector3(30, 0, 30), Minimap.PinType.Icon1, "legacy", save: true, isChecked: false);
-        Configuration.Current.Map.shareAllPins = true;
+        Configuration.Current.Map.syncPins = true;
 
         client.Enter();
         VPlusMapPinSync.RequestSnapshot();
@@ -359,10 +359,10 @@ internal static class Program
     private static void DisabledConfigSendsNothing()
     {
         Setup();
-        Configuration.Current.Map.shareAllPins = false;
+        Configuration.Current.Map.syncPins = false;
         client.Map.AddPin(new Vector3(10, 0, 10), Minimap.PinType.Icon0, "copper", save: true, isChecked: false);
         Check("nothing is sent when the setting is off", client.Rpc.Calls.Count == 0);
-        Configuration.Current.Map.shareAllPins = true;
+        Configuration.Current.Map.syncPins = true;
     }
 
     private static void HostAuthoredPinReachesClients()

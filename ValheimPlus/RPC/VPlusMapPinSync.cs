@@ -75,7 +75,7 @@ namespace ValheimPlus.RPC
         public static bool ShouldSyncOnSpawn = true;
 
         private static bool Enabled =>
-            Configuration.Current.Map.IsEnabled && Configuration.Current.Map.shareAllPins;
+            Configuration.Current.Map.IsEnabled && Configuration.Current.Map.syncPins;
 
         private static bool IsServer => ZNet.instance != null && ZNet.instance.IsServer();
 

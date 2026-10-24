@@ -143,7 +143,7 @@ namespace ValheimPlus.Configurations
     {
         public static Config Current = new();
         public sealed class Config { public MapConfig Map = new(); }
-        public sealed class MapConfig { public bool IsEnabled = true; public bool shareAllPins = true; }
+        public sealed class MapConfig { public bool IsEnabled = true; public bool syncPins = true; }
     }
 }
 

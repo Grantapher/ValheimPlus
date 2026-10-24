@@ -102,7 +102,7 @@ namespace ValheimPlus.GameClasses
                     VPlusMapSync.ShouldSyncOnSpawn = true;
 
                 //We left the server, so reset our pin sync check.
-                if (Configuration.Current.Map.IsEnabled && Configuration.Current.Map.shareAllPins)
+                if (Configuration.Current.Map.IsEnabled && Configuration.Current.Map.syncPins)
                     VPlusMapPinSync.ShouldSyncOnSpawn = true;
             }
             else

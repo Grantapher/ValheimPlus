@@ -113,12 +113,12 @@ namespace ValheimPlus
 
                 //Map Sync Save Timer
                 var map = Configuration.Current.Map;
-                if (ZNet.m_isServer && map.IsEnabled && (map.shareMapProgression || map.shareAllPins))
+                if (ZNet.m_isServer && map.IsEnabled && (map.shareMapProgression || map.syncPins))
                 {
                     MapSyncSaveTimer.AutoReset = true;
                     if (map.shareMapProgression)
                         MapSyncSaveTimer.Elapsed += (_, _) => VPlusMapSync.SaveMapDataToDisk();
-                    if (map.shareAllPins)
+                    if (map.syncPins)
                         MapSyncSaveTimer.Elapsed += (_, _) => VPlusMapPinSync.SavePinsToDisk();
                 }
 

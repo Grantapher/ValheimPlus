@@ -75,7 +75,7 @@ namespace ValheimPlus.GameClasses
             }
 
             //Start the save timer, which also saves shared map pins
-            if (map.shareMapProgression || map.shareAllPins)
+            if (map.shareMapProgression || map.syncPins)
                 ValheimPlusPlugin.MapSyncSaveTimer.Start();
         }
     }
