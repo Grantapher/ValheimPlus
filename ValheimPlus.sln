@@ -13,8 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		COMPATIBILITY.md = COMPATIBILITY.md
 		INSTALL.md = INSTALL.md
 		TROUBLESHOOTING.md = TROUBLESHOOTING.md
-		valheim_plus.cfg = valheim_plus.cfg
-		vplusconfig.json = vplusconfig.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{6B412C7E-75C4-437E-8ECF-38E5539A3A5A}"

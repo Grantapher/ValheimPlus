@@ -53,7 +53,6 @@ mkdir -p "$OUTPUT_DIR"
 mkdir -p "$TEMP_DIR"
 
 # move simple files
-cp "valheim_plus.cfg" "$OUTPUT_DIR"
 cp "$VALHEIM_PLUS_DLL" "$OUTPUT_DIR"
 if [ $? -ne 0 ]; then
     echo -e "${RED}Couldn't find the ValheimPlus.dll $BEPINEXPACK_VALHEIM_VERSION${NC}" 1>&2
