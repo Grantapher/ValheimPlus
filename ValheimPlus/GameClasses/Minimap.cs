@@ -91,6 +91,7 @@ namespace ValheimPlus.GameClasses
         static int RaftHashcode = "Raft".GetStableHashCode();
         static int KarveHashcode = "Karve".GetStableHashCode();
         static int LongshipHashcode = "VikingShip".GetStableHashCode();
+        static int DrakkarHashcode = "VikingShip_Ashlands".GetStableHashCode();
         static int hammerHashCode = "Hammer".GetStableHashCode();
         static float updateInterval = 5.0f;
 
@@ -123,6 +124,15 @@ namespace ValheimPlus.GameClasses
                 {
                     Piece p = piece.GetComponent<Piece>();
                     icons.Add(p.name.GetStableHashCode(), p.m_icon);
+                }
+
+                // Fall back to the prefab's own piece icon for anything not on the hammer.
+                foreach (int hashCode in new[] { CartHashcode, RaftHashcode, KarveHashcode, LongshipHashcode, DrakkarHashcode })
+                {
+                    if (icons.ContainsKey(hashCode)) continue;
+                    GameObject prefab = ZNetScene.instance ? ZNetScene.instance.GetPrefab(hashCode) : null;
+                    Piece p = prefab ? prefab.GetComponent<Piece>() : null;
+                    if (p && p.m_icon) icons.Add(hashCode, p.m_icon);
                 }
             }
 
@@ -189,6 +199,8 @@ namespace ValheimPlus.GameClasses
                             if (CheckPin(__instance, player, zdo, KarveHashcode, "Karve"))
                                 continue;
                             if (CheckPin(__instance, player, zdo, LongshipHashcode, "Longship"))
+                                continue;
+                            if (CheckPin(__instance, player, zdo, DrakkarHashcode, "Drakkar"))
                                 continue;
                         }
                     }
