@@ -44,6 +44,7 @@ namespace ValheimPlus.Configurations
         public LootDropConfiguration LootDrop { get; set; }
         public MapConfiguration Map { get; set; }
         public MonsterProjectileConfiguration MonsterProjectile { get; set; }
+        public MouldsConfiguration Moulds { get; set; }
         public OvenConfiguration Oven { get; set; }
         public PickableConfiguration Pickable { get; set; }
         public PlayerConfiguration Player { get; set; }
