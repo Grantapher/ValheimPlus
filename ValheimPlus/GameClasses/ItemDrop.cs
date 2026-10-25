@@ -237,4 +237,38 @@ namespace ValheimPlus.GameClasses
             return false;
         }
     }
+
+    /// <summary>
+    /// Shows the scaled trinket cost and surge duration in item tooltips, by swapping them into the shared
+    /// item data while the tooltip is built.
+    /// </summary>
+    [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), typeof(ItemDrop.ItemData),
+        typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool))]
+    public static class ItemDrop_ItemData_GetTooltip_Adrenaline_Patch
+    {
+        [UsedImplicitly]
+        private static void Prefix(ItemDrop.ItemData item, out (float MaxAdrenaline, float SurgeTtl)? __state)
+        {
+            __state = null;
+            var config = Configuration.Current.Adrenaline;
+            var shared = item.m_shared;
+            var surge = shared.m_fullAdrenalineSE;
+            if (!config.IsEnabled || shared.m_maxAdrenaline <= 0f) return;
+
+            __state = (shared.m_maxAdrenaline, surge ? surge.m_ttl : 0f);
+            shared.m_maxAdrenaline = Helper.applyModifierValue(shared.m_maxAdrenaline,
+                Math.Max(config.trinketCostMultiplier, -99f));
+            if (surge && surge.m_ttl > 0f)
+                surge.m_ttl = Helper.applyModifierValue(surge.m_ttl, Math.Max(config.surgeDurationMultiplier, -99f));
+        }
+
+        /// <summary>Always restores the originals, since gameplay reads the same shared values.</summary>
+        [UsedImplicitly]
+        private static void Finalizer(ItemDrop.ItemData item, (float MaxAdrenaline, float SurgeTtl)? __state)
+        {
+            if (!__state.HasValue) return;
+            item.m_shared.m_maxAdrenaline = __state.Value.MaxAdrenaline;
+            if (item.m_shared.m_fullAdrenalineSE) item.m_shared.m_fullAdrenalineSE.m_ttl = __state.Value.SurgeTtl;
+        }
+    }
 }
