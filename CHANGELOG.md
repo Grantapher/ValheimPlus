@@ -8,6 +8,77 @@ compatible; see the [release archive](https://github.com/Grantapher/ValheimPlus/
 for those notes.
 
 
+## 10.4.0.0 - Map Pin Sharing, Adrenaline Settings and Deep North Additions
+
+_Released 2026-10-24_
+
+### Behavior Changes
+
+* Seeds no longer follow `Pickable.flowersAndIngredients`. They have their own `Pickable.seeds` setting, which starts at `0`, so set it if you boosted seeds before.
+
+### Patch Notes
+
+* New `Map.syncPins` setting, which shares map pins through the server. Other players' pins appear faded until you click them, and deleting a pin removes it for everyone.
+* New `Adrenaline` section, covering adrenaline gain and decay, how much adrenaline trinkets need, and how long their effects last.
+* New `LootDrop` settings for the drop chance of Caller, Vanguard and Protector armor moulds.
+* New `Windmill.stopAutoFuelOatThreshold` setting, which stops the windmill pulling oats from nearby chests once they hold enough oat flour.
+* New `Inventory` sizes for the Drakkar, Grausten chest, wardrobe and barrel.
+* New `Gathering` settings for Timberwood, Petrified Tissue, Obsidian, Ice and Soft Tissue.
+* `Pickable` now covers newer pickables, such as Lingonberries, Kale, Poteitr, ore and gemstones, and adds `seeds`, `moltenCores` and `frostCores` settings.
+* Moose added to `Tameable` and `Procreation`.
+* The Drakkar now shows on the map with `Map.displayCartsAndBoats`.
+* Fixes `Gathering.dropChance`, which wasn't doing anything.
+* Fixes auto-deposit duplicating output when only partially outputting to a chest and the ground.
+* Fixes free placement rotation sometimes not working.
+* Fixes some `Procreation` and `Tameable` errors.
+* Version numbers drop the leading `0`. This release is `10.4.0.0`, matching the `10.4.0` shown on Thunderstore and Hexium.
+* Releases no longer include the old `valheim_plus.cfg`. The config file is created the first time you start the game or server.
+
+### Compatibility
+
+* ✅ - `Valheim 1.0.20 (n-41)` + `BepInExPack_Valheim 5.4.2351` + `ValheimPlus 10.4.0.0`
+* ⛔️ - Anything else
+
+### Detailed Patch Notes
+
+* `Map.syncPins`
+    * The server keeps the world's shared pins and saves them, so pins reach players who were never online at the same time and survive restarts.
+    * A pin from another player arrives faded, using the game's own marking for someone else's pin. Left-click it on the large map to adopt it.
+    * Deleting a pin removes it for everyone, including players who were offline at the time.
+    * Shared pin types are the placeable icons, boss, Hildir and memorial pins. Death, spawn and ping markers stay local.
+    * Reading a cartography table no longer deletes shared pins.
+    * The server and every client need this version. Players who turn off the game's shared map data won't see shared pins, but they come back when it is turned on again.
+* `Adrenaline`
+    * `gainMultiplier` scales every adrenaline gain, `decayMultiplier` scales how quickly the bar drains, `trinketCostMultiplier` scales how much adrenaline equipped trinkets need, and `surgeDurationMultiplier` scales how long a trinket's effect lasts.
+    * Item tooltips show the adjusted cost and duration.
+* `LootDrop` armor mould drop chances
+    * `callerMouldDropChanceMultiplier`, `vanguardMouldDropChanceMultiplier` and `protectorMouldDropChanceMultiplier` each cover a set's helmet, chest and leg moulds, and stack with `lootDropChanceMultiplier`.
+* `LootDrop.lootDropChanceMultiplier = -100`
+    * Drops with a chance of 30% or less use the game's pseudo-random counter, which still awarded a drop whose chance had been set to 0. Those drops are now removed instead.
+* `Gathering.dropChance`
+    * A 2024 change inverted its check, so it skipped the chance-based drops it is meant for, such as muddy scrap piles, and could reduce guaranteed drops instead. It works as described again.
+* `Gathering`
+    * New `timberwood`, `petrifiedTissue`, `obsidian`, `ice` and `softTissue` settings.
+    * Each setting's description now names the item as it appears in game.
+* `Pickable`
+    * New items in `edibles`, `materials` and `valuables`, and new `seeds`, `moltenCores` and `frostCores` settings.
+    * Seeds, now in `seeds`, used to follow `flowersAndIngredients`. Entrails moved to `flowersAndIngredients`.
+* `Inventory`
+    * New `drakkarInventory*`, `graustenChest*`, `wardrobe*` and `barrel*` settings. The Drakkar no longer uses the longboat's size.
+* `Windmill.stopAutoFuelOatThreshold`
+    * Stops pulling oats once nearby chests hold this much oat flour. Barley and oat seeds are still pulled.
+* Auto-deposit
+    * When a chest could only fit part of a machine's output, the deposited part was also dropped on the ground. Only the remainder is dropped now.
+* Auto-fuel
+    * Machines now look up nearby chests once per update instead of twice, and work out their stop thresholds once instead of once per chest.
+* Free placement rotation
+    * Stopped working whenever V+ re-applied its patches, such as when joining a server or changing a setting.
+* `Procreation` and `Tameable`
+    * Some objects, such as nameable build pieces and modded creatures, have these components without being a creature. They threw errors when loaded or when selected in the build menu.
+* Version scheme
+    * Versions are now `Major.Minor.Patch.0`. The fourth part only exists for the game's version format and stays `0`.
+
+
 ## 0.10.3.0 - Valheim 1.0.20 Compatibility
 
 _Released 2026-10-15_
