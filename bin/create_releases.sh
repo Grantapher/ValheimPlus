@@ -31,6 +31,52 @@ if ! grep -q "^## $VERSION\b" "CHANGELOG.md"; then
     echo -e "${RED}Thunderstore will show the changelog without this release.${NC}" 1>&2
 fi
 
+# Start the release notes that publish_release.py reads, unless they already exist.
+RELEASE_NOTES="release-notes/$VERSION.md"
+if [ ! -f "$RELEASE_NOTES" ]; then
+    GAME_VERSION=$(grep "TargetGameVersion = new(" ValheimPlus/ValheimPlus.cs | sed -E 's/.*new\(([0-9]+), *([0-9]+), *([0-9]+)\).*/\1.\2.\3/')
+    mkdir -p "release-notes"
+    cat <<EOF > "$RELEASE_NOTES"
+# Other Links
+* [Thunderstore](https://valheim.thunderstore.io/package/Grantapher/ValheimPlus_Grantapher_Temporary/)
+* [Hexium](https://valheim.hexium.gg/mods/Grantapher/ValheimPlus_Grantapher_Temporary)
+* [Nexus](https://www.nexusmods.com/valheim/mods/2323)
+
+# Patch Notes
+* TODO
+
+# Install
+
+See [\`INSTALL.md\`](https://github.com/Grantapher/ValheimPlus/blob/main/INSTALL.md). Will update as needed, so join [the discord](https://discord.gg/WU69A2JTcn) if you have issues. Also open to PRs updating this.
+
+# Troubleshooting
+
+See [\`TROUBLESHOOTING.md\`](https://github.com/Grantapher/ValheimPlus/blob/main/TROUBLESHOOTING.md). Will update as needed, so join [the discord](https://discord.gg/WU69A2JTcn) if you have issues. Also open to PRs updating this.
+
+# Compatibility
+* ✅ - \`Valheim $GAME_VERSION\` + \`BepInExPack_Valheim $BEPINEXPACK_VALHEIM_VERSION\` + \`ValheimPlus $VERSION\`
+* ⛔️ - Anything else
+
+# Detailed Patch Notes
+
+* TODO
+EOF
+    echo -e "${YELLOW}Created $RELEASE_NOTES. Fill in the TODOs (and add a '# Contributors' section if needed) before publishing.${NC}"
+fi
+
+# Build the solution (not the project; the project alone fails its post-build step).
+VSWHERE="/c/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe"
+MSBUILD=$("$VSWHERE" -latest -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | head -n 1 | tr -d '\r')
+if [ -z "$MSBUILD" ]; then
+    echo -e "${RED}Couldn't find MSBuild through vswhere.${NC}" 1>&2
+    exit 1
+fi
+echo "Building ValheimPlus..."
+if ! "$MSBUILD" ValheimPlus.sln -t:Build -p:Configuration=Debug -v:minimal -nologo; then
+    echo -e "${RED}Build failed.${NC}" 1>&2
+    exit 1
+fi
+
 # Catch a stale build before packaging it.
 DLL_VERSION=$(powershell.exe -NoProfile -Command "(Get-Item '$VALHEIM_PLUS_DLL').VersionInfo.ProductVersion" | tr -d '\r')
 if [ "$DLL_VERSION" != "$VERSION" ]; then

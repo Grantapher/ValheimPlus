@@ -407,3 +407,8 @@ out/
 # Other
 .claude
 valheim/
+# Release publishing tokens
+bin/.publish_secrets.json
+
+# Release notes, written per release and not tracked
+/release-notes/
