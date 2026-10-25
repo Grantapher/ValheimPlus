@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -26,30 +27,27 @@ namespace ValheimPlus
             if (!Configuration.Current.FreePlacementRotation.IsEnabled) return instructions;
 
             var il = instructions.ToList();
-            for (int i = 0; i < il.Count; ++i)
+            try
             {
-                if (il[i].Calls(Method_Quaternion_Euler) && il[i + 1].opcode == OpCodes.Stloc_S)
-                {
-                    var local = il[i + 1].operand;
-
-                    // essentially add a new line of code after the quaternion is set:
-                    // quaternion = GetRotation(this, quaternion) 
-                    il.InsertRange(index: i + 2, new CodeInstruction[]
-                    {
-                        new(OpCodes.Ldarg_0), // this
-                        new(OpCodes.Ldloc_S, local), // quaternion
-                        new(OpCodes.Call, Method_GetRotation), // GetRotation(this, quaternion)
-                        new(OpCodes.Stloc_S, local) // assign back to quaternion
-                    });
-                    return il.AsEnumerable();
-                }
+                // Wrap the result before it is stored: quaternion = GetRotation(Quaternion.Euler(...), this).
+                return new CodeMatcher(il)
+                    .MatchEndForward(new CodeMatch(OpCodes.Call, Method_Quaternion_Euler))
+                    .ThrowIfNotMatch("Could not find Quaternion.Euler call")
+                    .Advance(1)
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Ldarg_0), // this
+                        new CodeInstruction(OpCodes.Call, Method_GetRotation))
+                    .InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                PatchLog.Failed(nameof(Player_UpdatePlacementGhost_Transpile), "Free placement rotation will not work.", ex);
             }
 
-            PatchLog.Failed(nameof(Player_UpdatePlacementGhost_Transpile), "Free placement rotation will not work.");
-            return il.AsEnumerable();
+            return il;
         }
 
-        public static Quaternion GetRotation(Player __instance, Quaternion quaternion)
+        public static Quaternion GetRotation(Quaternion quaternion, Player __instance)
         {
             if (ABM.isActive) return quaternion;
 
