@@ -28,7 +28,8 @@ namespace ValheimPlus
         private const string ValheimPlusName = "Valheim Plus";
 
         // Version used when numeric is required (assembly info, System.Version parsing).
-        public const string NumericVersion = "0.10.3.0";
+        // Major.Minor.Patch.0: the fourth part only exists for System.Version and stays 0.
+        public const string NumericVersion = "10.3.0.0";
 
         // Extra version, like alpha/beta/rc/stable. Can leave blank if a stable release.
         // Must start with `-` or be blank.

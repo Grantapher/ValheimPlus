@@ -180,7 +180,7 @@ cp "$VALHEIM_PLUS_DLL" "$THUNDERSTORE_PLUGINS"
 cat <<EOF > "$THUNDERSTORE/manifest.json"
 {
     "name": "ValheimPlus_Grantapher_Temporary",
-    "version_number": "$(echo "$VERSION" | cut -d'.' -f2-)",
+    "version_number": "$(echo "$NUMERIC_VERSION" | cut -d'.' -f1-3)",
     "website_url": "https://discord.gg/WU69A2JTcn",
     "description": "A (not so) temporary Valheim Plus fork. Provides many configurable game tweaks.",
     "dependencies": [
