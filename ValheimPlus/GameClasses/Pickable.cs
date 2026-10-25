@@ -45,21 +45,31 @@ namespace ValheimPlus.GameClasses
                 "MushroomSmokePuff",
                 "Fiddleheadfern",
                 "Vineberry",
-                "Onion"
+                "Onion",
+                "Lingonberry",
+                "Kale",
+                "Poteitr"
             };
 
             var flowersAndIngredients = new List<string>
             {
                 "Barley",
-                "CarrotSeeds",
                 "Dandelion",
                 "Flax",
                 "Thistle",
-                "TurnipSeeds",
                 "Turnip",
-                "OnionSeeds",
                 "RoyalJelly",
-                "VoltureEgg"
+                "VoltureEgg",
+                "Entrails"
+            };
+
+            var seeds = new List<string>
+            {
+                "CarrotSeeds",
+                "TurnipSeeds",
+                "OnionSeeds",
+                "KaleSeeds",
+                "OatSeeds"
             };
 
             var materials = new List<string>
@@ -71,7 +81,14 @@ namespace ValheimPlus.GameClasses
                 "Crystal",
                 "Tar",
                 "WolfHairBundle",
-                "WolfClaw"
+                "WolfClaw",
+                "Frostwood",
+                "Obsidian",
+                "Grausten",
+                "IronOre",
+                "TinOre",
+                "SulfurStone",
+                "Charredskull"
             };
 
             var valuables = new List<string>
@@ -79,7 +96,14 @@ namespace ValheimPlus.GameClasses
                 "Amber",
                 "AmberPearl",
                 "Coins",
-                "Ruby"
+                "Ruby",
+                "AncientGemstoneBlack",
+                "AncientGemstoneGreen",
+                "AncientGemstoneOrange",
+                "AncientGemstonePurple",
+                "GemstoneBlue",
+                "GemstoneGreen",
+                "GemstoneRed"
             };
 
             var surtlingCores = new List<string>
@@ -90,6 +114,16 @@ namespace ValheimPlus.GameClasses
             var blackCores = new List<string>
             {
                 "BlackCore"
+            };
+
+            var moltenCores = new List<string>
+            {
+                "MoltenCore"
+            };
+
+            var frostCores = new List<string>
+            {
+                "FrostCore"
             };
 
             var questItems = new List<string>
@@ -105,6 +139,8 @@ namespace ValheimPlus.GameClasses
                 _yieldModifierDict.Add(item, Configuration.Current.Pickable.edibles);
             foreach (var item in flowersAndIngredients)
                 _yieldModifierDict.Add(item, Configuration.Current.Pickable.flowersAndIngredients);
+            foreach (var item in seeds)
+                _yieldModifierDict.Add(item, Configuration.Current.Pickable.seeds);
             foreach (var item in materials)
                 _yieldModifierDict.Add(item, Configuration.Current.Pickable.materials);
             foreach (var item in valuables)
@@ -113,6 +149,10 @@ namespace ValheimPlus.GameClasses
                 _yieldModifierDict.Add(item, Configuration.Current.Pickable.surtlingCores);
             foreach (var item in blackCores)
                 _yieldModifierDict.Add(item, Configuration.Current.Pickable.blackCores);
+            foreach (var item in moltenCores)
+                _yieldModifierDict.Add(item, Configuration.Current.Pickable.moltenCores);
+            foreach (var item in frostCores)
+                _yieldModifierDict.Add(item, Configuration.Current.Pickable.frostCores);
             foreach (var item in questItems)
                 _yieldModifierDict.Add(item, Configuration.Current.Pickable.questItems);
         }
