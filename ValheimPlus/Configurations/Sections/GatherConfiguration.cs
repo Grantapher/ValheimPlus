@@ -29,6 +29,9 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<float> blackwoodEntry;
         private ConfigEntry<float> flametalOreEntry;
         private ConfigEntry<float> proustitePowderEntry;
+        private ConfigEntry<float> obsidianEntry;
+        private ConfigEntry<float> iceEntry;
+        private ConfigEntry<float> softTissueEntry;
 
         public float wood => woodEntry.Value;
         public float fineWood => fineWoodEntry.Value;
@@ -51,6 +54,9 @@ namespace ValheimPlus.Configurations.Sections
         public float blackwood => blackwoodEntry.Value;
         public float flametalOre => flametalOreEntry.Value;
         public float proustitePowder => proustitePowderEntry.Value;
+        public float obsidian => obsidianEntry.Value;
+        public float ice => iceEntry.Value;
+        public float softTissue => softTissueEntry.Value;
 
         public override void Bind(ConfigFile config)
         {
@@ -98,6 +104,12 @@ namespace ValheimPlus.Configurations.Sections
                 "Modify the amount of Flametal Ore dropped from rocks and ore deposits by a percentage." + ModifierHint);
             proustitePowderEntry = Bind(config, Section, "proustitePowder", 0f,
                 "Modify the amount of Proustite Powder dropped from destroyed objects by a percentage." + ModifierHint);
+            obsidianEntry = Bind(config, Section, "obsidian", 0f,
+                "Modify the amount of Obsidian dropped from rocks and ore deposits by a percentage." + ModifierHint);
+            iceEntry = Bind(config, Section, "ice", 0f,
+                "Modify the amount of Ice dropped from ice formations and frozen objects by a percentage." + ModifierHint);
+            softTissueEntry = Bind(config, Section, "softTissue", 0f,
+                "Modify the amount of Soft Tissue dropped from destroyed objects by a percentage." + ModifierHint);
         }
     }
 }
