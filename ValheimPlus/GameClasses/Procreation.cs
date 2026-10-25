@@ -105,7 +105,7 @@ namespace ValheimPlus.GameClasses
             if (!config.IsEnabled)
                 return;
 
-            if (!ProcreationHelpers.IsValidAnimalType(__instance.m_character.m_name))
+            if (!__instance.m_character || !ProcreationHelpers.IsValidAnimalType(__instance.m_character.m_name))
                 return;
 
             __instance.m_requiredLovePoints = (int)Helper.applyModifierValue(

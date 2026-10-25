@@ -114,15 +114,18 @@ namespace ValheimPlus.GameClasses
         {
             var config = Configuration.Current.Tameable;
             if (!config.IsEnabled) return;
-            if (!TameableHelpers.IsValidAnimalType(__instance.m_character.m_name)) return;
+            // Vanilla allows a Tameable without a Character, such as on placeable pieces.
+            if (!__instance.m_character || !TameableHelpers.IsValidAnimalType(__instance.m_character.m_name)) return;
 
             Helper.applyModifierValueTo(ref __instance.m_tamingTime, config.tameTimeMultiplier);
             Helper.applyModifierValueTo(ref __instance.m_tamingSpeedMultiplierRange, config.tameBoostRangeMultiplier);
             Helper.applyModifierValueTo(ref __instance.m_tamingBoostMultiplier, config.tameBoostMultiplier);
 
-            if (!__instance.m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft, out float timeLeft)) return;
+            // Placement ghosts and other uninitialized copies have no ZDO.
+            var zdo = __instance.m_nview ? __instance.m_nview.GetZDO() : null;
+            if (zdo == null || !zdo.GetFloat(ZDOVars.s_tameTimeLeft, out float timeLeft)) return;
             if (timeLeft > __instance.m_tamingTime)
-                __instance.m_nview.GetZDO().Set(ZDOVars.s_tameTimeLeft, __instance.m_tamingTime);
+                zdo.Set(ZDOVars.s_tameTimeLeft, __instance.m_tamingTime);
         }
     }
 
