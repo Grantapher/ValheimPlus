@@ -362,7 +362,8 @@ def main():
     parser.add_argument("--only", help=f"comma-separated subset of {','.join(TARGETS)}")
     parser.add_argument("--dry-run", action="store_true", help="check and read everything, upload nothing")
     parser.add_argument("--skip-git-check", action="store_true",
-                        help="with --dry-run, skip checking that local HEAD is pushed and the tree is clean")
+                        help="with --dry-run, skip checking that local HEAD is pushed and the tree is clean "
+                             "(only done when publishing to github)")
     args = parser.parse_args()
 
     if args.skip_git_check and not args.dry_run:
@@ -419,7 +420,10 @@ def main():
     log("Checking")
     uploads, failed = {}, []
     try:
-        if args.skip_git_check:
+        # The check protects the GitHub tag, which lands on GitHub's main. Other sites get the local build either way.
+        if "github" not in selected:
+            log("  no git check needed without github")
+        elif args.skip_git_check:
             log("  skipped the git check")
         else:
             check_local_matches_github()
