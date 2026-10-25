@@ -37,7 +37,6 @@ namespace ValheimPlus.GameClasses
             if (Configuration.Current.Player.IsEnabled)
             {
                 __instance.m_autoPickupRange = Configuration.Current.Player.baseAutoPickUpRange;
-                __instance.m_baseCameraShake = Configuration.Current.Player.disableCameraShake ? 0f : 4f;
                 __instance.m_maxCarryWeight = Configuration.Current.Player.baseMaximumWeight;
 
             }
