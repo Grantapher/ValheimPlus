@@ -21,8 +21,7 @@ namespace ValheimPlus.Configurations.Sections
             BindEnabled(config, Section, false, "Change false to true to enable this section. ");
             gainMultiplierEntry = Bind(config, Section, "gainMultiplier", 0f,
                 "Modify how much adrenaline you gain by a percentage. " +
-                "100 doubles it and -100 stops gaining it.\n" +
-                "Penalties for missed attacks and unblocked hits are not affected.");
+                "100 doubles it and -100 stops gaining it.");
             decayMultiplierEntry = Bind(config, Section, "decayMultiplier", 0f,
                 "Modify how quickly adrenaline drains when you stop gaining it by a percentage. " +
                 "100 drains twice as fast and -100 stops it draining.");
