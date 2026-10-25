@@ -38,11 +38,12 @@ THUNDERSTORE_URL = "https://thunderstore.io"
 HEXIUM_URL = "https://hexium.gg"
 
 NEXUS_API = "https://api.nexusmods.com/v3"
-NEXUS_MOD_ID = "2323"
-# Release file -> (Nexus file id, display name). update_mod_version is set on the first one only.
+NEXUS_GAME = "valheim"
+NEXUS_MOD_PAGE_ID = "2323"  # the number in the mod page URL
+# Release file -> Nexus file name. The API ids are looked up by name. update_mod_version is set on the first.
 NEXUS_FILES = [
-    ("UnixClient.zip", "15749645100020", "ValheimPlus (Bundled with BepInEx)"),
-    ("Vortex.zip", "15749645100021", "ValheimPlus (Vortex)"),
+    ("UnixClient.zip", "ValheimPlus (Bundled with BepInEx)"),
+    ("Vortex.zip", "ValheimPlus (Vortex)"),
 ]
 
 TARGETS = ["github", "thunderstore", "hexium", "nexus", "discord"]
@@ -273,18 +274,31 @@ def nexus_upload(ctx, api_key, path):
 
 def check_nexus(ctx):
     api_key = require(ctx["secrets"], "nexus_api_key")
-    files = [(ctx["release_dir"] / name, file_id, display) for name, file_id, display in NEXUS_FILES]
-    for path, file_id, display in files:
+    headers = {"apikey": api_key}
+
+    # The upload API uses its own ids, not the ones in the site's download links, so look them up.
+    mod, _ = http("GET", f"{NEXUS_API}/games/{NEXUS_GAME}/mods/{NEXUS_MOD_PAGE_ID}", headers)
+    mod_id = mod["data"]["id"]
+    listed, _ = http("GET", f"{NEXUS_API}/mods/{mod_id}/files", headers)
+    ids_by_name = {f["name"]: f["id"] for f in listed["data"]["mod_files"] if f["is_active"]}
+    log(f"  mod {NEXUS_MOD_PAGE_ID} has API id {mod_id}")
+
+    files = []
+    for name, display in NEXUS_FILES:
+        path = ctx["release_dir"] / name
         if not path.exists():
             raise PublishError(f"{path} is missing.")
-        log(f"  {path.relative_to(REPO_ROOT)} -> file {file_id} ({display})")
-    log(f"  changelog for mod {NEXUS_MOD_ID}:")
+        if display not in ids_by_name:
+            raise PublishError(f"No active Nexus file named '{display}'. Found: {', '.join(ids_by_name)}")
+        files.append((path, ids_by_name[display], display))
+        log(f"  {path.relative_to(REPO_ROOT)} -> file {ids_by_name[display]} ({display})")
+    log("  changelog:")
     for line in ctx["changelog_lines"]:
         log(f"    {line}")
-    return lambda: upload_nexus(ctx, api_key, files)
+    return lambda: upload_nexus(ctx, api_key, mod_id, files)
 
 
-def upload_nexus(ctx, api_key, files):
+def upload_nexus(ctx, api_key, mod_id, files):
     for index, (path, file_id, display) in enumerate(files):
         upload_id = nexus_upload(ctx, api_key, path)
         http("POST", f"{NEXUS_API}/mod-files/{file_id}/versions", {"apikey": api_key}, {
@@ -298,7 +312,7 @@ def upload_nexus(ctx, api_key, files):
         log(f"  published {path.name}")
 
     if ctx["changelog_lines"]:
-        http("POST", f"{NEXUS_API}/mods/{NEXUS_MOD_ID}/changelogs", {"apikey": api_key},
+        http("POST", f"{NEXUS_API}/mods/{mod_id}/changelogs", {"apikey": api_key},
              {"version": ctx["version"], "changelog": "\n".join(ctx["changelog_lines"])})
         log("  posted changelog")
 
