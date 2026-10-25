@@ -38,11 +38,10 @@ namespace ValheimPlus
                         ? getModifier(config)
                         : 0f;
                 if (groupModifier != 0f)
-                {
                     chance = Helper.applyModifierValue(chance, groupModifier);
-                    // Vanilla's pseudo-drop counter can still award a zero-chance drop, so leave it out.
-                    if (chance <= 0f) continue;
-                }
+
+                // Vanilla's pseudo-drop counter can still award a zero-chance drop, so leave it out.
+                if (chance <= 0f) continue;
 
                 modifiedDrops.Add(new CharacterDrop.Drop
                 {
