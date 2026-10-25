@@ -3,6 +3,19 @@ using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
 {
+    [HarmonyPatch(typeof(GameCamera), nameof(GameCamera.UpdateCameraShake))]
+    public static class GameCamera_UpdateCameraShake_Patch
+    {
+        private static bool Prefix(GameCamera __instance)
+        {
+            if (!Configuration.Current.Player.IsEnabled || !Configuration.Current.Player.disableCameraShake)
+                return true;
+
+            __instance.m_shakeIntensity = 0f;
+            return false;
+        }
+    }
+
     /// <summary>
     /// Advanced Editing Mode Game Camera changes
     /// </summary>
