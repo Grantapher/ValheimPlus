@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using System;
+using JetBrains.Annotations;
 using ValheimPlus.Configurations;
 
 namespace ValheimPlus.GameClasses
@@ -30,6 +31,35 @@ namespace ValheimPlus.GameClasses
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Scales a trinket surge on the player's own copy of the effect, so the shared item data is never changed.
+    /// </summary>
+    [HarmonyPatch(typeof(SEMan), nameof(SEMan.AddStatusEffect), typeof(StatusEffect), typeof(bool), typeof(int),
+        typeof(float), typeof(short))]
+    public static class SEMan_AddStatusEffect_AdrenalineSurge_Patch
+    {
+        [UsedImplicitly]
+        private static void Postfix(SEMan __instance, StatusEffect statusEffect, StatusEffect __result)
+        {
+            var config = Configuration.Current.Adrenaline;
+            if (!config.IsEnabled || config.surgeDurationMultiplier == 0f) return;
+            if (__result == null) return;
+            if (__instance.m_character is not Player player || !IsEquippedSurge(player, statusEffect)) return;
+
+            // A ttl of 0 means the effect never ends, so leave those alone.
+            if (statusEffect.m_ttl <= 0f) return;
+            __result.m_ttl = Helper.applyModifierValue(statusEffect.m_ttl,
+                Math.Max(config.surgeDurationMultiplier, -99f));
+        }
+
+        private static bool IsEquippedSurge(Player player, StatusEffect statusEffect)
+        {
+            foreach (var item in player.GetInventory().GetAllItems())
+                if (item.m_equipped && item.m_shared.m_fullAdrenalineSE == statusEffect) return true;
+            return false;
         }
     }
 }

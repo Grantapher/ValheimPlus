@@ -7,6 +7,7 @@ namespace ValheimPlus.Configurations
         public static Configuration Current { get; set; }
         public AdvancedBuildingModeConfiguration AdvancedBuildingMode { get; set; }
         public AdvancedEditingModeConfiguration AdvancedEditingMode { get; set; }
+        public AdrenalineConfiguration Adrenaline { get; set; }
         public ArmorConfiguration Armor { get; set; }
         public AutoStackConfiguration AutoStack { get; set; }
         public BedConfiguration Bed { get; set; }

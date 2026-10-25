@@ -30,6 +30,7 @@ A HarmonyX Mod aimed at improving the gameplay quality of Valheim. The mod inclu
 - Disable the use of portals.
 - Shorten the portal teleport animation time to the minimum possible.
 - Modify the Guardian buff duration, cooldown and animation.
+- Modify adrenaline gain and decay, how much adrenaline trinkets need, and how long their effects last.
 - Disable tutorials from Valkyrie.
 - Skip the game's intro sequence.
 - Disable the "I have arrived!" message on spawn.
