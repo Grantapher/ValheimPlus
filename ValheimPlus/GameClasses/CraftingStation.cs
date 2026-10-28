@@ -6,32 +6,58 @@ namespace ValheimPlus.GameClasses
 {
     class CraftingStationChanges
     {
+        private static void UpdateSpawnSuppression(CraftingStation station)
+        {
+            var config = Configuration.Current.Workbench;
+            if (!config.IsEnabled || !(config.workbenchRange > 0)) return;
+
+            var collider = station.m_effectAreaCollider;
+            if (!collider) return;
+
+            var area = collider.GetComponent<EffectArea>();
+            if (!area || (area.m_type & EffectArea.Type.PlayerBase) == 0) return;
+
+            float radius = config.workbenchEnemySpawnRange > 0
+                ? config.workbenchEnemySpawnRange
+                : config.workbenchRange;
+            if (collider is SphereCollider sphere && sphere.radius != radius)
+                sphere.radius = radius;
+            else if (collider is CapsuleCollider capsule && capsule.radius != radius)
+                capsule.radius = radius;
+        }
+
         /// <summary>
         /// Alter workbench range
         /// </summary>
         [HarmonyPatch(typeof(CraftingStation), "Start")]
         public static class WorkbenchRangeIncrease
         {
-            private static void Prefix(ref CraftingStation __instance, ref float ___m_rangeBuild, GameObject ___m_areaMarker)
+            private static void Prefix(CraftingStation __instance, ref float ___m_rangeBuild, GameObject ___m_areaMarker)
             {
-                if (Configuration.Current.Workbench.IsEnabled && Configuration.Current.Workbench.workbenchRange > 0) 
-                {
-                    try
-                    {
-                        ___m_rangeBuild = Configuration.Current.Workbench.workbenchRange;
-                        ___m_areaMarker.GetComponent<CircleProjector>().m_radius = ___m_rangeBuild;
-                        float scaleIncrease = (Configuration.Current.Workbench.workbenchRange) / 20f;
-                        ___m_areaMarker.gameObject.transform.localScale = new Vector3(scaleIncrease, 1f, scaleIncrease);
+                var config = Configuration.Current.Workbench;
+                if (!config.IsEnabled || !(config.workbenchRange > 0)) return;
 
-                        // Apply this change to the child GameObject's EffectArea collision.
-                        // Various other systems query this collision instead of the PrivateArea radius for permissions (notably, enemy spawning).
-                        Helper.ResizeChildEffectArea(__instance, EffectArea.Type.PlayerBase, Configuration.Current.Workbench.workbenchEnemySpawnRange > 0 ? Configuration.Current.Workbench.workbenchEnemySpawnRange : Configuration.Current.Workbench.workbenchRange);
-                    }
-                    catch
-                    {
-                        // is not a workbench
-                    }
+                ___m_rangeBuild = config.workbenchRange;
+                UpdateSpawnSuppression(__instance);
+
+                if (___m_areaMarker)
+                {
+                    var projector = ___m_areaMarker.GetComponent<CircleProjector>();
+                    if (projector) projector.m_radius = ___m_rangeBuild;
+                    float scaleIncrease = config.workbenchRange / 20f;
+                    ___m_areaMarker.transform.localScale = new Vector3(scaleIncrease, 1f, scaleIncrease);
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(CraftingStation), "GetExtensions")]
+        public static class WorkbenchSpawnRange
+        {
+            private static void Postfix(CraftingStation __instance)
+            {
+                // Native extension refreshes also resize the PlayerBase collider to the
+                // building range. Keep the independently configured spawn radius intact.
+                UpdateSpawnSuppression(__instance);
             }
         }
 

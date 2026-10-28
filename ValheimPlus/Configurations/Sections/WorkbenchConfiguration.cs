@@ -23,7 +23,7 @@ namespace ValheimPlus.Configurations.Sections
             workbenchRangeEntry = Bind(config, Section, "workbenchRange", 20f,
                 "Set the workbench radius in meters.");
             workbenchEnemySpawnRangeEntry = Bind(config, Section, "workbenchEnemySpawnRange", 0f,
-                "Set the enemy spawn radius around workbenches in meters\nThis value equals workbenchRange if its set to 0.");
+                "Set the enemy spawn prevention radius around workbenches in meters.\nA value of 0 uses the configured workbenchRange.\nStation upgrades still increase the building range, but do not change this spawn prevention radius.");
             workbenchAttachmentRangeEntry = Bind(config, Section, "workbenchAttachmentRange", 5f,
                 "Sets the workbench attachment (e.g. anvil) radius.");
             disableRoofCheckEntry = Bind(config, Section, "disableRoofCheck", false,
