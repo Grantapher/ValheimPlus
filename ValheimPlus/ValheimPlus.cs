@@ -45,7 +45,7 @@ namespace ValheimPlus
         private static readonly GameVersion MinSupportedGameVersion = new(1, 0, 20);
 
         // The game version this version of V+ was compiled against.
-        private static readonly GameVersion TargetGameVersion = new(1, 0, 21);
+        private static readonly GameVersion TargetGameVersion = new(1, 0, 20);
 
         // Versions we know for sure will not work with this game version.
         // Useful if a PTB is active to exclude it from the stable release.
