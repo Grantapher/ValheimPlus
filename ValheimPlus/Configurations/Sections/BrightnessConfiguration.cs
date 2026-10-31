@@ -20,7 +20,7 @@ namespace ValheimPlus.Configurations.Sections
             BindEnabled(config, Section, false,
                 "Change false to true to enable this section.");
             nightBrightnessMultiplierEntry = Bind(config, Section, "nightBrightnessMultiplier", 0f,
-                "Changes how bright it looks at night. A value between 5 and 10 will result in nearly double in brightness at night.");
+                "Changes how bright it looks at night. 5 is about double, 10 about 2.8x, 20 about 4.2x. Negative values darken.");
         }
     }
 }

@@ -187,8 +187,10 @@ namespace ValheimPlus.GameClasses
     public static class EnvMan_SetEnv_Patch
     {
         [UsedImplicitly]
-        private static void Prefix(ref EnvSetup env)
+        private static void Prefix(ref EnvSetup env, out NightColors __state)
         {
+            __state = default;
+
             if (Configuration.Current.Game.IsEnabled && Configuration.Current.Game.disableFog)
             {
                 env.m_fogDensityNight = 0f;
@@ -199,11 +201,37 @@ namespace ValheimPlus.GameClasses
 
             if (Configuration.Current.Brightness.IsEnabled)
             {
-                ApplyEnvModifier(env);
+                __state = ApplyEnvModifier(env);
             }
         }
 
-        private static void ApplyEnvModifier(EnvSetup env)
+        /// <summary>
+        /// Restores the original night colours once SetEnv has applied the scaled ones, so the shared EnvSetup
+        /// and the clones EnvMan makes from it for weather transitions never hold scaled values.
+        /// </summary>
+        [UsedImplicitly]
+        private static void Finalizer(EnvSetup env, NightColors __state)
+        {
+            if (!__state.Saved) return;
+
+            env.m_ambColorNight = __state.Ambient;
+            env.m_fogColorNight = __state.Fog;
+            env.m_fogColorSunNight = __state.FogSun;
+            env.m_sunColorNight = __state.Sun;
+        }
+
+        public struct NightColors
+        {
+            public bool Saved;
+            public Color Ambient, Fog, FogSun, Sun;
+        }
+
+        // The old code scaled by (1 + sqrt(m) * PerCallScale) on every SetEnv call; the fix applies one minute
+        // of that drift once (CallsPerMinute = 60 s at the 50 Hz FixedUpdate), so 5 gives ~x2.05.
+        private const double PerCallScale = 1.069952679E-4;
+        private const double CallsPerMinute = 3000.0;
+
+        private static NightColors ApplyEnvModifier(EnvSetup env)
         {
             /* changing brightness during a period of day had a coupling affect with other period, need further development
             env.m_fogColorMorning = applyBrightnessModifier(env.m_fogColorMorning, Configuration.Current.Brightness.morningBrightnessMultiplier);
@@ -220,30 +248,38 @@ namespace ValheimPlus.GameClasses
             env.m_sunColorEvening = applyBrightnessModifier(env.m_sunColorEvening, Configuration.Current.Brightness.eveningBrightnessMultiplier);
             */
 
-            env.m_ambColorNight = ApplyBrightnessModifier(env.m_ambColorNight,
+            var original = new NightColors
+            {
+                Saved = true,
+                Ambient = env.m_ambColorNight,
+                Fog = env.m_fogColorNight,
+                FogSun = env.m_fogColorSunNight,
+                Sun = env.m_sunColorNight
+            };
+
+            env.m_ambColorNight = ApplyBrightnessModifier(original.Ambient,
                 Configuration.Current.Brightness.nightBrightnessMultiplier);
-            env.m_fogColorNight = ApplyBrightnessModifier(env.m_fogColorNight,
+            env.m_fogColorNight = ApplyBrightnessModifier(original.Fog,
                 Configuration.Current.Brightness.nightBrightnessMultiplier);
-            env.m_fogColorSunNight = ApplyBrightnessModifier(env.m_fogColorSunNight,
+            env.m_fogColorSunNight = ApplyBrightnessModifier(original.FogSun,
                 Configuration.Current.Brightness.nightBrightnessMultiplier);
-            env.m_sunColorNight = ApplyBrightnessModifier(env.m_sunColorNight,
+            env.m_sunColorNight = ApplyBrightnessModifier(original.Sun,
                 Configuration.Current.Brightness.nightBrightnessMultiplier);
+            return original;
         }
 
         private static Color ApplyBrightnessModifier(Color color, float multiplier)
         {
             Color.RGBToHSV(color, out var h, out var s, out var v);
-            float scaleFunc;
-            if (multiplier >= 0)
+            // Applied once to the original colour; negative values darken by the inverse.
+            double perCall = Math.Sqrt(Math.Abs(multiplier)) * PerCallScale;
+            double scaleFunc = Math.Exp(CallsPerMinute * Math.Log(1.0 + perCall));
+            if (multiplier < 0)
             {
-                scaleFunc = (Mathf.Sqrt(multiplier) * 1.069952679E-4f) + 1f;
-            }
-            else
-            {
-                scaleFunc = 1f - (Mathf.Sqrt(Mathf.Abs(multiplier)) * 1.069952679E-4f);
+                scaleFunc = 1.0 / scaleFunc;
             }
 
-            v = Mathf.Clamp01(v * scaleFunc);
+            v = Mathf.Clamp01(v * (float)scaleFunc);
             return Color.HSVToRGB(h, s, v);
         }
     }
