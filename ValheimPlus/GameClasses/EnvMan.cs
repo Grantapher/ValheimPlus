@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -203,6 +204,16 @@ namespace ValheimPlus.GameClasses
             }
         }
 
+        // Original night colours per EnvSetup, captured on first sight. SetEnv runs every FixedUpdate on
+        // shared EnvSetups, so scaling the live values compounded; scaling the originals is idempotent.
+        private static readonly ConditionalWeakTable<EnvSetup, Color[]> OriginalNightColors =
+            new ConditionalWeakTable<EnvSetup, Color[]>();
+
+        // The old code scaled by (1 + sqrt(m) * PerCallScale) on every SetEnv call; the fix applies one minute
+        // of that drift once (CallsPerMinute = 60 s at the 50 Hz FixedUpdate), so 5 gives ~x2.05.
+        private const double PerCallScale = 1.069952679E-4;
+        private const double CallsPerMinute = 3000.0;
+
         private static void ApplyEnvModifier(EnvSetup env)
         {
             /* changing brightness during a period of day had a coupling affect with other period, need further development
@@ -220,30 +231,33 @@ namespace ValheimPlus.GameClasses
             env.m_sunColorEvening = applyBrightnessModifier(env.m_sunColorEvening, Configuration.Current.Brightness.eveningBrightnessMultiplier);
             */
 
-            env.m_ambColorNight = ApplyBrightnessModifier(env.m_ambColorNight,
+            Color[] original = OriginalNightColors.GetValue(env, e => new[]
+            {
+                e.m_ambColorNight, e.m_fogColorNight, e.m_fogColorSunNight, e.m_sunColorNight
+            });
+
+            env.m_ambColorNight = ApplyBrightnessModifier(original[0],
                 Configuration.Current.Brightness.nightBrightnessMultiplier);
-            env.m_fogColorNight = ApplyBrightnessModifier(env.m_fogColorNight,
+            env.m_fogColorNight = ApplyBrightnessModifier(original[1],
                 Configuration.Current.Brightness.nightBrightnessMultiplier);
-            env.m_fogColorSunNight = ApplyBrightnessModifier(env.m_fogColorSunNight,
+            env.m_fogColorSunNight = ApplyBrightnessModifier(original[2],
                 Configuration.Current.Brightness.nightBrightnessMultiplier);
-            env.m_sunColorNight = ApplyBrightnessModifier(env.m_sunColorNight,
+            env.m_sunColorNight = ApplyBrightnessModifier(original[3],
                 Configuration.Current.Brightness.nightBrightnessMultiplier);
         }
 
         private static Color ApplyBrightnessModifier(Color color, float multiplier)
         {
             Color.RGBToHSV(color, out var h, out var s, out var v);
-            float scaleFunc;
-            if (multiplier >= 0)
+            // Applied once to the cached originals; negative values darken by the inverse.
+            double perCall = Math.Sqrt(Math.Abs(multiplier)) * PerCallScale;
+            double scaleFunc = Math.Exp(CallsPerMinute * Math.Log(1.0 + perCall));
+            if (multiplier < 0)
             {
-                scaleFunc = (Mathf.Sqrt(multiplier) * 1.069952679E-4f) + 1f;
-            }
-            else
-            {
-                scaleFunc = 1f - (Mathf.Sqrt(Mathf.Abs(multiplier)) * 1.069952679E-4f);
+                scaleFunc = 1.0 / scaleFunc;
             }
 
-            v = Mathf.Clamp01(v * scaleFunc);
+            v = Mathf.Clamp01(v * (float)scaleFunc);
             return Color.HSVToRGB(h, s, v);
         }
     }
