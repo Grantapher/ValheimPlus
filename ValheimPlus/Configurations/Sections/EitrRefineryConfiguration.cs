@@ -10,6 +10,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<int> maximumSoftTissueEntry;
         private ConfigEntry<float> productionSpeedEntry;
         private ConfigEntry<bool> autoDepositEntry;
+        private ConfigEntry<bool> infiniteFuelEntry;
         private ConfigEntry<bool> autoFuelEntry;
         private ConfigEntry<bool> ignorePrivateAreaCheckEntry;
         private ConfigEntry<float> autoRangeEntry;
@@ -18,6 +19,7 @@ namespace ValheimPlus.Configurations.Sections
         public int maximumSoftTissue => maximumSoftTissueEntry.Value;
         public float productionSpeed => productionSpeedEntry.Value;
         public bool autoDeposit => autoDepositEntry.Value;
+        public bool infiniteFuel => infiniteFuelEntry.Value;
         public bool autoFuel => autoFuelEntry.Value;
         public bool ignorePrivateAreaCheck => ignorePrivateAreaCheckEntry.Value;
         public float autoRange => autoRangeEntry.Value;
@@ -34,6 +36,8 @@ namespace ValheimPlus.Configurations.Sections
                 "The time it takes for the Eitr Refinery to produce a single eitr in seconds.");
             autoDepositEntry = Bind(config, Section, "autoDeposit", true,
                 "Instead of dropping the items, they will be placed inside the nearest nearby chests.");
+            infiniteFuelEntry = Bind(config, Section, "infiniteFuel", false,
+                "If set to true, the Eitr Refinery will stay at max sap level, without consuming any sap.");
             autoFuelEntry = Bind(config, Section, "autoFuel", true,
                 "The Eitr Refinery will pull sap and soft tissue from nearby chests to be automatically added to it when it's empty.");
             ignorePrivateAreaCheckEntry = Bind(config, Section, "ignorePrivateAreaCheck", true,

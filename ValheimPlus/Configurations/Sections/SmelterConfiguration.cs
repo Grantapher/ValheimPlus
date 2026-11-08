@@ -11,6 +11,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<int> coalUsedPerProductEntry;
         private ConfigEntry<float> productionSpeedEntry;
         private ConfigEntry<bool> autoDepositEntry;
+        private ConfigEntry<bool> infiniteFuelEntry;
         private ConfigEntry<bool> autoFuelEntry;
         private ConfigEntry<bool> ignorePrivateAreaCheckEntry;
         private ConfigEntry<float> autoRangeEntry;
@@ -20,6 +21,7 @@ namespace ValheimPlus.Configurations.Sections
         public int coalUsedPerProduct => coalUsedPerProductEntry.Value;
         public float productionSpeed => productionSpeedEntry.Value;
         public bool autoDeposit => autoDepositEntry.Value;
+        public bool infiniteFuel => infiniteFuelEntry.Value;
         public bool autoFuel => autoFuelEntry.Value;
         public bool ignorePrivateAreaCheck => ignorePrivateAreaCheckEntry.Value;
         public float autoRange => autoRangeEntry.Value;
@@ -38,6 +40,8 @@ namespace ValheimPlus.Configurations.Sections
                 "The time it takes for the Smelter to produce a single ingot in seconds.");
             autoDepositEntry = Bind(config, Section, "autoDeposit", false,
                 "Instead of dropping the items, they will be placed inside the nearest nearby chests.");
+            infiniteFuelEntry = Bind(config, Section, "infiniteFuel", false,
+                "If set to true, the Smelter will stay at max coal level, without consuming any coal.");
             autoFuelEntry = Bind(config, Section, "autoFuel", false,
                 "The Smelter will pull coal and raw materials from nearby chests to be automatically added to it when its empty.");
             ignorePrivateAreaCheckEntry = Bind(config, Section, "ignorePrivateAreaCheck", true,

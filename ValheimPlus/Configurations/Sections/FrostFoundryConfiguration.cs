@@ -9,6 +9,7 @@ namespace ValheimPlus.Configurations.Sections
         private ConfigEntry<float> productionSpeedEntry;
         private ConfigEntry<int> maximumFrozenFuelEntry;
         private ConfigEntry<int> frozenFuelUsedPerProductEntry;
+        private ConfigEntry<bool> infiniteFuelEntry;
         private ConfigEntry<bool> autoFuelEntry;
         private ConfigEntry<bool> ignorePrivateAreaCheckEntry;
         private ConfigEntry<float> autoRangeEntry;
@@ -16,6 +17,7 @@ namespace ValheimPlus.Configurations.Sections
         public float productionSpeed => productionSpeedEntry.Value;
         public int maximumFrozenFuel => maximumFrozenFuelEntry.Value;
         public int frozenFuelUsedPerProduct => frozenFuelUsedPerProductEntry.Value;
+        public bool infiniteFuel => infiniteFuelEntry.Value;
         public bool autoFuel => autoFuelEntry.Value;
         public bool ignorePrivateAreaCheck => ignorePrivateAreaCheckEntry.Value;
         public float autoRange => autoRangeEntry.Value;
@@ -30,6 +32,8 @@ namespace ValheimPlus.Configurations.Sections
                 "Maximum amount of Frozen Fuel in a Frost Foundry.");
             frozenFuelUsedPerProductEntry = Bind(config, Section, "frozenFuelUsedPerProduct", 5,
                 "The amount of Frozen Fuel used to finish a single item.\nFuel burns over time, so this sets how long each Frozen Fuel lasts. Minimum is 1.");
+            infiniteFuelEntry = Bind(config, Section, "infiniteFuel", false,
+                "If set to true, the Frost Foundry will stay at max Frozen Fuel level, without consuming any Frozen Fuel.");
             autoFuelEntry = Bind(config, Section, "autoFuel", false,
                 "The Frost Foundry will fuel itself from nearby chests.");
             ignorePrivateAreaCheckEntry = Bind(config, Section, "ignorePrivateAreaCheck", true,
