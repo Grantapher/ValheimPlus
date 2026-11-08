@@ -241,6 +241,8 @@ _These are the `Kiln`, `Smelter` and `Furnace` config sections respectively._
 
 - Option to keep them at maximum fuel without consuming any.
 - Allow fuel to be automatically pulled from closest containers.
+- Allow the Oven to put finished food into the closest containers before it burns.
+- Allow the Oven to pull raw food from the closest containers into its empty slots.
 
 # Creatures and Monsters
 
@@ -470,3 +472,4 @@ Please see [CONTRIBUTING.md](https://github.com/Grantapher/ValheimPlus/blob/main
 - Shawn - https://github.com/shawnwallace
 - Bellian - https://github.com/Bellian
 - JF10R - https://github.com/JF10R 
+- seppp - https://github.com/seppp
