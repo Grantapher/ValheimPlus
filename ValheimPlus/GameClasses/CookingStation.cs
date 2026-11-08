@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using JetBrains.Annotations;
+using UnityEngine;
 using ValheimPlus.Configurations;
 using ValheimPlus.Utility;
 using Object = UnityEngine.Object;
@@ -194,7 +195,7 @@ namespace ValheimPlus.GameClasses
             return false;
         }
 
-        private static float AutoRange(string name)
+        internal static float AutoRange(string name)
         {
             var config = Configuration.Current;
             if (name.Equals(CookingStationDefinitions.OvenName)) return config.Oven.autoRange;
@@ -202,12 +203,286 @@ namespace ValheimPlus.GameClasses
             return 0f;
         }
 
-        private static bool IgnorePrivateAreaCheck(string name)
+        internal static bool IgnorePrivateAreaCheck(string name)
         {
             var config = Configuration.Current;
             if (name.Equals(CookingStationDefinitions.OvenName)) return config.Oven.ignorePrivateAreaCheck;
             if (name.Equals(CookingStationDefinitions.FrostFoundryName)) return config.FrostFoundry.ignorePrivateAreaCheck;
             return false;
+        }
+    }
+
+    /// <summary>
+    /// autoDeposit and autoCook: cooking stations that empty finished food into nearby chests and refill
+    /// themselves with raw food from them. Only the oven has settings for this so far; see AutoDeposit/AutoCook.
+    /// </summary>
+    public static class CookingStationAutomation
+    {
+        private const string UpdateCookingMethodName = nameof(CookingStation.UpdateCooking);
+        private const int SingleItem = 1;
+
+        [HarmonyPatch(typeof(CookingStation), nameof(CookingStation.Awake))]
+        public static class CookingStation_Awake_Transpiler
+        {
+            /// <summary>
+            /// A station that finished cooking while unloaded is emptied on its first update, so hold that update
+            /// until nearby chests have loaded. Otherwise the food would land on the ground.
+            /// </summary>
+            [UsedImplicitly]
+            [HarmonyTranspiler]
+            private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var config = Configuration.Current.Oven;
+                if (!config.IsEnabled || !config.autoDeposit) return instructions;
+
+                return GameObjectAssistant.ReplaceInvokeRepeating(instructions, nameof(CookingStation_Awake_Transpiler),
+                    UpdateCookingMethodName,
+                    AccessTools.Method(typeof(CookingStation_Awake_Transpiler), nameof(InvokeRepeatingWhenChestsLoaded)));
+            }
+
+            private static void InvokeRepeatingWhenChestsLoaded(CookingStation station, string methodName, float delay,
+                float rate)
+            {
+                float chestRange = AutoDeposit(station.m_name)
+                    ? Helper.Clamp(CookingStationFuel.AutoRange(station.m_name), 1, 50)
+                    : 0f;
+                GameObjectAssistant.InvokeRepeatingWhenChestsLoaded(station, methodName, delay, rate, chestRange);
+            }
+        }
+
+        [HarmonyPatch(typeof(CookingStation), nameof(CookingStation.UpdateCooking))]
+        public static class CookingStation_UpdateCooking_Patch
+        {
+            /// <summary>
+            /// After vanilla has advanced cooking, move finished food into nearby chests (autoDeposit),
+            /// then fill free slots with raw food from them (autoCook).
+            /// UpdateCooking already runs once a second, so this needs no throttle of its own, and it stays clear of
+            /// the stopwatch that autoFuel and CraftFromChest use.
+            /// Only the station's owner changes its slots, the same as vanilla, so each oven is handled by one peer.
+            /// </summary>
+            [UsedImplicitly]
+            private static void Postfix(CookingStation __instance)
+            {
+                bool autoDeposit = AutoDeposit(__instance.m_name);
+                bool autoCook = AutoCook(__instance.m_name);
+                if (!autoDeposit && !autoCook) return;
+                if (__instance.m_nview?.IsValid() != true || !__instance.m_nview.IsOwner()) return;
+
+                bool hasDoneItem = autoDeposit && __instance.HaveDoneItem();
+                // Like the smelter, raw food is loaded whenever there's room, lit or not; it can't burn while cold.
+                bool canFillSlot = autoCook && __instance.GetFreeSlot() != -1;
+                if (!hasDoneItem && !canFillSlot) return;
+
+                List<Container> nearbyChests = InventoryAssistant.GetNearbyChestsForMachine(__instance.gameObject,
+                    Helper.Clamp(CookingStationFuel.AutoRange(__instance.m_name), 1, 50),
+                    !CookingStationFuel.IgnorePrivateAreaCheck(__instance.m_name));
+
+                if (hasDoneItem) DepositDoneItems(__instance, nearbyChests);
+                if (canFillSlot) AddCookableItemsFromChests(__instance, nearbyChests);
+            }
+        }
+
+        /// <summary>
+        /// Moves every done or burnt item into the nearest chest with room, or drops it at the station when none has.
+        /// A slot is only cleared once its item is saved in a chest or spawned in the world, so nothing is lost.
+        /// </summary>
+        private static void DepositDoneItems(CookingStation station, List<Container> nearbyChests)
+        {
+            for (int slot = 0; slot < station.m_slots.Length; slot++)
+            {
+                station.GetSlot(slot, out string itemName, out _, out _, out bool slotCheated);
+                // IsItemDone covers both cooked and burnt items, the same check vanilla uses when a player takes them.
+                if (itemName == "" || !station.IsItemDone(itemName)) continue;
+
+                // The same cheat rule the smelter and fermenter auto-deposit use.
+                bool cheated = (slotCheated || station.m_nview.GetZDO().IsCheated()) &&
+                               !PlayerProfile.s_bypassCheatChecks;
+
+                GameObject itemPrefab = ObjectDB.instance.GetItemPrefab(itemName);
+                if (!itemPrefab)
+                {
+                    // Leave the slot alone; vanilla handles unknown items itself.
+                    ValheimPlusPlugin.Logger.LogWarning($"{station.m_name} could not find item prefab '{itemName}'.");
+                    continue;
+                }
+
+                Vector3 effectPosition = station.m_slots[slot].position;
+                if (!DepositInNearbyChest(station, itemPrefab, cheated, nearbyChests))
+                {
+                    DropAtStation(station, itemPrefab, slot, cheated);
+                    effectPosition = DropPosition(station, slot);
+                }
+
+                station.SetSlot(slot, "", 0f, CookingStation.Status.NotDone, false);
+                station.m_nview.InvokeRPC(ZNetView.Everybody, "RPC_SetSlotVisual", slot, "");
+                station.m_pickEffector.Create(effectPosition, Quaternion.identity);
+                ValheimPlusPlugin.Logger.LogDebug($"{station.m_name} auto-deposited {itemName}.");
+            }
+        }
+
+        /// <summary>
+        /// Puts one of itemPrefab into a nearby chest and saves it, preferring chests that already hold it.
+        /// Returns false, having changed nothing, when no chest has room.
+        /// </summary>
+        private static bool DepositInNearbyChest(CookingStation station, GameObject itemPrefab, bool cheated,
+            List<Container> nearbyChests)
+        {
+            if (nearbyChests.Count == 0) return false;
+
+            ZNetView.m_forceDisableInit = true;
+            GameObject itemObject = Object.Instantiate(itemPrefab);
+            ZNetView.m_forceDisableInit = false;
+
+            try
+            {
+                ItemDrop itemDrop = itemObject.GetComponent<ItemDrop>();
+                // Stamp the world level and cheat flag as vanilla's SpawnItem does, so the chest copy matches what
+                // the station would have dropped.
+                ItemDrop.OnCreateNew(itemDrop, cheated);
+                ItemDrop.ItemData item = itemDrop.m_itemData;
+                if (station.m_spawnFullDurability) item.m_durability = item.m_shared.m_maxDurability;
+
+                return AddToChest(item, nearbyChests, mustHaveItem: true) ||
+                       AddToChest(item, nearbyChests, mustHaveItem: false);
+            }
+            finally
+            {
+                Object.Destroy(itemObject);
+            }
+        }
+
+        private static bool AddToChest(ItemDrop.ItemData item, List<Container> chests, bool mustHaveItem)
+        {
+            foreach (Container chest in chests)
+            {
+                // Someone has this chest open; leave it to them rather than race their changes.
+                if (chest.IsInUse()) continue;
+
+                Inventory inventory = chest.GetInventory();
+                if (mustHaveItem && !inventory.HaveItem(item.m_shared.m_name)) continue;
+                if (!inventory.CanAddItem(item) || !inventory.AddItem(item)) continue;
+
+                InventoryAssistant.ConveyContainerToNetwork(chest);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Spawns the item where vanilla drops taken food, for when no nearby chest has room.
+        /// </summary>
+        private static void DropAtStation(CookingStation station, GameObject itemPrefab, int slot, bool cheated)
+        {
+            Vector3 position = DropPosition(station, slot);
+            Vector3 direction = station.m_spawnPoint != null ? station.m_spawnPoint.forward : station.transform.forward;
+            Quaternion rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0, 360), 0f);
+
+            GameObject itemObject = Object.Instantiate(itemPrefab, position, rotation);
+            ItemDrop itemDrop = itemObject.GetComponent<ItemDrop>();
+            ItemDrop.OnCreateNew(itemDrop, cheated);
+            if (station.m_spawnFullDurability && itemDrop)
+                itemDrop.m_itemData.m_durability = itemDrop.m_itemData.m_shared.m_maxDurability;
+
+            Rigidbody body = itemObject.GetComponent<Rigidbody>();
+            if (body) body.linearVelocity = direction * station.m_spawnForce;
+        }
+
+        private static Vector3 DropPosition(CookingStation station, int slot) =>
+            station.m_spawnPoint != null
+                ? station.m_spawnPoint.position
+                : station.m_slots[slot].position + station.transform.forward * 0.5f;
+
+        /// <summary>
+        /// Fills free slots with raw food from nearby chests, through vanilla's RPC_AddItem as if a player added it.
+        /// The item is taken out of the chest (and saved) first, and put back if the station didn't take it.
+        /// </summary>
+        private static void AddCookableItemsFromChests(CookingStation station, List<Container> nearbyChests)
+        {
+            while (station.GetFreeSlot() != -1)
+            {
+                if (!TryTakeCookableItem(station, nearbyChests, out Container chest, out ItemDrop.ItemData item,
+                        out string prefabName))
+                    return;
+
+                int freeSlot = station.GetFreeSlot();
+                // Called directly rather than through InvokeRPC: this peer owns the station, and a direct call fills
+                // the slot now, so a queued call can't find the slot taken and quietly drop the item.
+                station.RPC_AddItem(ZDOMan.GetSessionID(), prefabName, item.m_cheated);
+
+                station.GetSlot(freeSlot, out string addedName, out _, out _, out _);
+                if (addedName != prefabName)
+                {
+                    ReturnToChest(station, chest, item, nearbyChests);
+                    return;
+                }
+
+                ValheimPlusPlugin.Logger.LogDebug($"{station.m_name} auto-cooked {item.m_shared.m_name}.");
+            }
+        }
+
+        /// <summary>
+        /// Removes one item the station can cook from the nearest chest holding one.
+        /// item is a copy of the removed item, with a stack of one.
+        /// </summary>
+        private static bool TryTakeCookableItem(CookingStation station, List<Container> nearbyChests,
+            out Container chest, out ItemDrop.ItemData item, out string prefabName)
+        {
+            // Nearest chest first, taking whatever it holds that the station can cook, like the smelter's autoFuel.
+            foreach (Container candidate in nearbyChests)
+            {
+                if (candidate.IsInUse()) continue;
+
+                foreach (CookingStation.ItemConversion conversion in station.m_conversion)
+                {
+                    string itemName = conversion.m_from.m_itemData.m_shared.m_name;
+                    ItemDrop.ItemData found = candidate.GetInventory().GetItem(itemName);
+                    if (found == null) continue;
+
+                    ItemDrop.ItemData copy = found.Clone();
+                    copy.m_stack = SingleItem;
+                    if (InventoryAssistant.RemoveItemFromChest(candidate, found, SingleItem) != SingleItem) continue;
+
+                    chest = candidate;
+                    item = copy;
+                    prefabName = conversion.m_from.gameObject.name;
+                    return true;
+                }
+            }
+
+            chest = null;
+            item = null;
+            prefabName = null;
+            return false;
+        }
+
+        // Only reached if RPC_AddItem refused an item it was checked to accept; puts it back so it isn't lost.
+        private static void ReturnToChest(CookingStation station, Container chest, ItemDrop.ItemData item,
+            List<Container> nearbyChests)
+        {
+            ValheimPlusPlugin.Logger.LogWarning($"{station.m_name} did not take {item.m_shared.m_name}; returning it.");
+            Inventory inventory = chest.GetInventory();
+            if (inventory.CanAddItem(item) && inventory.AddItem(item))
+            {
+                InventoryAssistant.ConveyContainerToNetwork(chest);
+                return;
+            }
+
+            if (AddToChest(item, nearbyChests, mustHaveItem: false)) return;
+
+            ItemDrop.DropItem(item, SingleItem, DropPosition(station, 0), Quaternion.identity);
+        }
+
+        private static bool AutoDeposit(string name)
+        {
+            var config = Configuration.Current.Oven;
+            return name.Equals(CookingStationDefinitions.OvenName) && config.IsEnabled && config.autoDeposit;
+        }
+
+        private static bool AutoCook(string name)
+        {
+            var config = Configuration.Current.Oven;
+            return name.Equals(CookingStationDefinitions.OvenName) && config.IsEnabled && config.autoCook;
         }
     }
 
