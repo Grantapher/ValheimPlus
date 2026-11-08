@@ -183,6 +183,7 @@ namespace ValheimPlus.GameClasses
         {
             var config = Configuration.Current;
             if (name.Equals(CookingStationDefinitions.OvenName)) return config.Oven.IsEnabled && config.Oven.infiniteFuel;
+            if (name.Equals(CookingStationDefinitions.FrostFoundryName)) return config.FrostFoundry.IsEnabled && config.FrostFoundry.infiniteFuel;
             return false;
         }
 

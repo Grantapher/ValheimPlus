@@ -257,6 +257,11 @@ namespace ValheimPlus.GameClasses
 
             Smelter smelter = __instance;
 
+            // Keep the fuel topped up on every update, before the once-per-second throttle below,
+            // so the smelter never runs dry. Ore auto-fueling still runs as usual after this.
+            if (smelter.m_maxFuel > 0 && InfiniteFuel(smelter.m_name))
+                smelter.SetFuel(smelter.m_maxFuel);
+
             Stopwatch delta = GameObjectAssistant.GetStopwatch(smelter.gameObject);
             if (delta.IsRunning && delta.ElapsedMilliseconds < 1000) return;
             delta.Restart();
@@ -397,6 +402,15 @@ namespace ValheimPlus.GameClasses
                     if (toMaxOre == 0) return;
                 }
             }
+        }
+
+        private static bool InfiniteFuel(string name)
+        {
+            var config = Configuration.Current;
+            if (name.Equals(SmelterDefinitions.SmelterName)) return config.Smelter.IsEnabled && config.Smelter.infiniteFuel;
+            if (name.Equals(SmelterDefinitions.FurnaceName)) return config.Furnace.IsEnabled && config.Furnace.infiniteFuel;
+            if (name.Equals(SmelterDefinitions.EitrRefineryName)) return config.EitrRefinery.IsEnabled && config.EitrRefinery.infiniteFuel;
+            return false;
         }
 
         /// <summary>
