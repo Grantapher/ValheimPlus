@@ -265,6 +265,7 @@ namespace ValheimPlus.GameClasses
             bool ignorePrivateAreaCheck = false;
             bool isKiln = false;
             bool isWindmill = false;
+            bool isFrigidKiln = false;
             if (smelter.m_name.Equals(SmelterDefinitions.KilnName))
             {
                 if (!Configuration.Current.Kiln.IsEnabled || !Configuration.Current.Kiln.autoFuel)
@@ -313,6 +314,7 @@ namespace ValheimPlus.GameClasses
             {
                 if (!Configuration.Current.FrigidKiln.IsEnabled || !Configuration.Current.FrigidKiln.autoFuel)
                     return;
+                isFrigidKiln = true;
                 autoFuelRange = Configuration.Current.FrigidKiln.autoRange;
                 ignorePrivateAreaCheck = Configuration.Current.FrigidKiln.ignorePrivateAreaCheck;
             }
@@ -347,6 +349,10 @@ namespace ValheimPlus.GameClasses
             var nearbyChests =
                 InventoryAssistant.GetNearbyChestsForMachine(smelter.gameObject, autoFuelRange,
                     !ignorePrivateAreaCheck);
+
+            // The Frigid Kiln has no ore: ice is its fuel, so its threshold has to stop the fuel pull.
+            if (needsFuel && isFrigidKiln && FrigidKilnThresholdReached(smelter, nearbyChests))
+                needsFuel = false;
 
             if (needsFuel)
             {
@@ -397,6 +403,22 @@ namespace ValheimPlus.GameClasses
                     if (toMaxOre == 0) return;
                 }
             }
+        }
+
+        /// <summary>
+        /// True when nearby chests already hold FrigidKiln.stopAutoFuelThreshold of what the Frigid Kiln produces.
+        /// </summary>
+        private static bool FrigidKilnThresholdReached(Smelter smelter, List<Container> nearbyChests)
+        {
+            int threshold = Configuration.Current.FrigidKiln.stopAutoFuelThreshold;
+            if (threshold <= 0) return false;
+
+            // The kiln's conversion output (m_to) is the Frozen Fuel it makes.
+            var product = smelter.m_conversion.FirstOrDefault(c => c.m_to != null)?.m_to;
+            if (product == null) return false;
+
+            var chestItems = InventoryAssistant.GetNearbyChestItemsByContainerList(nearbyChests);
+            return InventoryAssistant.GetItemAmountInItemList(chestItems, product.m_itemData) >= threshold;
         }
 
         /// <summary>
