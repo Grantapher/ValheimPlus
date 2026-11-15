@@ -190,6 +190,7 @@ _These are the `Kiln`, `Smelter` and `Furnace` config sections respectively._
 - Modify production speed.
 - Modify the maximum amount of ice / frozen fuel held, and the amount consumed per product.
 - Allow fuel to be automatically pulled from closest containers.
+- Allow the Frigid Kiln to stop pulling ice from closest containers when a specific amount of Frozen Fuel has been reached.
 - Allow items produced by the Frigid Kiln to be automatically placed in the closest containers.
 
 ### Eitr Refinery
